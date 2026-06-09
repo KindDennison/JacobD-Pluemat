@@ -1,629 +1,382 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en-GB">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Group Decision Poll</title>
-
-  <!-- Firebase SDKs (compat v10) -->
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
-
-  <style>
-    /* ── Reset & Base ─────────────────────────────────────── */
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    :root {
-      --blue:      #2563EB;
-      --blue-dk:   #1D4ED8;
-      --blue-lt:   #EFF6FF;
-      --amber:     #F59E0B;
-      --green:     #10B981;
-      --red:       #EF4444;
-      --grey-50:   #F9FAFB;
-      --grey-100:  #F3F4F6;
-      --grey-200:  #E5E7EB;
-      --grey-400:  #9CA3AF;
-      --grey-600:  #4B5563;
-      --grey-800:  #1F2937;
-      --gold:      #F59E0B;
-      --silver:    #9CA3AF;
-      --bronze:    #B45309;
-      --radius:    12px;
-      --shadow:    0 2px 12px rgba(0,0,0,0.10);
-      --shadow-lg: 0 8px 32px rgba(0,0,0,0.14);
-    }
-
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: linear-gradient(135deg, #EFF6FF 0%, #F0FDF4 100%);
-      min-height: 100vh;
-      color: var(--grey-800);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 24px 16px 60px;
-    }
-
-    /* ── Header ───────────────────────────────────────────── */
-    header {
-      width: 100%;
-      max-width: 640px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 28px;
-    }
-    .logo {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-size: 1.25rem;
-      font-weight: 700;
-      color: var(--blue);
-    }
-    .logo svg { width: 32px; height: 32px; }
-    #user-badge {
-      font-size: 0.82rem;
-      background: white;
-      border: 1.5px solid var(--grey-200);
-      border-radius: 20px;
-      padding: 5px 14px;
-      color: var(--grey-600);
-      cursor: pointer;
-      transition: border-color .2s;
-    }
-    #user-badge:hover { border-color: var(--blue); color: var(--blue); }
-    #user-badge.hidden { display: none; }
-
-    /* ── Card ─────────────────────────────────────────────── */
-    .card {
-      background: white;
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: 32px 28px;
-      width: 100%;
-      max-width: 640px;
-    }
-    .card h2 {
-      font-size: 1.35rem;
-      font-weight: 700;
-      margin-bottom: 6px;
-      color: var(--grey-800);
-    }
-    .card .subtitle {
-      font-size: 0.9rem;
-      color: var(--grey-600);
-      margin-bottom: 24px;
-    }
-
-    /* ── Screens ──────────────────────────────────────────── */
-    .screen { display: none; width: 100%; max-width: 640px; }
-    .screen.active { display: block; }
-
-    /* ── Form elements ────────────────────────────────────── */
-    label {
-      display: block;
-      font-size: 0.85rem;
-      font-weight: 600;
-      color: var(--grey-600);
-      margin-bottom: 6px;
-    }
-    input[type="text"], input[type="password"], input[type="number"] {
-      width: 100%;
-      padding: 11px 14px;
-      border: 1.5px solid var(--grey-200);
-      border-radius: 8px;
-      font-size: 0.95rem;
-      outline: none;
-      transition: border-color .2s, box-shadow .2s;
-      color: var(--grey-800);
-      background: var(--grey-50);
-    }
-    input:focus {
-      border-color: var(--blue);
-      box-shadow: 0 0 0 3px rgba(37,99,235,0.12);
-      background: white;
-    }
-
-    /* ── Buttons ──────────────────────────────────────────── */
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 7px;
-      padding: 11px 22px;
-      border-radius: 8px;
-      font-size: 0.95rem;
-      font-weight: 600;
-      cursor: pointer;
-      border: none;
-      transition: transform .12s, box-shadow .12s, background .15s;
-    }
-    .btn:active { transform: scale(0.97); }
-    .btn-primary {
-      background: var(--blue);
-      color: white;
-      box-shadow: 0 2px 8px rgba(37,99,235,0.28);
-    }
-    .btn-primary:hover { background: var(--blue-dk); }
-    .btn-primary:disabled {
-      background: var(--grey-400);
-      box-shadow: none;
-      cursor: not-allowed;
-    }
-    .btn-secondary {
-      background: white;
-      color: var(--blue);
-      border: 1.5px solid var(--blue);
-    }
-    .btn-secondary:hover { background: var(--blue-lt); }
-    .btn-danger {
-      background: white;
-      color: var(--red);
-      border: 1.5px solid var(--red);
-    }
-    .btn-danger:hover { background: #FEF2F2; }
-    .btn-full { width: 100%; }
-    .btn-sm { padding: 7px 14px; font-size: 0.83rem; }
-
-    /* ── Name Screen ──────────────────────────────────────── */
-    #screen-name .card { text-align: center; }
-    #screen-name .card h2 { font-size: 1.7rem; margin-bottom: 8px; }
-    #screen-name .card .tagline {
-      font-size: 1rem;
-      color: var(--grey-600);
-      margin-bottom: 32px;
-    }
-    .name-form { text-align: left; }
-    .name-form .field { margin-bottom: 16px; }
-    .name-actions {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      margin-top: 8px;
-    }
-    .divider {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      color: var(--grey-400);
-      font-size: 0.82rem;
-      margin: 4px 0;
-    }
-    .divider::before, .divider::after {
-      content: '';
-      flex: 1;
-      height: 1px;
-      background: var(--grey-200);
-    }
-
-    /* ── Admin Screen ─────────────────────────────────────── */
-    .admin-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 20px;
-    }
-    .admin-badge {
-      background: var(--amber);
-      color: white;
-      font-size: 0.75rem;
-      font-weight: 700;
-      padding: 3px 10px;
-      border-radius: 20px;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-    .options-list { margin-bottom: 16px; }
-    .option-row {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 8px;
-    }
-    .option-row .opt-num {
-      font-size: 0.8rem;
-      font-weight: 700;
-      color: var(--grey-400);
-      width: 20px;
-      text-align: right;
-      flex-shrink: 0;
-    }
-    .option-row input { flex: 1; }
-    .option-row .btn-remove {
-      background: none;
-      border: none;
-      color: var(--grey-400);
-      cursor: pointer;
-      padding: 4px 6px;
-      border-radius: 6px;
-      font-size: 1.1rem;
-      transition: color .15s, background .15s;
-      line-height: 1;
-    }
-    .option-row .btn-remove:hover { color: var(--red); background: #FEF2F2; }
-    .add-option-row {
-      margin-bottom: 24px;
-    }
-    .admin-actions {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-    .status-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 0.82rem;
-      font-weight: 600;
-      padding: 4px 12px;
-      border-radius: 20px;
-      margin-bottom: 16px;
-    }
-    .status-pill.active { background: #D1FAE5; color: #065F46; }
-    .status-pill.inactive { background: var(--grey-100); color: var(--grey-600); }
-    .status-dot {
-      width: 8px; height: 8px;
-      border-radius: 50%;
-    }
-    .status-pill.active .status-dot { background: var(--green); }
-    .status-pill.inactive .status-dot { background: var(--grey-400); }
-
-    /* ── Voter Info box ───────────────────────────────────── */
-    .voter-info {
-      background: var(--blue-lt);
-      border: 1.5px solid #BFDBFE;
-      border-radius: 10px;
-      padding: 14px 18px;
-      margin-bottom: 22px;
-      font-size: 0.9rem;
-      color: var(--blue);
-    }
-    .voter-info strong { font-weight: 700; }
-
-    /* ── Rank selector ────────────────────────────────────── */
-    .rank-slots {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
-      margin-bottom: 22px;
-    }
-    .rank-slot {
-      background: var(--grey-50);
-      border: 2px dashed var(--grey-200);
-      border-radius: 10px;
-      padding: 12px 8px;
-      text-align: center;
-      min-height: 72px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 4px;
-      transition: border-color .2s, background .2s;
-    }
-    .rank-slot.filled {
-      border-style: solid;
-      background: white;
-    }
-    .rank-slot.rank-1.filled { border-color: var(--gold); }
-    .rank-slot.rank-2.filled { border-color: var(--silver); }
-    .rank-slot.rank-3.filled { border-color: var(--bronze); }
-    .rank-medal {
-      font-size: 1.4rem;
-      line-height: 1;
-    }
-    .rank-pts {
-      font-size: 0.72rem;
-      font-weight: 700;
-      color: var(--grey-400);
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-    }
-    .rank-slot.rank-1 .rank-pts { color: var(--gold); }
-    .rank-slot.rank-2 .rank-pts { color: var(--silver); }
-    .rank-slot.rank-3 .rank-pts { color: var(--bronze); }
-    .rank-label {
-      font-size: 0.8rem;
-      font-weight: 600;
-      color: var(--grey-600);
-    }
-    .rank-slot.filled .rank-label { color: var(--grey-800); }
-    .rank-empty-text {
-      font-size: 0.78rem;
-      color: var(--grey-400);
-    }
-
-    /* ── Option Cards (voting) ────────────────────────────── */
-    .options-grid {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      margin-bottom: 24px;
-    }
-    .opt-card {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 13px 16px;
-      background: white;
-      border: 2px solid var(--grey-200);
-      border-radius: 10px;
-      cursor: pointer;
-      transition: border-color .18s, box-shadow .18s, background .18s;
-      user-select: none;
-    }
-    .opt-card:hover:not(.disabled) {
-      border-color: var(--blue);
-      box-shadow: 0 2px 10px rgba(37,99,235,0.10);
-    }
-    .opt-card.selected-1 { border-color: var(--gold); background: #FFFBEB; }
-    .opt-card.selected-2 { border-color: var(--silver); background: #F9FAFB; }
-    .opt-card.selected-3 { border-color: var(--bronze); background: #FEF3C7; }
-    .opt-card.disabled { cursor: not-allowed; opacity: 0.5; }
-    .opt-rank-badge {
-      width: 30px; height: 30px;
-      border-radius: 50%;
-      font-size: 0.78rem;
-      font-weight: 700;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-      transition: background .18s, color .18s;
-    }
-    .unselected-badge {
-      background: var(--grey-100);
-      color: var(--grey-400);
-    }
-    .badge-1 { background: var(--gold); color: white; }
-    .badge-2 { background: var(--silver); color: white; }
-    .badge-3 { background: var(--bronze); color: white; }
-    .opt-card-text { font-size: 0.95rem; font-weight: 500; flex: 1; }
-
-    /* ── Results ──────────────────────────────────────────── */
-    .results-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 24px; }
-    .result-row {
-      background: white;
-      border-radius: 10px;
-      padding: 14px 16px;
-      border: 1.5px solid var(--grey-200);
-      transition: box-shadow .2s;
-    }
-    .result-row.rank-1 { border-color: var(--gold); box-shadow: 0 2px 10px rgba(245,158,11,0.15); }
-    .result-row.rank-2 { border-color: var(--silver); }
-    .result-row.rank-3 { border-color: var(--bronze); }
-    .result-top {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 8px;
-    }
-    .result-pos {
-      font-size: 1.3rem;
-      width: 32px;
-      text-align: center;
-      flex-shrink: 0;
-    }
-    .result-name { font-weight: 600; font-size: 0.95rem; flex: 1; }
-    .result-pts {
-      font-size: 1.1rem;
-      font-weight: 700;
-      color: var(--blue);
-    }
-    .result-pts span { font-size: 0.75rem; font-weight: 500; color: var(--grey-400); }
-    .result-bar-bg {
-      background: var(--grey-100);
-      border-radius: 6px;
-      height: 8px;
-      overflow: hidden;
-    }
-    .result-bar {
-      height: 8px;
-      border-radius: 6px;
-      background: var(--blue);
-      transition: width 0.6s cubic-bezier(.4,0,.2,1);
-    }
-    .result-row.rank-1 .result-bar { background: var(--gold); }
-    .result-row.rank-2 .result-bar { background: var(--silver); }
-    .result-row.rank-3 .result-bar { background: var(--bronze); }
-
-    /* ── Voter roster ─────────────────────────────────────── */
-    .voter-roster {
-      margin-top: 8px;
-      padding-top: 20px;
-      border-top: 1.5px solid var(--grey-100);
-    }
-    .voter-roster h4 {
-      font-size: 0.85rem;
-      font-weight: 600;
-      color: var(--grey-600);
-      margin-bottom: 10px;
-    }
-    .voter-chips {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-    }
-    .voter-chip {
-      background: var(--green);
-      color: white;
-      border-radius: 20px;
-      padding: 3px 12px;
-      font-size: 0.8rem;
-      font-weight: 500;
-    }
-
-    /* ── Waiting screen ───────────────────────────────────── */
-    .waiting-icon {
-      font-size: 3.5rem;
-      text-align: center;
-      margin-bottom: 16px;
-    }
-
-    /* ── Toast ────────────────────────────────────────────── */
-    #toast {
-      position: fixed;
-      bottom: 28px;
-      left: 50%;
-      transform: translateX(-50%) translateY(80px);
-      background: var(--grey-800);
-      color: white;
-      padding: 12px 22px;
-      border-radius: 8px;
-      font-size: 0.9rem;
-      font-weight: 500;
-      box-shadow: var(--shadow-lg);
-      z-index: 999;
-      transition: transform .3s cubic-bezier(.4,0,.2,1);
-      white-space: nowrap;
-    }
-    #toast.show { transform: translateX(-50%) translateY(0); }
-    #toast.success { background: var(--green); }
-    #toast.error { background: var(--red); }
-
-    /* ── Modal (admin pin) ────────────────────────────────── */
-    .modal-overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.4);
-      z-index: 100;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-    }
-    .modal-overlay.open { display: flex; }
-    .modal {
-      background: white;
-      border-radius: var(--radius);
-      padding: 28px 24px;
-      width: 100%;
-      max-width: 360px;
-      box-shadow: var(--shadow-lg);
-    }
-    .modal h3 { font-size: 1.15rem; margin-bottom: 8px; }
-    .modal p { font-size: 0.88rem; color: var(--grey-600); margin-bottom: 18px; }
-    .modal-actions { display: flex; gap: 10px; margin-top: 16px; }
-    .modal-actions .btn { flex: 1; }
-
-    /* ── Misc ─────────────────────────────────────────────── */
-    .mt8 { margin-top: 8px; }
-    .mt16 { margin-top: 16px; }
-    .mt24 { margin-top: 24px; }
-    .gap8 { gap: 8px; }
-    .flex { display: flex; }
-    .flex-col { flex-direction: column; }
-    .voted-banner {
-      background: #D1FAE5;
-      border: 1.5px solid #6EE7B7;
-      color: #065F46;
-      border-radius: 10px;
-      padding: 14px 18px;
-      font-size: 0.9rem;
-      font-weight: 500;
-      margin-bottom: 20px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    .section-title {
-      font-size: 0.78rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      color: var(--grey-400);
-      margin-bottom: 12px;
-    }
-
-    @media (max-width: 480px) {
-      .card { padding: 22px 16px; }
-      .admin-actions { flex-direction: column; }
-      .rank-slots { gap: 6px; }
-    }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Poll App</title>
+<style>
+  :root { --bg:#0f1115; --card:#1a1d24; --line:#2a2f3a; --txt:#e6e8ee; --muted:#9aa3b2; --accent:#4f8cff; --good:#3ecf8e; --warn:#ff6b6b; }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:system-ui,Segoe UI,Roboto,Arial,sans-serif; background:var(--bg); color:var(--txt); }
+  header { display:flex; justify-content:space-between; align-items:center; padding:14px 20px; border-bottom:1px solid var(--line); }
+  header h1 { font-size:18px; margin:0; }
+  .tabs button { background:none; border:1px solid var(--line); color:var(--muted); padding:8px 14px; border-radius:8px; cursor:pointer; margin-left:8px; }
+  .tabs button.active { color:#fff; border-color:var(--accent); background:rgba(79,140,255,.12); }
+  main { max-width:860px; margin:0 auto; padding:24px 20px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:18px; margin-bottom:18px; }
+  h2 { font-size:16px; margin:0 0 14px; }
+  label { display:block; font-size:13px; color:var(--muted); margin:10px 0 4px; }
+  input, select { width:100%; padding:10px 12px; background:#11141a; border:1px solid var(--line); border-radius:8px; color:var(--txt); font-size:14px; }
+  button.primary { background:var(--accent); border:none; color:#fff; padding:10px 16px; border-radius:8px; cursor:pointer; font-size:14px; }
+  button.ghost { background:none; border:1px solid var(--line); color:var(--muted); padding:6px 10px; border-radius:6px; cursor:pointer; font-size:13px; }
+  button.danger { color:var(--warn); border-color:var(--warn); }
+  .row { display:flex; gap:8px; align-items:center; margin-bottom:8px; }
+  .row input { flex:1; }
+  .hint { font-size:12px; color:var(--muted); }
+  .bar-wrap { margin:8px 0; }
+  .bar-label { display:flex; justify-content:space-between; font-size:13px; margin-bottom:4px; }
+  .bar { height:10px; background:#11141a; border-radius:6px; overflow:hidden; }
+  .bar > div { height:100%; background:linear-gradient(90deg,var(--accent),var(--good)); transition:width .4s; }
+  .pollitem { display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid var(--line); }
+  .pollitem:last-child { border-bottom:none; }
+  .badge { font-size:11px; padding:2px 8px; border-radius:20px; }
+  .badge.active { background:rgba(62,207,142,.15); color:var(--good); }
+  .badge.archived { background:rgba(154,163,178,.15); color:var(--muted); }
+  .hidden { display:none; }
+  .resprow { display:flex; justify-content:space-between; font-size:13px; padding:6px 0; border-bottom:1px solid var(--line); }
+</style>
 </head>
 <body>
-
-  <!-- ── Header ─────────────────────────────────────────── -->
-  <header>
-    <div class="logo">
-      <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect width="32" height="32" rx="8" fill="#2563EB"/>
-        <rect x="7" y="20" width="4" height="7" rx="2" fill="white"/>
-        <rect x="14" y="14" width="4" height="13" rx="2" fill="white" opacity="0.8"/>
-        <rect x="21" y="8" width="4" height="19" rx="2" fill="white" opacity="0.6"/>
-        <circle cx="9" cy="18" r="2.5" fill="#F59E0B"/>
-        <circle cx="16" cy="12" r="2.5" fill="#F59E0B"/>
-        <circle cx="23" cy="6" r="2.5" fill="#F59E0B"/>
-      </svg>
-      GroupPoll
-    </div>
-    <div id="user-badge" class="hidden" onclick="handleLogout()">👤 <span id="user-badge-name"></span> &nbsp;·&nbsp; Change</div>
-  </header>
-
-  <!-- ═══════════════ SCREEN: NAME ENTRY ═══════════════════ -->
-  <div id="screen-name" class="screen active">
-    <div class="card">
-      <div style="text-align:center; font-size:2.8rem; margin-bottom:12px;">🗳️</div>
-      <h2 style="text-align:center; font-size:1.6rem;">Welcome to GroupPoll</h2>
-      <p class="tagline" style="text-align:center; margin-bottom:28px;">Rank your top 3 choices to help the group decide.</p>
-
-      <div class="name-form">
-        <div class="field">
-          <label for="input-name">Your name</label>
-          <input type="text" id="input-name" placeholder="e.g. Jacob Smith" autocomplete="off" />
-        </div>
-        <div class="name-actions">
-          <button class="btn btn-primary btn-full" onclick="handleNameSubmit()">
-            Join &amp; Vote →
-          </button>
-          <div class="divider">or</div>
-          <button class="btn btn-secondary btn-full" onclick="openAdminModal()">
-            🔧 Admin Login
-          </button>
-        </div>
-      </div>
-    </div>
+<header>
+  <h1>Poll App</h1>
+  <div class="tabs">
+    <button id="tabUser" class="active">Vote</button>
+    <button id="tabAdmin">Admin</button>
   </div>
+</header>
 
-  <!-- ═══════════════ SCREEN: ADMIN ════════════════════════ -->
-  <div id="screen-admin" class="screen">
+<main>
+  <!-- ===================== USER VIEW ===================== -->
+  <section id="userView">
     <div class="card">
-      <div class="admin-header">
-        <h2 style="margin-bottom:0">Poll Manager</h2>
-        <span class="admin-badge">Admin</span>
-      </div>
-      <p class="subtitle">Create or update the active poll. Changes are live immediately.</p>
+      <h2>Cast your vote</h2>
+      <label>Active poll</label>
+      <select id="activePollSelect"></select>
 
-      <div id="admin-poll-status"></div>
+      <div id="voteForm" class="hidden">
+        <label>Your name</label>
+        <select id="voterSelect"></select>
 
-      <div class="field" style="margin-bottom:16px;">
-        <label for="admin-title">Poll title / question</label>
-        <input type="text" id="admin-title" placeholder="e.g. Where should we go for the team lunch?" />
-      </div>
+        <label>1st choice (3 pts)</label>
+        <select id="pick1" class="pick"></select>
+        <label>2nd choice (2 pts)</label>
+        <select id="pick2" class="pick"></select>
+        <label>3rd choice (1 pt)</label>
+        <select id="pick3" class="pick"></select>
 
-      <div class="section-title">Options (min 3, max 10)</div>
-      <div class="options-list" id="admin-options-list">
-        <!-- rows injected by JS -->
+        <p class="hint" id="voteHint"></p>
+        <button class="primary" id="submitVote">Submit vote</button>
       </div>
-      <div class="add-option-row">
-        <button class="btn btn-secondary btn-sm" id="btn-add-option" onclick="addOptionRow()">+ Add Option</button>
-      </div>
-
-      <div class="admin-actions">
-        <button class="btn btn-primary" onclick="publishPoll()" id="btn-publish">🚀 Publish Poll</button>
-        <button class="btn btn-danger" onclick="resetPoll()" id="btn-reset">🗑 Reset &amp; Clear</button>
-        <button class="btn btn-secondary" onclick="goToResults()">📊 View Results</button>
-      </div>
-
-      <div id="admin-voter-list" style="margin-top:20px;"></div>
     </div>
-  </div>
 
-  <!-- ═══════════════ SCREEN: VOTE ═════════════════════════ -->
-  <div id="screen-vote" class="screen">
-    <div class="card">
-      <h2 id="vote-poll-title">Loading poll...</h2>
-      <p class="subtitle" id="vote
+    <div class="card" id="resultsCard">
+      <h2>Running totals</h2>
+      <div id="results"><p class="hint">Select a poll to see results.</p></div>
+    </div>
+  </section>
+
+  <!-- ===================== ADMIN VIEW ===================== -->
+  <section id="adminView" class="hidden">
+    <!-- Login gate -->
+    <div class="card" id="adminLogin">
+      <h2>Admin login</h2>
+      <label>Password</label>
+      <input type="password" id="adminPass" />
+      <p class="hint">Note: this is a simple client-side gate. For real security, protect writes with Firestore Security Rules / Firebase Auth.</p>
+      <br><button class="primary" id="adminLoginBtn">Log in</button>
+    </div>
+
+    <div id="adminPanel" class="hidden">
+      <!-- Create poll -->
+      <div class="card">
+        <h2>Create a new poll</h2>
+        <label>Title</label>
+        <input id="newTitle" placeholder="e.g. Which design is best?" />
+        <label>Options (up to 10)</label>
+        <div id="optionRows"></div>
+        <button class="ghost" id="addOptionBtn">+ Add option</button>
+        <br><br>
+        <button class="primary" id="createPollBtn">Create poll</button>
+      </div>
+
+      <!-- Manage voters -->
+      <div class="card">
+        <h2>Voter list</h2>
+        <p class="hint">Names available in the voter dropdown.</p>
+        <div id="voterRows"></div>
+        <div class="row">
+          <input id="newVoter" placeholder="Add a name" />
+          <button class="primary" id="addVoterBtn">Add</button>
+        </div>
+      </div>
+
+      <!-- Manage polls -->
+      <div class="card">
+        <h2>Manage polls</h2>
+        <div id="pollList"></div>
+      </div>
+
+      <!-- Manage responses -->
+      <div class="card">
+        <h2>Responses</h2>
+        <label>Choose poll</label>
+        <select id="adminPollSelect"></select>
+        <div id="responseList"></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+import {
+  getFirestore, collection, doc, addDoc, setDoc, getDoc, deleteDoc,
+  updateDoc, onSnapshot, query, where, orderBy, serverTimestamp, runTransaction
+} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+// ====== 1. PASTE YOUR FIREBASE CONFIG HERE ======
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT.firebaseapp.com",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_PROJECT.appspot.com",
+  messagingSenderId: "XXXX",
+  appId: "XXXX"
+};
+const ADMIN_PASSWORD = "changeme"; // simple gate, see note in UI
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const POINTS = { pick1: 3, pick2: 2, pick3: 1 };
+
+// ---------- tab switching ----------
+const tabUser = document.getElementById("tabUser");
+const tabAdmin = document.getElementById("tabAdmin");
+tabUser.onclick = () => { setTab("user"); };
+tabAdmin.onclick = () => { setTab("admin"); };
+function setTab(t) {
+  tabUser.classList.toggle("active", t==="user");
+  tabAdmin.classList.toggle("active", t==="admin");
+  document.getElementById("userView").classList.toggle("hidden", t!=="user");
+  document.getElementById("adminView").classList.toggle("hidden", t!=="admin");
+}
+
+// ============================================================
+//  USER VIEW
+// ============================================================
+const activePollSelect = document.getElementById("activePollSelect");
+const voterSelect = document.getElementById("voterSelect");
+const voteForm = document.getElementById("voteForm");
+let activePolls = [];
+
+// Live list of active polls
+onSnapshot(query(collection(db,"Polls"), where("status","==","active")), snap => {
+  activePolls = snap.docs.map(d => ({ id:d.id, ...d.data() }));
+  activePollSelect.innerHTML = '<option value="">-- choose a poll --</option>' +
+    activePolls.map(p => `<option value="${p.id}">${esc(p.title)}</option>`).join("");
+});
+
+// Live voter list
+onSnapshot(doc(db,"Config","voters"), snap => {
+  const names = snap.exists() ? (snap.data().names || []) : [];
+  voterSelect.innerHTML = '<option value="">-- select your name --</option>' +
+    names.map(n => `<option value="${esc(n)}">${esc(n)}</option>`).join("");
+});
+
+let currentPoll = null;
+let resultsUnsub = null;
+activePollSelect.onchange = () => {
+  const id = activePollSelect.value;
+  currentPoll = activePolls.find(p => p.id === id) || null;
+  voteForm.classList.toggle("hidden", !currentPoll);
+  if (resultsUnsub) resultsUnsub();
+  if (!currentPoll) { document.getElementById("results").innerHTML = '<p class="hint">Select a poll to see results.</p>'; return; }
+  populatePicks(currentPoll.options);
+  listenResults(id);
+};
+
+function populatePicks(options) {
+  const opts = '<option value="">--</option>' +
+    options.map(o => `<option value="${o.id}">${esc(o.label)}</option>`).join("");
+  document.querySelectorAll(".pick").forEach(s => s.innerHTML = opts);
+}
+
+function listenResults(pollId) {
+  resultsUnsub = onSnapshot(doc(db,"Polls",pollId), snap => {
+    if (!snap.exists()) return;
+    const opts = [...snap.data().options].sort((a,b)=>b.points-a.points);
+    const max = Math.max(1, ...opts.map(o=>o.points));
+    document.getElementById("results").innerHTML = opts.map(o => `
+      <div class="bar-wrap">
+        <div class="bar-label"><span>${esc(o.label)}</span><span>${o.points} pts</span></div>
+        <div class="bar"><div style="width:${(o.points/max*100)}%"></div></div>
+      </div>`).join("");
+  });
+}
+
+document.getElementById("submitVote").onclick = async () => {
+  const hint = document.getElementById("voteHint");
+  hint.style.color = "var(--warn)";
+  if (!currentPoll) return;
+  const voter = voterSelect.value;
+  const p1 = document.getElementById("pick1").value;
+  const p2 = document.getElementById("pick2").value;
+  const p3 = document.getElementById("pick3").value;
+
+  if (!voter) return hint.textContent = "Please select your name.";
+  if (!p1 || !p2 || !p3) return hint.textContent = "Please make all three choices.";
+  if (new Set([p1,p2,p3]).size !== 3) return hint.textContent = "Your three choices must be different.";
+
+  const voteRef = doc(db,"Polls",currentPoll.id,"responses",voter);
+  try {
+    await runTransaction(db, async tx => {
+      const existing = await tx.get(voteRef);
+      if (existing.exists()) throw new Error("ALREADY_VOTED");
+      const pollSnap = await tx.get(doc(db,"Polls",currentPoll.id));
+      const opts = pollSnap.data().options;
+      const delta = { [p1]:3, [p2]:2, [p3]:1 };
+      const updated = opts.map(o => ({ ...o, points: o.points + (delta[o.id]||0) }));
+      tx.update(doc(db,"Polls",currentPoll.id), { options: updated });
+      tx.set(voteRef, { voterName:voter, first:p1, second:p2, third:p3, submittedAt:serverTimestamp() });
+    });
+    hint.style.color = "var(--good)";
+    hint.textContent = "Vote submitted. Thank you!";
+    voteForm.classList.add("hidden");
+  } catch(e) {
+    hint.textContent = e.message === "ALREADY_VOTED"
+      ? "You have already voted in this poll. Ask an admin to remove your entry if you need to change it."
+      : "Something went wrong: " + e.message;
+  }
+};
+
+// ============================================================
+//  ADMIN VIEW
+// ============================================================
+document.getElementById("adminLoginBtn").onclick = () => {
+  if (document.getElementById("adminPass").value === ADMIN_PASSWORD) {
+    document.getElementById("adminLogin").classList.add("hidden");
+    document.getElementById("adminPanel").classList.remove("hidden");
+    initAdmin();
+  } else alert("Wrong password");
+};
+
+// --- create poll: option rows ---
+const optionRows = document.getElementById("optionRows");
+function addOptionRow(val="") {
+  if (optionRows.children.length >= 10) { alert("Maximum 10 options"); return; }
+  const div = document.createElement("div");
+  div.className = "row";
+  div.innerHTML = `<input class="opt-input" placeholder="Option ${optionRows.children.length+1}" value="${esc(val)}">
+                   <button class="ghost rm">✕</button>`;
+  div.querySelector(".rm").onclick = () => div.remove();
+  optionRows.appendChild(div);
+}
+document.getElementById("addOptionBtn").onclick = () => addOptionRow();
+
+document.getElementById("createPollBtn").onclick = async () => {
+  const title = document.getElementById("newTitle").value.trim();
+  const labels = [...document.querySelectorAll(".opt-input")].map(i=>i.value.trim()).filter(Boolean);
+  if (!title) return alert("Enter a title");
+  if (labels.length < 2) return alert("Enter at least two options");
+  const options = labels.map((label,i)=>({ id:"opt"+(i+1), label, points:0 }));
+  await addDoc(collection(db,"Polls"), { title, status:"active", options, createdAt:serverTimestamp() });
+  document.getElementById("newTitle").value = "";
+  optionRows.innerHTML = "";
+  addOptionRow(); addOptionRow();
+  alert("Poll created");
+};
+
+// --- voter list management ---
+const votersRef = doc(db,"Config","voters");
+let voterNames = [];
+function initAdmin() {
+  // option rows default
+  if (optionRows.children.length === 0) { addOptionRow(); addOptionRow(); }
+
+  // voters
+  onSnapshot(votersRef, snap => {
+    voterNames = snap.exists() ? (snap.data().names||[]) : [];
+    document.getElementById("voterRows").innerHTML = voterNames.map((n,i)=>
+      `<div class="resprow"><span>${esc(n)}</span><button class="ghost danger" data-i="${i}">Remove</button></div>`).join("")
+      || '<p class="hint">No voters yet.</p>';
+    document.querySelectorAll("#voterRows .danger").forEach(b => b.onclick = async () => {
+      const arr = voterNames.filter((_,idx)=>idx!=b.dataset.i);
+      await setDoc(votersRef,{names:arr});
+    });
+  });
+
+  // poll management list
+  onSnapshot(query(collection(db,"Polls"), orderBy("createdAt","desc")), snap => {
+    const polls = snap.docs.map(d=>({id:d.id,...d.data()}));
+    document.getElementById("pollList").innerHTML = polls.map(p=>`
+      <div class="pollitem">
+        <span>${esc(p.title)} <span class="badge ${p.status}">${p.status}</span></span>
+        <span>
+          <button class="ghost" data-act="toggle" data-id="${p.id}" data-status="${p.status}">
+            ${p.status==="active"?"Archive":"Activate"}</button>
+          <button class="ghost danger" data-act="del" data-id="${p.id}">Delete</button>
+        </span>
+      </div>`).join("") || '<p class="hint">No polls.</p>';
+
+    // admin response poll selector
+    document.getElementById("adminPollSelect").innerHTML =
+      '<option value="">-- choose --</option>' +
+      polls.map(p=>`<option value="${p.id}">${esc(p.title)}</option>`).join("");
+
+    document.querySelectorAll('#pollList [data-act="toggle"]').forEach(b => b.onclick = async () => {
+      await updateDoc(doc(db,"Polls",b.dataset.id), { status: b.dataset.status==="active"?"archived":"active" });
+    });
+    document.querySelectorAll('#pollList [data-act="del"]').forEach(b => b.onclick = async () => {
+      if (confirm("Delete this poll permanently?")) await deleteDoc(doc(db,"Polls",b.dataset.id));
+    });
+  });
+}
+
+document.getElementById("addVoterBtn").onclick = async () => {
+  const name = document.getElementById("newVoter").value.trim();
+  if (!name) return;
+  if (voterNames.includes(name)) return alert("Name already exists");
+  await setDoc(votersRef, { names:[...voterNames, name] });
+  document.getElementById("newVoter").value = "";
+};
+
+// --- responses management (delete entries) ---
+let respUnsub = null;
+document.getElementById("adminPollSelect").onchange = () => {
+  const pid = document.getElementById("adminPollSelect").value;
+  if (respUnsub) respUnsub();
+  const box = document.getElementById("responseList");
+  if (!pid) { box.innerHTML = '<p class="hint">Choose a poll.</p>'; return; }
+  respUnsub = onSnapshot(collection(db,"Polls",pid,"responses"), snap => {
+    const rows = snap.docs.map(d=>({id:d.id,...d.data()}));
+    box.innerHTML = rows.map(r=>`
+      <div class="resprow">
+        <span>${esc(r.voterName)} — 1st:${esc(r.first)} 2nd:${esc(r.second)} 3rd:${esc(r.third)}</span>
+        <button class="ghost danger" data-id="${r.id}">Delete</button>
+      </div>`).join("") || '<p class="hint">No responses yet.</p>';
+    box.querySelectorAll(".danger").forEach(b => b.onclick = () => deleteResponse(pid, b.dataset.id));
+  });
+};
+
+// Deleting a response must REVERSE that person's points
+async function deleteResponse(pollId, respId) {
+  if (!confirm("Delete this entry and remove their points?")) return;
+  const respRef = doc(db,"Polls",pollId,"responses",respId);
+  const pollRef = doc(db,"Polls",pollId);
+  await runTransaction(db, async tx => {
+    const r = await tx.get(respRef);
+    if (!r.exists()) return;
+    const d = r.data();
+    const pollSnap = await tx.get(pollRef);
+    const delta = { [d.first]:-3, [d.second]:-2, [d.third]:-1 };
+    const updated = pollSnap.data().options.map(o=>({ ...o, points:o.points+(delta[o.id]||0) }));
+    tx.update(pollRef, { options:updated });
+    tx.delete(respRef);
+  });
+}
+
+// utility
+function esc(s){ return String(s??"").replace(/[&<>"']/g, c=>({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c])); }
+</script>
+</body>
+</html>
