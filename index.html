@@ -20,20 +20,24 @@
   button.primary { background:var(--accent); border:none; color:#fff; padding:10px 16px; border-radius:8px; cursor:pointer; font-size:14px; }
   button.ghost { background:none; border:1px solid var(--line); color:var(--muted); padding:6px 10px; border-radius:6px; cursor:pointer; font-size:13px; }
   button.danger { color:var(--warn); border-color:var(--warn); }
+  button:disabled { opacity:.55; cursor:not-allowed; }
   .row { display:flex; gap:8px; align-items:center; margin-bottom:8px; }
   .row input { flex:1; }
   .hint { font-size:12px; color:var(--muted); }
+  .status-good { color:var(--good); }
+  .status-warn { color:var(--warn); }
   .bar-wrap { margin:8px 0; }
   .bar-label { display:flex; justify-content:space-between; font-size:13px; margin-bottom:4px; }
   .bar { height:10px; background:#11141a; border-radius:6px; overflow:hidden; }
   .bar > div { height:100%; background:linear-gradient(90deg,var(--accent),var(--good)); transition:width .4s; }
-  .pollitem { display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid var(--line); }
+  .pollitem { display:flex; justify-content:space-between; align-items:center; gap:12px; padding:10px 0; border-bottom:1px solid var(--line); }
   .pollitem:last-child { border-bottom:none; }
   .badge { font-size:11px; padding:2px 8px; border-radius:20px; }
   .badge.active { background:rgba(62,207,142,.15); color:var(--good); }
   .badge.archived { background:rgba(154,163,178,.15); color:var(--muted); }
   .hidden { display:none; }
-  .resprow { display:flex; justify-content:space-between; font-size:13px; padding:6px 0; border-bottom:1px solid var(--line); }
+  .resprow { display:flex; justify-content:space-between; align-items:center; gap:12px; font-size:13px; padding:8px 0; border-bottom:1px solid var(--line); }
+  .resprow span { line-height:1.4; }
 </style>
 </head>
 <body>
@@ -77,7 +81,6 @@
 
   <!-- ===================== ADMIN VIEW ===================== -->
   <section id="adminView" class="hidden">
-    <!-- Login gate -->
     <div class="card" id="adminLogin">
       <h2>Admin login</h2>
       <label>Password</label>
@@ -87,7 +90,6 @@
     </div>
 
     <div id="adminPanel" class="hidden">
-      <!-- Create poll -->
       <div class="card">
         <h2>Create a new poll</h2>
         <label>Title</label>
@@ -99,7 +101,6 @@
         <button class="primary" id="createPollBtn">Create poll</button>
       </div>
 
-      <!-- Manage voters -->
       <div class="card">
         <h2>Voter list</h2>
         <p class="hint">Names available in the voter dropdown.</p>
@@ -110,18 +111,17 @@
         </div>
       </div>
 
-      <!-- Manage polls -->
       <div class="card">
         <h2>Manage polls</h2>
         <div id="pollList"></div>
       </div>
 
-      <!-- Manage responses -->
       <div class="card">
         <h2>Responses</h2>
         <label>Choose poll</label>
         <select id="adminPollSelect"></select>
-        <div id="responseList"></div>
+        <div id="responseList"><p class="hint">Choose a poll.</p></div>
+        <p class="hint" id="responseStatus"></p>
       </div>
     </div>
   </section>
@@ -130,11 +130,22 @@
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
 import {
-  getFirestore, collection, doc, addDoc, setDoc, getDoc, deleteDoc,
-  updateDoc, onSnapshot, query, where, orderBy, serverTimestamp, runTransaction
+  getFirestore,
+  collection,
+  doc,
+  addDoc,
+  setDoc,
+  deleteDoc,
+  updateDoc,
+  onSnapshot,
+  query,
+  where,
+  orderBy,
+  serverTimestamp,
+  runTransaction
 } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
-// ====== 1. PASTE YOUR FIREBASE CONFIG HERE ======
+// ====== FIREBASE CONFIG ======
 const firebaseConfig = {
   apiKey: "AIzaSyDJXVZE2VZXPH9jJvzgz9ozBvvbiJfmLbw",
   authDomain: "teamdennisontracker.firebaseapp.com",
@@ -143,22 +154,32 @@ const firebaseConfig = {
   messagingSenderId: "915336870349",
   appId: "1:915336870349:web:c070e9b3fc0b688fe62c84"
 };
-const ADMIN_PASSWORD = "changeme"; // simple gate, see note in UI
+
+const ADMIN_PASSWORD = "changeme";
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
-const POINTS = { pick1: 3, pick2: 2, pick3: 1 };
+
+const POINTS = {
+  first: 3,
+  second: 2,
+  third: 1
+};
+
+let adminStarted = false;
 
 // ---------- tab switching ----------
 const tabUser = document.getElementById("tabUser");
 const tabAdmin = document.getElementById("tabAdmin");
-tabUser.onclick = () => { setTab("user"); };
-tabAdmin.onclick = () => { setTab("admin"); };
+
+tabUser.onclick = () => setTab("user");
+tabAdmin.onclick = () => setTab("admin");
+
 function setTab(t) {
-  tabUser.classList.toggle("active", t==="user");
-  tabAdmin.classList.toggle("active", t==="admin");
-  document.getElementById("userView").classList.toggle("hidden", t!=="user");
-  document.getElementById("adminView").classList.toggle("hidden", t!=="admin");
+  tabUser.classList.toggle("active", t === "user");
+  tabAdmin.classList.toggle("active", t === "admin");
+  document.getElementById("userView").classList.toggle("hidden", t !== "user");
+  document.getElementById("adminView").classList.toggle("hidden", t !== "admin");
 }
 
 // ============================================================
@@ -167,82 +188,155 @@ function setTab(t) {
 const activePollSelect = document.getElementById("activePollSelect");
 const voterSelect = document.getElementById("voterSelect");
 const voteForm = document.getElementById("voteForm");
+
 let activePolls = [];
+let currentPoll = null;
+let resultsUnsub = null;
 
 // Live list of active polls
-onSnapshot(query(collection(db,"Polls"), where("status","==","active")), snap => {
-  activePolls = snap.docs.map(d => ({ id:d.id, ...d.data() }));
-  activePollSelect.innerHTML = '<option value="">-- choose a poll --</option>' +
+onSnapshot(query(collection(db, "Polls"), where("status", "==", "active")), snap => {
+  const selected = activePollSelect.value;
+
+  activePolls = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+  activePollSelect.innerHTML =
+    '<option value="">-- choose a poll --</option>' +
     activePolls.map(p => `<option value="${p.id}">${esc(p.title)}</option>`).join("");
+
+  if (selected && activePolls.some(p => p.id === selected)) {
+    activePollSelect.value = selected;
+  }
 });
 
 // Live voter list
-onSnapshot(doc(db,"Config","voters"), snap => {
+onSnapshot(doc(db, "Config", "voters"), snap => {
+  const selected = voterSelect.value;
   const names = snap.exists() ? (snap.data().names || []) : [];
-  voterSelect.innerHTML = '<option value="">-- select your name --</option>' +
-    names.map(n => `<option value="${esc(n)}">${esc(n)}</option>`).join("");
+
+  voterSelect.innerHTML =
+    '<option value="">-- select your name --</option>' +
+    names.map(n => `<option value="${escAttr(n)}">${esc(n)}</option>`).join("");
+
+  if (selected && names.includes(selected)) {
+    voterSelect.value = selected;
+  }
 });
 
-let currentPoll = null;
-let resultsUnsub = null;
 activePollSelect.onchange = () => {
   const id = activePollSelect.value;
   currentPoll = activePolls.find(p => p.id === id) || null;
   voteForm.classList.toggle("hidden", !currentPoll);
+
   if (resultsUnsub) resultsUnsub();
-  if (!currentPoll) { document.getElementById("results").innerHTML = '<p class="hint">Select a poll to see results.</p>'; return; }
-  populatePicks(currentPoll.options);
+
+  if (!currentPoll) {
+    document.getElementById("results").innerHTML = '<p class="hint">Select a poll to see results.</p>';
+    return;
+  }
+
+  populatePicks(currentPoll.options || []);
   listenResults(id);
 };
 
 function populatePicks(options) {
-  const opts = '<option value="">--</option>' +
-    options.map(o => `<option value="${o.id}">${esc(o.label)}</option>`).join("");
-  document.querySelectorAll(".pick").forEach(s => s.innerHTML = opts);
+  const opts =
+    '<option value="">--</option>' +
+    options.map(o => `<option value="${escAttr(o.id)}">${esc(o.label)}</option>`).join("");
+
+  document.querySelectorAll(".pick").forEach(s => {
+    s.innerHTML = opts;
+    s.value = "";
+  });
 }
 
 function listenResults(pollId) {
-  resultsUnsub = onSnapshot(doc(db,"Polls",pollId), snap => {
+  resultsUnsub = onSnapshot(doc(db, "Polls", pollId), snap => {
     if (!snap.exists()) return;
-    const opts = [...snap.data().options].sort((a,b)=>b.points-a.points);
-    const max = Math.max(1, ...opts.map(o=>o.points));
-    document.getElementById("results").innerHTML = opts.map(o => `
-      <div class="bar-wrap">
-        <div class="bar-label"><span>${esc(o.label)}</span><span>${o.points} pts</span></div>
-        <div class="bar"><div style="width:${(o.points/max*100)}%"></div></div>
-      </div>`).join("");
+
+    const opts = [...(snap.data().options || [])].sort((a, b) => Number(b.points || 0) - Number(a.points || 0));
+    const max = Math.max(1, ...opts.map(o => Number(o.points || 0)));
+
+    document.getElementById("results").innerHTML = opts.map(o => {
+      const pts = Number(o.points || 0);
+      return `
+        <div class="bar-wrap">
+          <div class="bar-label"><span>${esc(o.label)}</span><span>${pts} pts</span></div>
+          <div class="bar"><div style="width:${(pts / max * 100)}%"></div></div>
+        </div>`;
+    }).join("");
   });
 }
 
 document.getElementById("submitVote").onclick = async () => {
   const hint = document.getElementById("voteHint");
   hint.style.color = "var(--warn)";
+  hint.textContent = "";
+
   if (!currentPoll) return;
+
   const voter = voterSelect.value;
   const p1 = document.getElementById("pick1").value;
   const p2 = document.getElementById("pick2").value;
   const p3 = document.getElementById("pick3").value;
 
-  if (!voter) return hint.textContent = "Please select your name.";
-  if (!p1 || !p2 || !p3) return hint.textContent = "Please make all three choices.";
-  if (new Set([p1,p2,p3]).size !== 3) return hint.textContent = "Your three choices must be different.";
+  if (!voter) {
+    hint.textContent = "Please select your name.";
+    return;
+  }
 
-  const voteRef = doc(db,"Polls",currentPoll.id,"responses",voter);
+  if (!p1 || !p2 || !p3) {
+    hint.textContent = "Please make all three choices.";
+    return;
+  }
+
+  if (new Set([p1, p2, p3]).size !== 3) {
+    hint.textContent = "Your three choices must be different.";
+    return;
+  }
+
+  const voteRef = doc(db, "Polls", currentPoll.id, "responses", voter);
+  const pollRef = doc(db, "Polls", currentPoll.id);
+
   try {
     await runTransaction(db, async tx => {
       const existing = await tx.get(voteRef);
-      if (existing.exists()) throw new Error("ALREADY_VOTED");
-      const pollSnap = await tx.get(doc(db,"Polls",currentPoll.id));
-      const opts = pollSnap.data().options;
-      const delta = { [p1]:3, [p2]:2, [p3]:1 };
-      const updated = opts.map(o => ({ ...o, points: o.points + (delta[o.id]||0) }));
-      tx.update(doc(db,"Polls",currentPoll.id), { options: updated });
-      tx.set(voteRef, { voterName:voter, first:p1, second:p2, third:p3, submittedAt:serverTimestamp() });
+
+      if (existing.exists()) {
+        throw new Error("ALREADY_VOTED");
+      }
+
+      const pollSnap = await tx.get(pollRef);
+
+      if (!pollSnap.exists()) {
+        throw new Error("POLL_NOT_FOUND");
+      }
+
+      const opts = pollSnap.data().options || [];
+      const delta = {
+        [p1]: 3,
+        [p2]: 2,
+        [p3]: 1
+      };
+
+      const updated = opts.map(o => ({
+        ...o,
+        points: Number(o.points || 0) + Number(delta[o.id] || 0)
+      }));
+
+      tx.update(pollRef, { options: updated });
+      tx.set(voteRef, {
+        voterName: voter,
+        first: p1,
+        second: p2,
+        third: p3,
+        submittedAt: serverTimestamp()
+      });
     });
+
     hint.style.color = "var(--good)";
     hint.textContent = "Vote submitted. Thank you!";
     voteForm.classList.add("hidden");
-  } catch(e) {
+  } catch (e) {
     hint.textContent = e.message === "ALREADY_VOTED"
       ? "You have already voted in this poll. Ask an admin to remove your entry if you need to change it."
       : "Something went wrong: " + e.message;
@@ -256,127 +350,339 @@ document.getElementById("adminLoginBtn").onclick = () => {
   if (document.getElementById("adminPass").value === ADMIN_PASSWORD) {
     document.getElementById("adminLogin").classList.add("hidden");
     document.getElementById("adminPanel").classList.remove("hidden");
-    initAdmin();
-  } else alert("Wrong password");
+
+    if (!adminStarted) {
+      adminStarted = true;
+      initAdmin();
+    }
+  } else {
+    alert("Wrong password");
+  }
 };
 
 // --- create poll: option rows ---
 const optionRows = document.getElementById("optionRows");
-function addOptionRow(val="") {
-  if (optionRows.children.length >= 10) { alert("Maximum 10 options"); return; }
+
+function addOptionRow(val = "") {
+  if (optionRows.children.length >= 10) {
+    alert("Maximum 10 options");
+    return;
+  }
+
   const div = document.createElement("div");
   div.className = "row";
-  div.innerHTML = `<input class="opt-input" placeholder="Option ${optionRows.children.length+1}" value="${esc(val)}">
-                   <button class="ghost rm">✕</button>`;
+  div.innerHTML = `
+    <input class="opt-input" placeholder="Option ${optionRows.children.length + 1}" value="${escAttr(val)}">
+    <button class="ghost rm" type="button">✕</button>
+  `;
+
   div.querySelector(".rm").onclick = () => div.remove();
   optionRows.appendChild(div);
 }
+
 document.getElementById("addOptionBtn").onclick = () => addOptionRow();
 
 document.getElementById("createPollBtn").onclick = async () => {
   const title = document.getElementById("newTitle").value.trim();
-  const labels = [...document.querySelectorAll(".opt-input")].map(i=>i.value.trim()).filter(Boolean);
-  if (!title) return alert("Enter a title");
-  if (labels.length < 2) return alert("Enter at least two options");
-  const options = labels.map((label,i)=>({ id:"opt"+(i+1), label, points:0 }));
-  await addDoc(collection(db,"Polls"), { title, status:"active", options, createdAt:serverTimestamp() });
+  const labels = [...document.querySelectorAll(".opt-input")]
+    .map(i => i.value.trim())
+    .filter(Boolean);
+
+  if (!title) {
+    alert("Enter a title");
+    return;
+  }
+
+  if (labels.length < 2) {
+    alert("Enter at least two options");
+    return;
+  }
+
+  const options = labels.map((label, i) => ({
+    id: "opt" + (i + 1),
+    label,
+    points: 0
+  }));
+
+  await addDoc(collection(db, "Polls"), {
+    title,
+    status: "active",
+    options,
+    createdAt: serverTimestamp()
+  });
+
   document.getElementById("newTitle").value = "";
   optionRows.innerHTML = "";
-  addOptionRow(); addOptionRow();
+  addOptionRow();
+  addOptionRow();
+
   alert("Poll created");
 };
 
 // --- voter list management ---
-const votersRef = doc(db,"Config","voters");
+const votersRef = doc(db, "Config", "voters");
 let voterNames = [];
+let adminPolls = [];
+
 function initAdmin() {
-  // option rows default
-  if (optionRows.children.length === 0) { addOptionRow(); addOptionRow(); }
+  if (optionRows.children.length === 0) {
+    addOptionRow();
+    addOptionRow();
+  }
 
   // voters
   onSnapshot(votersRef, snap => {
-    voterNames = snap.exists() ? (snap.data().names||[]) : [];
-    document.getElementById("voterRows").innerHTML = voterNames.map((n,i)=>
-      `<div class="resprow"><span>${esc(n)}</span><button class="ghost danger" data-i="${i}">Remove</button></div>`).join("")
-      || '<p class="hint">No voters yet.</p>';
-    document.querySelectorAll("#voterRows .danger").forEach(b => b.onclick = async () => {
-      const arr = voterNames.filter((_,idx)=>idx!=b.dataset.i);
-      await setDoc(votersRef,{names:arr});
+    voterNames = snap.exists() ? (snap.data().names || []) : [];
+
+    document.getElementById("voterRows").innerHTML =
+      voterNames.map((n, i) => `
+        <div class="resprow">
+          <span>${esc(n)}</span>
+          <button class="ghost danger" data-i="${i}" type="button">Remove</button>
+        </div>
+      `).join("") || '<p class="hint">No voters yet.</p>';
+
+    document.querySelectorAll("#voterRows .danger").forEach(b => {
+      b.onclick = async () => {
+        const arr = voterNames.filter((_, idx) => idx !== Number(b.dataset.i));
+        await setDoc(votersRef, { names: arr });
+      };
     });
   });
 
   // poll management list
-  onSnapshot(query(collection(db,"Polls"), orderBy("createdAt","desc")), snap => {
-    const polls = snap.docs.map(d=>({id:d.id,...d.data()}));
-    document.getElementById("pollList").innerHTML = polls.map(p=>`
-      <div class="pollitem">
-        <span>${esc(p.title)} <span class="badge ${p.status}">${p.status}</span></span>
-        <span>
-          <button class="ghost" data-act="toggle" data-id="${p.id}" data-status="${p.status}">
-            ${p.status==="active"?"Archive":"Activate"}</button>
-          <button class="ghost danger" data-act="del" data-id="${p.id}">Delete</button>
-        </span>
-      </div>`).join("") || '<p class="hint">No polls.</p>';
+  onSnapshot(query(collection(db, "Polls"), orderBy("createdAt", "desc")), snap => {
+    adminPolls = snap.docs.map(d => ({ id: d.id, ...d.data() }));
 
-    // admin response poll selector
-    document.getElementById("adminPollSelect").innerHTML =
-      '<option value="">-- choose --</option>' +
-      polls.map(p=>`<option value="${p.id}">${esc(p.title)}</option>`).join("");
+    document.getElementById("pollList").innerHTML =
+      adminPolls.map(p => `
+        <div class="pollitem">
+          <span>${esc(p.title)} <span class="badge ${escAttr(p.status)}">${esc(p.status)}</span></span>
+          <span>
+            <button class="ghost" data-act="toggle" data-id="${p.id}" data-status="${escAttr(p.status)}" type="button">
+              ${p.status === "active" ? "Archive" : "Activate"}
+            </button>
+            <button class="ghost danger" data-act="del" data-id="${p.id}" type="button">Delete</button>
+          </span>
+        </div>
+      `).join("") || '<p class="hint">No polls.</p>';
 
-    document.querySelectorAll('#pollList [data-act="toggle"]').forEach(b => b.onclick = async () => {
-      await updateDoc(doc(db,"Polls",b.dataset.id), { status: b.dataset.status==="active"?"archived":"active" });
+    rebuildAdminPollSelect();
+
+    document.querySelectorAll('#pollList [data-act="toggle"]').forEach(b => {
+      b.onclick = async () => {
+        await updateDoc(doc(db, "Polls", b.dataset.id), {
+          status: b.dataset.status === "active" ? "archived" : "active"
+        });
+      };
     });
-    document.querySelectorAll('#pollList [data-act="del"]').forEach(b => b.onclick = async () => {
-      if (confirm("Delete this poll permanently?")) await deleteDoc(doc(db,"Polls",b.dataset.id));
+
+    document.querySelectorAll('#pollList [data-act="del"]').forEach(b => {
+      b.onclick = async () => {
+        if (confirm("Delete this poll permanently? This will not delete response subcollection documents shown in Firestore automatically.")) {
+          await deleteDoc(doc(db, "Polls", b.dataset.id));
+        }
+      };
     });
   });
+}
+
+function rebuildAdminPollSelect() {
+  const select = document.getElementById("adminPollSelect");
+  const previous = select.value;
+
+  select.innerHTML =
+    '<option value="">-- choose --</option>' +
+    adminPolls.map(p => `<option value="${p.id}">${esc(p.title)}</option>`).join("");
+
+  if (previous && adminPolls.some(p => p.id === previous)) {
+    select.value = previous;
+  } else {
+    select.value = "";
+    document.getElementById("responseList").innerHTML = '<p class="hint">Choose a poll.</p>';
+  }
 }
 
 document.getElementById("addVoterBtn").onclick = async () => {
   const name = document.getElementById("newVoter").value.trim();
+
   if (!name) return;
-  if (voterNames.includes(name)) return alert("Name already exists");
-  await setDoc(votersRef, { names:[...voterNames, name] });
+
+  if (voterNames.includes(name)) {
+    alert("Name already exists");
+    return;
+  }
+
+  await setDoc(votersRef, {
+    names: [...voterNames, name]
+  });
+
   document.getElementById("newVoter").value = "";
 };
 
-// --- responses management (delete entries) ---
+// --- responses management ---
 let respUnsub = null;
+
 document.getElementById("adminPollSelect").onchange = () => {
   const pid = document.getElementById("adminPollSelect").value;
-  if (respUnsub) respUnsub();
-  const box = document.getElementById("responseList");
-  if (!pid) { box.innerHTML = '<p class="hint">Choose a poll.</p>'; return; }
-  respUnsub = onSnapshot(collection(db,"Polls",pid,"responses"), snap => {
-    const rows = snap.docs.map(d=>({id:d.id,...d.data()}));
-    box.innerHTML = rows.map(r=>`
-      <div class="resprow">
-        <span>${esc(r.voterName)} — 1st:${esc(r.first)} 2nd:${esc(r.second)} 3rd:${esc(r.third)}</span>
-        <button class="ghost danger" data-id="${r.id}">Delete</button>
-      </div>`).join("") || '<p class="hint">No responses yet.</p>';
-    box.querySelectorAll(".danger").forEach(b => b.onclick = () => deleteResponse(pid, b.dataset.id));
-  });
+  listenResponses(pid);
 };
 
-// Deleting a response must REVERSE that person's points
-async function deleteResponse(pollId, respId) {
-  if (!confirm("Delete this entry and remove their points?")) return;
-  const respRef = doc(db,"Polls",pollId,"responses",respId);
-  const pollRef = doc(db,"Polls",pollId);
-  await runTransaction(db, async tx => {
-    const r = await tx.get(respRef);
-    if (!r.exists()) return;
-    const d = r.data();
-    const pollSnap = await tx.get(pollRef);
-    const delta = { [d.first]:-3, [d.second]:-2, [d.third]:-1 };
-    const updated = pollSnap.data().options.map(o=>({ ...o, points:o.points+(delta[o.id]||0) }));
-    tx.update(pollRef, { options:updated });
-    tx.delete(respRef);
+function listenResponses(pid) {
+  if (respUnsub) {
+    respUnsub();
+    respUnsub = null;
+  }
+
+  const box = document.getElementById("responseList");
+  const status = document.getElementById("responseStatus");
+  status.textContent = "";
+  status.className = "hint";
+
+  if (!pid) {
+    box.innerHTML = '<p class="hint">Choose a poll.</p>';
+    return;
+  }
+
+  const selectedPoll = adminPolls.find(p => p.id === pid);
+  const optionMap = buildOptionMap(selectedPoll);
+
+  respUnsub = onSnapshot(collection(db, "Polls", pid, "responses"), snap => {
+    const rows = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+    box.innerHTML = rows.map(r => {
+      const firstLabel = optionMap[r.first] || r.first || "";
+      const secondLabel = optionMap[r.second] || r.second || "";
+      const thirdLabel = optionMap[r.third] || r.third || "";
+
+      return `
+        <div class="resprow">
+          <span>
+            <strong>${esc(r.voterName || r.id)}</strong>
+            - 1st: ${esc(firstLabel)}
+            2nd: ${esc(secondLabel)}
+            3rd: ${esc(thirdLabel)}
+          </span>
+          <button class="ghost danger" data-id="${escAttr(r.id)}" type="button">Delete</button>
+        </div>
+      `;
+    }).join("") || '<p class="hint">No responses yet.</p>';
+
+    box.querySelectorAll(".danger").forEach(b => {
+      b.onclick = () => deleteResponse(pid, b.dataset.id, b);
+    });
   });
 }
 
+function buildOptionMap(poll) {
+  const map = {};
+
+  if (!poll || !Array.isArray(poll.options)) {
+    return map;
+  }
+
+  poll.options.forEach(o => {
+    map[o.id] = o.label;
+  });
+
+  return map;
+}
+
+// Deleting a response reverses that person's points and deletes their response document.
+async function deleteResponse(pollId, respId, buttonEl) {
+  const status = document.getElementById("responseStatus");
+  status.textContent = "";
+  status.className = "hint";
+
+  if (!confirm("Delete this entry and remove their points?")) {
+    return;
+  }
+
+  if (buttonEl) {
+    buttonEl.disabled = true;
+    buttonEl.textContent = "Deleting...";
+  }
+
+  const respRef = doc(db, "Polls", pollId, "responses", respId);
+  const pollRef = doc(db, "Polls", pollId);
+
+  try {
+    await runTransaction(db, async tx => {
+      const respSnap = await tx.get(respRef);
+      const pollSnap = await tx.get(pollRef);
+
+      if (!respSnap.exists()) {
+        throw new Error("Response already deleted.");
+      }
+
+      if (!pollSnap.exists()) {
+        throw new Error("Poll not found.");
+      }
+
+      const response = respSnap.data();
+      const poll = pollSnap.data();
+      const options = Array.isArray(poll.options) ? poll.options : [];
+
+      const delta = {};
+
+      if (response.first) {
+        delta[response.first] = (delta[response.first] || 0) - POINTS.first;
+      }
+
+      if (response.second) {
+        delta[response.second] = (delta[response.second] || 0) - POINTS.second;
+      }
+
+      if (response.third) {
+        delta[response.third] = (delta[response.third] || 0) - POINTS.third;
+      }
+
+      const updatedOptions = options.map(o => {
+        const currentPoints = Number(o.points || 0);
+        const change = Number(delta[o.id] || 0);
+
+        return {
+          ...o,
+          points: Math.max(0, currentPoints + change)
+        };
+      });
+
+      tx.update(pollRef, {
+        options: updatedOptions
+      });
+
+      tx.delete(respRef);
+    });
+
+    status.textContent = "Response deleted and points removed.";
+    status.className = "hint status-good";
+  } catch (e) {
+    console.error(e);
+
+    status.textContent = "Delete failed: " + e.message;
+    status.className = "hint status-warn";
+
+    if (buttonEl) {
+      buttonEl.disabled = false;
+      buttonEl.textContent = "Delete";
+    }
+  }
+}
+
 // utility
-function esc(s){ return String(s??"").replace(/[&<>"']/g, c=>({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c])); }
+function esc(s) {
+  return String(s ?? "").replace(/[&<>"']/g, c => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;"
+  }[c]));
+}
+
+function escAttr(s) {
+  return esc(s);
+}
 </script>
 </body>
 </html>
