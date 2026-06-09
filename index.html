@@ -37,7 +37,7 @@
       padding: 2rem;
       border-radius: 12px;
       box-shadow: 0 8px 24px rgba(0,0,0,0.08);
-      text-align: centre;
+      text-align: center;
       max-width: 800px;
       width: 100%;
       border: 1px solid var(--border);
@@ -84,10 +84,11 @@
       transform: translateY(-4px);
     }
 
-    .app-icon img {
+    .app-icon .icon {
       width: 56px;
       height: 56px;
       margin-bottom: 10px;
+      display: block;
     }
 
     .app-name {
@@ -105,6 +106,14 @@
       color: #435160;
     }
 
+    .app-placeholder .icon {
+      width: 56px;
+      height: 56px;
+      margin-bottom: 10px;
+      display: block;
+      color: var(--placeholder-text);
+    }
+
     .small-note {
       margin-top: 1rem;
       font-size: 0.9rem;
@@ -114,27 +123,35 @@
 </head>
 <body>
   <div class="main-container">
-    <h1>Welcome, Jacob Dennison</h1>
+    <h1>Welcome!</h1>
     <p>Select an application to get started:</p>
 
     <div class="app-grid">
       <a href="poll.html" class="app-icon">
-        <img src="https://img.icons8.com/ios-filled/50/ffffff/poll.png" alt="Poll Icon" />
+        <svg class="icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path d="M4 5h16v2H4V5zm0 6h10v2H4v-2zm0 6h16v2H4v-2zm14-9 3 3-3 3V8z"/>
+        </svg>
         <div class="app-name">Poll</div>
       </a>
 
       <a href="under-development.html" class="app-icon app-placeholder">
-        <img src="https://img.icons8.com/ios-filled/50/5f6b7a/construction.png" alt="Coming Soon Icon" />
+        <svg class="icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path d="M13 3L4 14h6l-1 7 9-11h-6l1-7z"/>
+        </svg>
         <div class="app-name">App Placeholder 1</div>
       </a>
 
       <a href="under-development.html" class="app-icon app-placeholder">
-        <img src="https://img.icons8.com/ios-filled/50/5f6b7a/construction.png" alt="Coming Soon Icon" />
+        <svg class="icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path d="M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2zm-7 13H7v-2h5v2zm5-4H7v-2h10v2zm0-4H7V6h10v2z"/>
+        </svg>
         <div class="app-name">App Placeholder 2</div>
       </a>
 
       <a href="under-development.html" class="app-icon app-placeholder">
-        <img src="https://img.icons8.com/ios-filled/50/5f6b7a/construction.png" alt="Coming Soon Icon" />
+        <svg class="icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path d="M12 2 1 21h22L12 2zm1 16h-2v-2h2v2zm0-4h-2V9h2v5z"/>
+        </svg>
         <div class="app-name">App Placeholder 3</div>
       </a>
     </div>
