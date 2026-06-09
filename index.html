@@ -1,688 +1,147 @@
 <!DOCTYPE html>
 <html lang="en-GB">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Poll App</title>
-<style>
-  :root { --bg:#0f1115; --card:#1a1d24; --line:#2a2f3a; --txt:#e6e8ee; --muted:#9aa3b2; --accent:#4f8cff; --good:#3ecf8e; --warn:#ff6b6b; }
-  * { box-sizing:border-box; }
-  body { margin:0; font-family:system-ui,Segoe UI,Roboto,Arial,sans-serif; background:var(--bg); color:var(--txt); }
-  header { display:flex; justify-content:space-between; align-items:center; padding:14px 20px; border-bottom:1px solid var(--line); }
-  header h1 { font-size:18px; margin:0; }
-  .tabs button { background:none; border:1px solid var(--line); color:var(--muted); padding:8px 14px; border-radius:8px; cursor:pointer; margin-left:8px; }
-  .tabs button.active { color:#fff; border-color:var(--accent); background:rgba(79,140,255,.12); }
-  main { max-width:860px; margin:0 auto; padding:24px 20px; }
-  .card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:18px; margin-bottom:18px; }
-  h2 { font-size:16px; margin:0 0 14px; }
-  label { display:block; font-size:13px; color:var(--muted); margin:10px 0 4px; }
-  input, select { width:100%; padding:10px 12px; background:#11141a; border:1px solid var(--line); border-radius:8px; color:var(--txt); font-size:14px; }
-  button.primary { background:var(--accent); border:none; color:#fff; padding:10px 16px; border-radius:8px; cursor:pointer; font-size:14px; }
-  button.ghost { background:none; border:1px solid var(--line); color:var(--muted); padding:6px 10px; border-radius:6px; cursor:pointer; font-size:13px; }
-  button.danger { color:var(--warn); border-color:var(--warn); }
-  button:disabled { opacity:.55; cursor:not-allowed; }
-  .row { display:flex; gap:8px; align-items:center; margin-bottom:8px; }
-  .row input { flex:1; }
-  .hint { font-size:12px; color:var(--muted); }
-  .status-good { color:var(--good); }
-  .status-warn { color:var(--warn); }
-  .bar-wrap { margin:8px 0; }
-  .bar-label { display:flex; justify-content:space-between; font-size:13px; margin-bottom:4px; }
-  .bar { height:10px; background:#11141a; border-radius:6px; overflow:hidden; }
-  .bar > div { height:100%; background:linear-gradient(90deg,var(--accent),var(--good)); transition:width .4s; }
-  .pollitem { display:flex; justify-content:space-between; align-items:center; gap:12px; padding:10px 0; border-bottom:1px solid var(--line); }
-  .pollitem:last-child { border-bottom:none; }
-  .badge { font-size:11px; padding:2px 8px; border-radius:20px; }
-  .badge.active { background:rgba(62,207,142,.15); color:var(--good); }
-  .badge.archived { background:rgba(154,163,178,.15); color:var(--muted); }
-  .hidden { display:none; }
-  .resprow { display:flex; justify-content:space-between; align-items:center; gap:12px; font-size:13px; padding:8px 0; border-bottom:1px solid var(--line); }
-  .resprow span { line-height:1.4; }
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Jacob's Apps</title>
+  <style>
+    :root {
+      --bg: #f4f4f4;
+      --card: #ffffff;
+      --primary: #0055a5;
+      --primary-dark: #003f7f;
+      --text: #333;
+      --muted: #666;
+      --border: #d9d9d9;
+      --placeholder-bg: #eef2f6;
+      --placeholder-text: #5f6b7a;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: var(--bg);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
+    }
+
+    .main-container {
+      background: var(--card);
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+      text-align: centre;
+      max-width: 800px;
+      width: 100%;
+      border: 1px solid var(--border);
+    }
+
+    h1 {
+      color: var(--primary);
+      margin: 0 0 0.75rem;
+      font-size: 2rem;
+    }
+
+    p {
+      color: var(--muted);
+      margin: 0 0 1.5rem;
+      font-size: 1rem;
+    }
+
+    .app-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+
+    .app-icon {
+      background: var(--primary);
+      padding: 1.5rem 1rem;
+      border-radius: 12px;
+      text-decoration: none;
+      color: #fff;
+      font-weight: bold;
+      font-size: 1.05rem;
+      transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      justify-content: centre;
+      align-items: centre;
+      min-height: 150px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+    }
+
+    .app-icon:hover {
+      background: var(--primary-dark);
+      transform: translateY(-4px);
+    }
+
+    .app-icon img {
+      width: 56px;
+      height: 56px;
+      margin-bottom: 10px;
+    }
+
+    .app-name {
+      margin-top: 4px;
+    }
+
+    .app-placeholder {
+      background: var(--placeholder-bg);
+      color: var(--placeholder-text);
+      border: 2px dashed #c9d4df;
+    }
+
+    .app-placeholder:hover {
+      background: #e4ebf2;
+      color: #435160;
+    }
+
+    .small-note {
+      margin-top: 1rem;
+      font-size: 0.9rem;
+      color: #888;
+    }
+  </style>
 </head>
 <body>
-<header>
-  <h1>Poll App</h1>
-  <div class="tabs">
-    <button id="tabUser" class="active">Vote</button>
-    <button id="tabAdmin">Admin</button>
+  <div class="main-container">
+    <h1>Welcome, Jacob Dennison</h1>
+    <p>Select an application to get started:</p>
+
+    <div class="app-grid">
+      <a href="poll.html" class="app-icon">
+        <img src="https://img.icons8.com/ios-filled/50/ffffff/poll.png" alt="Poll Icon" />
+        <div class="app-name">Poll</div>
+      </a>
+
+      <a href="under-development.html" class="app-icon app-placeholder">
+        <img src="https://img.icons8.com/ios-filled/50/5f6b7a/construction.png" alt="Coming Soon Icon" />
+        <div class="app-name">App Placeholder 1</div>
+      </a>
+
+      <a href="under-development.html" class="app-icon app-placeholder">
+        <img src="https://img.icons8.com/ios-filled/50/5f6b7a/construction.png" alt="Coming Soon Icon" />
+        <div class="app-name">App Placeholder 2</div>
+      </a>
+
+      <a href="under-development.html" class="app-icon app-placeholder">
+        <img src="https://img.icons8.com/ios-filled/50/5f6b7a/construction.png" alt="Coming Soon Icon" />
+        <div class="app-name">App Placeholder 3</div>
+      </a>
+    </div>
+
+    <div class="small-note">
+      More apps will be added here as they are developed.
+    </div>
   </div>
-</header>
-
-<main>
-  <!-- ===================== USER VIEW ===================== -->
-  <section id="userView">
-    <div class="card">
-      <h2>Cast your vote</h2>
-      <label>Active poll</label>
-      <select id="activePollSelect"></select>
-
-      <div id="voteForm" class="hidden">
-        <label>Your name</label>
-        <select id="voterSelect"></select>
-
-        <label>1st choice (3 pts)</label>
-        <select id="pick1" class="pick"></select>
-        <label>2nd choice (2 pts)</label>
-        <select id="pick2" class="pick"></select>
-        <label>3rd choice (1 pt)</label>
-        <select id="pick3" class="pick"></select>
-
-        <p class="hint" id="voteHint"></p>
-        <button class="primary" id="submitVote">Submit vote</button>
-      </div>
-    </div>
-
-    <div class="card" id="resultsCard">
-      <h2>Running totals</h2>
-      <div id="results"><p class="hint">Select a poll to see results.</p></div>
-    </div>
-  </section>
-
-  <!-- ===================== ADMIN VIEW ===================== -->
-  <section id="adminView" class="hidden">
-    <div class="card" id="adminLogin">
-      <h2>Admin login</h2>
-      <label>Password</label>
-      <input type="password" id="adminPass" />
-      <p class="hint">Note: this is a simple client-side gate. For real security, protect writes with Firestore Security Rules / Firebase Auth.</p>
-      <br><button class="primary" id="adminLoginBtn">Log in</button>
-    </div>
-
-    <div id="adminPanel" class="hidden">
-      <div class="card">
-        <h2>Create a new poll</h2>
-        <label>Title</label>
-        <input id="newTitle" placeholder="e.g. Which design is best?" />
-        <label>Options (up to 10)</label>
-        <div id="optionRows"></div>
-        <button class="ghost" id="addOptionBtn">+ Add option</button>
-        <br><br>
-        <button class="primary" id="createPollBtn">Create poll</button>
-      </div>
-
-      <div class="card">
-        <h2>Voter list</h2>
-        <p class="hint">Names available in the voter dropdown.</p>
-        <div id="voterRows"></div>
-        <div class="row">
-          <input id="newVoter" placeholder="Add a name" />
-          <button class="primary" id="addVoterBtn">Add</button>
-        </div>
-      </div>
-
-      <div class="card">
-        <h2>Manage polls</h2>
-        <div id="pollList"></div>
-      </div>
-
-      <div class="card">
-        <h2>Responses</h2>
-        <label>Choose poll</label>
-        <select id="adminPollSelect"></select>
-        <div id="responseList"><p class="hint">Choose a poll.</p></div>
-        <p class="hint" id="responseStatus"></p>
-      </div>
-    </div>
-  </section>
-</main>
-
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-import {
-  getFirestore,
-  collection,
-  doc,
-  addDoc,
-  setDoc,
-  deleteDoc,
-  updateDoc,
-  onSnapshot,
-  query,
-  where,
-  orderBy,
-  serverTimestamp,
-  runTransaction
-} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
-
-// ====== FIREBASE CONFIG ======
-const firebaseConfig = {
-  apiKey: "AIzaSyDJXVZE2VZXPH9jJvzgz9ozBvvbiJfmLbw",
-  authDomain: "teamdennisontracker.firebaseapp.com",
-  projectId: "teamdennisontracker",
-  storageBucket: "teamdennisontracker.firebasestorage.app",
-  messagingSenderId: "915336870349",
-  appId: "1:915336870349:web:c070e9b3fc0b688fe62c84"
-};
-
-const ADMIN_PASSWORD = "changeme";
-
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-
-const POINTS = {
-  first: 3,
-  second: 2,
-  third: 1
-};
-
-let adminStarted = false;
-
-// ---------- tab switching ----------
-const tabUser = document.getElementById("tabUser");
-const tabAdmin = document.getElementById("tabAdmin");
-
-tabUser.onclick = () => setTab("user");
-tabAdmin.onclick = () => setTab("admin");
-
-function setTab(t) {
-  tabUser.classList.toggle("active", t === "user");
-  tabAdmin.classList.toggle("active", t === "admin");
-  document.getElementById("userView").classList.toggle("hidden", t !== "user");
-  document.getElementById("adminView").classList.toggle("hidden", t !== "admin");
-}
-
-// ============================================================
-//  USER VIEW
-// ============================================================
-const activePollSelect = document.getElementById("activePollSelect");
-const voterSelect = document.getElementById("voterSelect");
-const voteForm = document.getElementById("voteForm");
-
-let activePolls = [];
-let currentPoll = null;
-let resultsUnsub = null;
-
-// Live list of active polls
-onSnapshot(query(collection(db, "Polls"), where("status", "==", "active")), snap => {
-  const selected = activePollSelect.value;
-
-  activePolls = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-
-  activePollSelect.innerHTML =
-    '<option value="">-- choose a poll --</option>' +
-    activePolls.map(p => `<option value="${p.id}">${esc(p.title)}</option>`).join("");
-
-  if (selected && activePolls.some(p => p.id === selected)) {
-    activePollSelect.value = selected;
-  }
-});
-
-// Live voter list
-onSnapshot(doc(db, "Config", "voters"), snap => {
-  const selected = voterSelect.value;
-  const names = snap.exists() ? (snap.data().names || []) : [];
-
-  voterSelect.innerHTML =
-    '<option value="">-- select your name --</option>' +
-    names.map(n => `<option value="${escAttr(n)}">${esc(n)}</option>`).join("");
-
-  if (selected && names.includes(selected)) {
-    voterSelect.value = selected;
-  }
-});
-
-activePollSelect.onchange = () => {
-  const id = activePollSelect.value;
-  currentPoll = activePolls.find(p => p.id === id) || null;
-  voteForm.classList.toggle("hidden", !currentPoll);
-
-  if (resultsUnsub) resultsUnsub();
-
-  if (!currentPoll) {
-    document.getElementById("results").innerHTML = '<p class="hint">Select a poll to see results.</p>';
-    return;
-  }
-
-  populatePicks(currentPoll.options || []);
-  listenResults(id);
-};
-
-function populatePicks(options) {
-  const opts =
-    '<option value="">--</option>' +
-    options.map(o => `<option value="${escAttr(o.id)}">${esc(o.label)}</option>`).join("");
-
-  document.querySelectorAll(".pick").forEach(s => {
-    s.innerHTML = opts;
-    s.value = "";
-  });
-}
-
-function listenResults(pollId) {
-  resultsUnsub = onSnapshot(doc(db, "Polls", pollId), snap => {
-    if (!snap.exists()) return;
-
-    const opts = [...(snap.data().options || [])].sort((a, b) => Number(b.points || 0) - Number(a.points || 0));
-    const max = Math.max(1, ...opts.map(o => Number(o.points || 0)));
-
-    document.getElementById("results").innerHTML = opts.map(o => {
-      const pts = Number(o.points || 0);
-      return `
-        <div class="bar-wrap">
-          <div class="bar-label"><span>${esc(o.label)}</span><span>${pts} pts</span></div>
-          <div class="bar"><div style="width:${(pts / max * 100)}%"></div></div>
-        </div>`;
-    }).join("");
-  });
-}
-
-document.getElementById("submitVote").onclick = async () => {
-  const hint = document.getElementById("voteHint");
-  hint.style.color = "var(--warn)";
-  hint.textContent = "";
-
-  if (!currentPoll) return;
-
-  const voter = voterSelect.value;
-  const p1 = document.getElementById("pick1").value;
-  const p2 = document.getElementById("pick2").value;
-  const p3 = document.getElementById("pick3").value;
-
-  if (!voter) {
-    hint.textContent = "Please select your name.";
-    return;
-  }
-
-  if (!p1 || !p2 || !p3) {
-    hint.textContent = "Please make all three choices.";
-    return;
-  }
-
-  if (new Set([p1, p2, p3]).size !== 3) {
-    hint.textContent = "Your three choices must be different.";
-    return;
-  }
-
-  const voteRef = doc(db, "Polls", currentPoll.id, "responses", voter);
-  const pollRef = doc(db, "Polls", currentPoll.id);
-
-  try {
-    await runTransaction(db, async tx => {
-      const existing = await tx.get(voteRef);
-
-      if (existing.exists()) {
-        throw new Error("ALREADY_VOTED");
-      }
-
-      const pollSnap = await tx.get(pollRef);
-
-      if (!pollSnap.exists()) {
-        throw new Error("POLL_NOT_FOUND");
-      }
-
-      const opts = pollSnap.data().options || [];
-      const delta = {
-        [p1]: 3,
-        [p2]: 2,
-        [p3]: 1
-      };
-
-      const updated = opts.map(o => ({
-        ...o,
-        points: Number(o.points || 0) + Number(delta[o.id] || 0)
-      }));
-
-      tx.update(pollRef, { options: updated });
-      tx.set(voteRef, {
-        voterName: voter,
-        first: p1,
-        second: p2,
-        third: p3,
-        submittedAt: serverTimestamp()
-      });
-    });
-
-    hint.style.color = "var(--good)";
-    hint.textContent = "Vote submitted. Thank you!";
-    voteForm.classList.add("hidden");
-  } catch (e) {
-    hint.textContent = e.message === "ALREADY_VOTED"
-      ? "You have already voted in this poll. Ask an admin to remove your entry if you need to change it."
-      : "Something went wrong: " + e.message;
-  }
-};
-
-// ============================================================
-//  ADMIN VIEW
-// ============================================================
-document.getElementById("adminLoginBtn").onclick = () => {
-  if (document.getElementById("adminPass").value === ADMIN_PASSWORD) {
-    document.getElementById("adminLogin").classList.add("hidden");
-    document.getElementById("adminPanel").classList.remove("hidden");
-
-    if (!adminStarted) {
-      adminStarted = true;
-      initAdmin();
-    }
-  } else {
-    alert("Wrong password");
-  }
-};
-
-// --- create poll: option rows ---
-const optionRows = document.getElementById("optionRows");
-
-function addOptionRow(val = "") {
-  if (optionRows.children.length >= 10) {
-    alert("Maximum 10 options");
-    return;
-  }
-
-  const div = document.createElement("div");
-  div.className = "row";
-  div.innerHTML = `
-    <input class="opt-input" placeholder="Option ${optionRows.children.length + 1}" value="${escAttr(val)}">
-    <button class="ghost rm" type="button">✕</button>
-  `;
-
-  div.querySelector(".rm").onclick = () => div.remove();
-  optionRows.appendChild(div);
-}
-
-document.getElementById("addOptionBtn").onclick = () => addOptionRow();
-
-document.getElementById("createPollBtn").onclick = async () => {
-  const title = document.getElementById("newTitle").value.trim();
-  const labels = [...document.querySelectorAll(".opt-input")]
-    .map(i => i.value.trim())
-    .filter(Boolean);
-
-  if (!title) {
-    alert("Enter a title");
-    return;
-  }
-
-  if (labels.length < 2) {
-    alert("Enter at least two options");
-    return;
-  }
-
-  const options = labels.map((label, i) => ({
-    id: "opt" + (i + 1),
-    label,
-    points: 0
-  }));
-
-  await addDoc(collection(db, "Polls"), {
-    title,
-    status: "active",
-    options,
-    createdAt: serverTimestamp()
-  });
-
-  document.getElementById("newTitle").value = "";
-  optionRows.innerHTML = "";
-  addOptionRow();
-  addOptionRow();
-
-  alert("Poll created");
-};
-
-// --- voter list management ---
-const votersRef = doc(db, "Config", "voters");
-let voterNames = [];
-let adminPolls = [];
-
-function initAdmin() {
-  if (optionRows.children.length === 0) {
-    addOptionRow();
-    addOptionRow();
-  }
-
-  // voters
-  onSnapshot(votersRef, snap => {
-    voterNames = snap.exists() ? (snap.data().names || []) : [];
-
-    document.getElementById("voterRows").innerHTML =
-      voterNames.map((n, i) => `
-        <div class="resprow">
-          <span>${esc(n)}</span>
-          <button class="ghost danger" data-i="${i}" type="button">Remove</button>
-        </div>
-      `).join("") || '<p class="hint">No voters yet.</p>';
-
-    document.querySelectorAll("#voterRows .danger").forEach(b => {
-      b.onclick = async () => {
-        const arr = voterNames.filter((_, idx) => idx !== Number(b.dataset.i));
-        await setDoc(votersRef, { names: arr });
-      };
-    });
-  });
-
-  // poll management list
-  onSnapshot(query(collection(db, "Polls"), orderBy("createdAt", "desc")), snap => {
-    adminPolls = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-
-    document.getElementById("pollList").innerHTML =
-      adminPolls.map(p => `
-        <div class="pollitem">
-          <span>${esc(p.title)} <span class="badge ${escAttr(p.status)}">${esc(p.status)}</span></span>
-          <span>
-            <button class="ghost" data-act="toggle" data-id="${p.id}" data-status="${escAttr(p.status)}" type="button">
-              ${p.status === "active" ? "Archive" : "Activate"}
-            </button>
-            <button class="ghost danger" data-act="del" data-id="${p.id}" type="button">Delete</button>
-          </span>
-        </div>
-      `).join("") || '<p class="hint">No polls.</p>';
-
-    rebuildAdminPollSelect();
-
-    document.querySelectorAll('#pollList [data-act="toggle"]').forEach(b => {
-      b.onclick = async () => {
-        await updateDoc(doc(db, "Polls", b.dataset.id), {
-          status: b.dataset.status === "active" ? "archived" : "active"
-        });
-      };
-    });
-
-    document.querySelectorAll('#pollList [data-act="del"]').forEach(b => {
-      b.onclick = async () => {
-        if (confirm("Delete this poll permanently? This will not delete response subcollection documents shown in Firestore automatically.")) {
-          await deleteDoc(doc(db, "Polls", b.dataset.id));
-        }
-      };
-    });
-  });
-}
-
-function rebuildAdminPollSelect() {
-  const select = document.getElementById("adminPollSelect");
-  const previous = select.value;
-
-  select.innerHTML =
-    '<option value="">-- choose --</option>' +
-    adminPolls.map(p => `<option value="${p.id}">${esc(p.title)}</option>`).join("");
-
-  if (previous && adminPolls.some(p => p.id === previous)) {
-    select.value = previous;
-  } else {
-    select.value = "";
-    document.getElementById("responseList").innerHTML = '<p class="hint">Choose a poll.</p>';
-  }
-}
-
-document.getElementById("addVoterBtn").onclick = async () => {
-  const name = document.getElementById("newVoter").value.trim();
-
-  if (!name) return;
-
-  if (voterNames.includes(name)) {
-    alert("Name already exists");
-    return;
-  }
-
-  await setDoc(votersRef, {
-    names: [...voterNames, name]
-  });
-
-  document.getElementById("newVoter").value = "";
-};
-
-// --- responses management ---
-let respUnsub = null;
-
-document.getElementById("adminPollSelect").onchange = () => {
-  const pid = document.getElementById("adminPollSelect").value;
-  listenResponses(pid);
-};
-
-function listenResponses(pid) {
-  if (respUnsub) {
-    respUnsub();
-    respUnsub = null;
-  }
-
-  const box = document.getElementById("responseList");
-  const status = document.getElementById("responseStatus");
-  status.textContent = "";
-  status.className = "hint";
-
-  if (!pid) {
-    box.innerHTML = '<p class="hint">Choose a poll.</p>';
-    return;
-  }
-
-  const selectedPoll = adminPolls.find(p => p.id === pid);
-  const optionMap = buildOptionMap(selectedPoll);
-
-  respUnsub = onSnapshot(collection(db, "Polls", pid, "responses"), snap => {
-    const rows = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-
-    box.innerHTML = rows.map(r => {
-      const firstLabel = optionMap[r.first] || r.first || "";
-      const secondLabel = optionMap[r.second] || r.second || "";
-      const thirdLabel = optionMap[r.third] || r.third || "";
-
-      return `
-        <div class="resprow">
-          <span>
-            <strong>${esc(r.voterName || r.id)}</strong>
-            - 1st: ${esc(firstLabel)}
-            2nd: ${esc(secondLabel)}
-            3rd: ${esc(thirdLabel)}
-          </span>
-          <button class="ghost danger" data-id="${escAttr(r.id)}" type="button">Delete</button>
-        </div>
-      `;
-    }).join("") || '<p class="hint">No responses yet.</p>';
-
-    box.querySelectorAll(".danger").forEach(b => {
-      b.onclick = () => deleteResponse(pid, b.dataset.id, b);
-    });
-  });
-}
-
-function buildOptionMap(poll) {
-  const map = {};
-
-  if (!poll || !Array.isArray(poll.options)) {
-    return map;
-  }
-
-  poll.options.forEach(o => {
-    map[o.id] = o.label;
-  });
-
-  return map;
-}
-
-// Deleting a response reverses that person's points and deletes their response document.
-async function deleteResponse(pollId, respId, buttonEl) {
-  const status = document.getElementById("responseStatus");
-  status.textContent = "";
-  status.className = "hint";
-
-  if (!confirm("Delete this entry and remove their points?")) {
-    return;
-  }
-
-  if (buttonEl) {
-    buttonEl.disabled = true;
-    buttonEl.textContent = "Deleting...";
-  }
-
-  const respRef = doc(db, "Polls", pollId, "responses", respId);
-  const pollRef = doc(db, "Polls", pollId);
-
-  try {
-    await runTransaction(db, async tx => {
-      const respSnap = await tx.get(respRef);
-      const pollSnap = await tx.get(pollRef);
-
-      if (!respSnap.exists()) {
-        throw new Error("Response already deleted.");
-      }
-
-      if (!pollSnap.exists()) {
-        throw new Error("Poll not found.");
-      }
-
-      const response = respSnap.data();
-      const poll = pollSnap.data();
-      const options = Array.isArray(poll.options) ? poll.options : [];
-
-      const delta = {};
-
-      if (response.first) {
-        delta[response.first] = (delta[response.first] || 0) - POINTS.first;
-      }
-
-      if (response.second) {
-        delta[response.second] = (delta[response.second] || 0) - POINTS.second;
-      }
-
-      if (response.third) {
-        delta[response.third] = (delta[response.third] || 0) - POINTS.third;
-      }
-
-      const updatedOptions = options.map(o => {
-        const currentPoints = Number(o.points || 0);
-        const change = Number(delta[o.id] || 0);
-
-        return {
-          ...o,
-          points: Math.max(0, currentPoints + change)
-        };
-      });
-
-      tx.update(pollRef, {
-        options: updatedOptions
-      });
-
-      tx.delete(respRef);
-    });
-
-    status.textContent = "Response deleted and points removed.";
-    status.className = "hint status-good";
-  } catch (e) {
-    console.error(e);
-
-    status.textContent = "Delete failed: " + e.message;
-    status.className = "hint status-warn";
-
-    if (buttonEl) {
-      buttonEl.disabled = false;
-      buttonEl.textContent = "Delete";
-    }
-  }
-}
-
-// utility
-function esc(s) {
-  return String(s ?? "").replace(/[&<>"']/g, c => ({
-    "&": "&amp;",
-    "<": "&lt;",
-    ">": "&gt;",
-    '"': "&quot;",
-    "'": "&#39;"
-  }[c]));
-}
-
-function escAttr(s) {
-  return esc(s);
-}
-</script>
 </body>
 </html>
