@@ -4,6 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Doodle</title>
+  <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore-compat.js"></script>
   <style>
     :root {
       --surface:      oklch(97% 0.005 250);
@@ -68,6 +70,10 @@
     .status {
       font-size: 0.8rem;
       color: var(--muted);
+    }
+
+    .status.synced {
+      color: var(--accent);
     }
 
     main {
@@ -257,7 +263,7 @@
 
 <header>
   <h1>Doodle</h1>
-  <span class="status" id="status">Ready</span>
+  <span class="status" id="status">Initialising...</span>
 </header>
 
 <main>
@@ -287,26 +293,30 @@
   </section>
 </main>
 
-<footer>Notes are stored in your browser's localStorage — no server, no account.</footer>
+<footer>Notes stored in Firestore — synced across devices.</footer>
 
 <script>
-  const KEY = 'doodle_notes';
+  const firebaseConfig = {
+    apiKey: "AIzaSyDJXVZE2VZXPH9jJvzgz9ozBvvbiJfmLbw",
+    authDomain: "teamdennisontracker.firebaseapp.com",
+    projectId: "teamdennisontracker",
+    storageBucket: "teamdennisontracker.firebasestorage.app",
+    messagingSenderId: "915336870349",
+    appId: "1:915336870349:web:c070e9b3fc0b689fe62c84"
+  };
 
-  function load() {
-    try { return JSON.parse(localStorage.getItem(KEY)) || []; }
-    catch { return []; }
-  }
-
-  function save(notes) {
-    localStorage.setItem(KEY, JSON.stringify(notes));
-  }
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+  const COLLECTION = 'doodle';
 
   function setStatus(msg, isError = false) {
     const el = document.getElementById('status');
     el.textContent = msg;
-    el.style.color = isError ? 'var(--danger)' : 'var(--accent)';
-    clearTimeout(el._t);
-    el._t = setTimeout(() => { el.textContent = 'Ready'; el.style.color = ''; }, 2000);
+    el.classList.toggle('synced', !isError);
+    if (!isError) {
+      clearTimeout(el._t);
+      el._t = setTimeout(() => { el.textContent = 'Synced'; el.classList.add('synced'); }, 2000);
+    }
   }
 
   function formatTime(ts) {
@@ -317,8 +327,11 @@
     });
   }
 
-  function render() {
-    const notes = load();
+  function escHtml(s) {
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  function render(notes) {
     const list = document.getElementById('notesList');
     if (!notes.length) {
       list.innerHTML = '<p class="empty">No notes yet. Save something above.</p>';
@@ -334,7 +347,7 @@
           <div class="note-meta">
             <span class="note-time">${formatTime(n.ts)}</span>
             <button class="btn-danger note-delete"
-              onclick="event.stopPropagation();deleteNote(${i})"
+              onclick="event.stopPropagation();deleteNote('${n.id}')"
               aria-label="Delete note">Delete</button>
           </div>
           <div class="note-preview">${escHtml(n.text)}</div>
@@ -342,42 +355,45 @@
     }).join('');
   }
 
-  function escHtml(s) {
-    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  }
-
-  function saveNote() {
+  async function saveNote() {
     const text = document.getElementById('compose').value.trim();
     if (!text) { setStatus('Nothing to save', true); return; }
-    const notes = load();
-    notes.push({ text, ts: Date.now() });
-    save(notes);
-    document.getElementById('compose').value = '';
-    render();
-    setStatus('Saved');
+    
+    try {
+      await db.collection(COLLECTION).add({
+        text: text,
+        ts: firebase.firestore.FieldValue.serverTimestamp()
+      });
+      document.getElementById('compose').value = '';
+      setStatus('Saved');
+    } catch (error) {
+      console.error("Error saving note: ", error);
+      setStatus('Save failed', true);
+    }
   }
 
-  function loadNote(i) {
-    const notes = load();
-    if (!notes[i]) return;
-    document.getElementById('compose').value = notes[i].text;
-    document.getElementById('compose').focus();
-    setStatus('Loaded into editor');
+  async function deleteNote(id) {
+    try {
+      await db.collection(COLLECTION).doc(id).delete();
+      setStatus('Deleted');
+    } catch (error) {
+      console.error("Error deleting note: ", error);
+      setStatus('Delete failed', true);
+    }
   }
 
-  function deleteNote(i) {
-    const notes = load();
-    notes.splice(i, 1);
-    save(notes);
-    render();
-    setStatus('Deleted');
-  }
-
-  function clearAll() {
+  async function clearAll() {
     if (!confirm('Delete all notes?')) return;
-    save([]);
-    render();
-    setStatus('Cleared');
+    try {
+      const snapshot = await db.collection(COLLECTION).get();
+      const batch = db.batch();
+      snapshot.forEach(doc => batch.delete(doc.ref));
+      await batch.commit();
+      setStatus('Cleared');
+    } catch (error) {
+      console.error("Error clearing notes: ", error);
+      setStatus('Clear failed', true);
+    }
   }
 
   function clearCompose() {
@@ -392,8 +408,16 @@
       await navigator.clipboard.writeText(text);
       setStatus('Copied');
     } catch {
-      setStatus('Copy failed — try manually', true);
+      setStatus('Copy failed', true);
     }
+  }
+
+  function loadNote(i) {
+    const notes = window.currentNotes || [];
+    if (!notes[i]) return;
+    document.getElementById('compose').value = notes[i].text;
+    document.getElementById('compose').focus();
+    setStatus('Loaded');
   }
 
   // Save on Ctrl/Cmd+Enter
@@ -401,7 +425,26 @@
     if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) saveNote();
   });
 
-  render();
+  // Real-time listener
+  db.collection(COLLECTION).orderBy('ts', 'asc').onSnapshot(
+    (snapshot) => {
+      const notes = [];
+      snapshot.forEach(doc => {
+        notes.push({ 
+          id: doc.id, 
+          text: doc.data().text,
+          ts: doc.data().ts ? doc.data().ts.toMillis() : Date.now()
+        });
+      });
+      window.currentNotes = notes;
+      render(notes);
+      setStatus('Synced');
+    },
+    (error) => {
+      console.error("Error fetching notes: ", error);
+      setStatus('Connection error', true);
+    }
+  );
 </script>
 
 </body>
