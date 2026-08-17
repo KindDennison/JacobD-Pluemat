@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Doodle</title>
+  <style>
+    :root {
+      --surface:      oklch(97% 0.005 250);
+      --raised:       oklch(100% 0 0);
+      --border:       oklch(88% 0.01 250);
+      --muted:        oklch(55% 0.015 250);
+      --body:         oklch(18% 0.015 250);
+      --accent:       oklch(55% 0.18 250);
+      --accent-hover: oklch(48% 0.18 250);
+      --danger:       oklch(55% 0.18 25);
+      --radius-sm:    6px;
+      --radius-md:    10px;
+      --space-1:      4px;
+      --space-2:      8px;
+      --space-3:      12px;
+      --space-4:      16px;
+      --space-6:      24px;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --surface:      oklch(16% 0.01 250);
+        --raised:       oklch(22% 0.012 250);
+        --border:       oklch(32% 0.015 250);
+        --muted:        oklch(62% 0.015 250);
+        --body:         oklch(92% 0.008 250);
+        --accent:       oklch(70% 0.16 250);
+        --accent-hover: oklch(76% 0.16 250);
+      }
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, sans-serif;
+      font-size: 1rem;
+      line-height: 1.6;
+      color: var(--body);
+      background: var(--surface);
+      min-height: 100dvh;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      padding: var(--space-4);
+      gap: var(--space-4);
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-4);
+      flex-wrap: wrap;
+    }
+
+    h1 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      color: var(--body);
+    }
+
+    .status {
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    main {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-4);
+    }
+
+    @media (max-width: 640px) {
+      main { grid-template-columns: 1fr; }
+    }
+
+    .panel {
+      background: var(--raised);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: var(--space-4);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-3);
+    }
+
+    .panel-title {
+      font-size: 0.78rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+    }
+
+    textarea {
+      flex: 1;
+      min-height: 220px;
+      resize: vertical;
+      font-family: ui-monospace, 'Cascadia Code', monospace;
+      font-size: 0.875rem;
+      line-height: 1.6;
+      color: var(--body);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: var(--space-3);
+      outline: none;
+      transition: border-color 120ms ease;
+      width: 100%;
+    }
+
+    textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px oklch(from var(--accent) l c h / 0.15);
+    }
+
+    .actions {
+      display: flex;
+      gap: var(--space-2);
+      flex-wrap: wrap;
+    }
+
+    button {
+      font-family: inherit;
+      font-size: 0.85rem;
+      font-weight: 500;
+      padding: var(--space-2) var(--space-4);
+      border-radius: var(--radius-sm);
+      border: none;
+      cursor: pointer;
+      min-height: 36px;
+      transition: background 120ms ease, opacity 120ms ease;
+    }
+
+    button:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    button:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: oklch(98% 0.005 250);
+    }
+
+    .btn-primary:hover:not(:disabled) { background: var(--accent-hover); }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--muted);
+      border: 1px solid var(--border);
+    }
+
+    .btn-ghost:hover:not(:disabled) {
+      color: var(--body);
+      border-color: var(--body);
+    }
+
+    .btn-danger {
+      background: transparent;
+      color: var(--danger);
+      border: 1px solid var(--border);
+    }
+
+    .btn-danger:hover:not(:disabled) {
+      border-color: var(--danger);
+    }
+
+    .notes-list {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-2);
+      max-height: 340px;
+      overflow-y: auto;
+    }
+
+    .note-item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: var(--space-3);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-2);
+      cursor: pointer;
+      transition: border-color 120ms ease;
+    }
+
+    .note-item:hover { border-color: var(--accent); }
+
+    .note-item:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    .note-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: var(--space-2);
+    }
+
+    .note-time {
+      font-size: 0.73rem;
+      color: var(--muted);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .note-preview {
+      font-family: ui-monospace, 'Cascadia Code', monospace;
+      font-size: 0.8rem;
+      color: var(--body);
+      white-space: pre-wrap;
+      word-break: break-all;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .note-delete {
+      font-size: 0.73rem;
+      padding: 2px var(--space-2);
+      min-height: 24px;
+      flex-shrink: 0;
+    }
+
+    .empty {
+      text-align: center;
+      padding: var(--space-6);
+      color: var(--muted);
+      font-size: 0.875rem;
+    }
+
+    footer {
+      text-align: center;
+      font-size: 0.73rem;
+      color: var(--muted);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Doodle</h1>
+  <span class="status" id="status">Ready</span>
+</header>
+
+<main>
+  <!-- Compose panel -->
+  <section class="panel" aria-label="Compose note">
+    <span class="panel-title">New note</span>
+    <textarea
+      id="compose"
+      placeholder="Paste a snippet, URL, command, or any text..."
+      aria-label="Note content"
+      spellcheck="false"
+    ></textarea>
+    <div class="actions">
+      <button class="btn-primary" id="saveBtn" onclick="saveNote()">Save</button>
+      <button class="btn-ghost" id="copyBtn" onclick="copyCompose()">Copy</button>
+      <button class="btn-ghost" onclick="clearCompose()">Clear</button>
+    </div>
+  </section>
+
+  <!-- Saved notes panel -->
+  <section class="panel" aria-label="Saved notes">
+    <span class="panel-title">Saved notes</span>
+    <div class="notes-list" id="notesList" role="list" aria-live="polite"></div>
+    <div class="actions">
+      <button class="btn-danger" onclick="clearAll()">Clear all</button>
+    </div>
+  </section>
+</main>
+
+<footer>Notes are stored in your browser's localStorage — no server, no account.</footer>
+
+<script>
+  const KEY = 'doodle_notes';
+
+  function load() {
+    try { return JSON.parse(localStorage.getItem(KEY)) || []; }
+    catch { return []; }
+  }
+
+  function save(notes) {
+    localStorage.setItem(KEY, JSON.stringify(notes));
+  }
+
+  function setStatus(msg, isError = false) {
+    const el = document.getElementById('status');
+    el.textContent = msg;
+    el.style.color = isError ? 'var(--danger)' : 'var(--accent)';
+    clearTimeout(el._t);
+    el._t = setTimeout(() => { el.textContent = 'Ready'; el.style.color = ''; }, 2000);
+  }
+
+  function formatTime(ts) {
+    const d = new Date(ts);
+    return d.toLocaleString(undefined, {
+      month: 'short', day: 'numeric',
+      hour: '2-digit', minute: '2-digit'
+    });
+  }
+
+  function render() {
+    const notes = load();
+    const list = document.getElementById('notesList');
+    if (!notes.length) {
+      list.innerHTML = '<p class="empty">No notes yet. Save something above.</p>';
+      return;
+    }
+    list.innerHTML = notes.slice().reverse().map((n, ri) => {
+      const i = notes.length - 1 - ri;
+      return `
+        <div class="note-item" role="listitem" tabindex="0"
+             onclick="loadNote(${i})"
+             onkeydown="if(event.key==='Enter'||event.key===' ')loadNote(${i})"
+             aria-label="Note from ${formatTime(n.ts)}, click to load">
+          <div class="note-meta">
+            <span class="note-time">${formatTime(n.ts)}</span>
+            <button class="btn-danger note-delete"
+              onclick="event.stopPropagation();deleteNote(${i})"
+              aria-label="Delete note">Delete</button>
+          </div>
+          <div class="note-preview">${escHtml(n.text)}</div>
+        </div>`;
+    }).join('');
+  }
+
+  function escHtml(s) {
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  function saveNote() {
+    const text = document.getElementById('compose').value.trim();
+    if (!text) { setStatus('Nothing to save', true); return; }
+    const notes = load();
+    notes.push({ text, ts: Date.now() });
+    save(notes);
+    document.getElementById('compose').value = '';
+    render();
+    setStatus('Saved');
+  }
+
+  function loadNote(i) {
+    const notes = load();
+    if (!notes[i]) return;
+    document.getElementById('compose').value = notes[i].text;
+    document.getElementById('compose').focus();
+    setStatus('Loaded into editor');
+  }
+
+  function deleteNote(i) {
+    const notes = load();
+    notes.splice(i, 1);
+    save(notes);
+    render();
+    setStatus('Deleted');
+  }
+
+  function clearAll() {
+    if (!confirm('Delete all notes?')) return;
+    save([]);
+    render();
+    setStatus('Cleared');
+  }
+
+  function clearCompose() {
+    document.getElementById('compose').value = '';
+    document.getElementById('compose').focus();
+  }
+
+  async function copyCompose() {
+    const text = document.getElementById('compose').value;
+    if (!text) { setStatus('Nothing to copy', true); return; }
+    try {
+      await navigator.clipboard.writeText(text);
+      setStatus('Copied');
+    } catch {
+      setStatus('Copy failed — try manually', true);
+    }
+  }
+
+  // Save on Ctrl/Cmd+Enter
+  document.getElementById('compose').addEventListener('keydown', e => {
+    if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) saveNote();
+  });
+
+  render();
+</script>
+
+</body>
+</html>
