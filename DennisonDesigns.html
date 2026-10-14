@@ -18,7 +18,7 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Public+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Lily+Script+One&family=Public+Sans:wght@400;600;700&display=swap" rel="stylesheet">
 
   <script type="application/ld+json">
   {
@@ -44,6 +44,7 @@
       --glow: #ff6a1a;          /* decorative, and on dark backgrounds */
       --display: "Bricolage Grotesque", "Arial Black", Arial, sans-serif;
       --body: "Public Sans", Arial, Helvetica, sans-serif;
+      --script: "Lily Script One", "Lobster", "Brush Script MT", cursive;
     }
     * { box-sizing: border-box; }
     html { scroll-behavior: smooth; scroll-padding-top: 84px; }
@@ -92,9 +93,15 @@
     .plate[data-shape="sign"] { width: min(100%, 360px); aspect-ratio: 20 / 9; border-radius: 8px 8px 4px 4px; }
     .plate[data-shape="sign"] .plate-hole { display: none; }
     .plate[data-shape="keyring"] { width: min(100%, 240px); aspect-ratio: 4 / 3; border-radius: 22px; }
-    .plate-text { position: relative; padding: 0 6%; max-width: 100%; font-family: var(--display); font-weight: 800; font-size: calc(var(--fs) * 1cqw); line-height: 1.1; white-space: nowrap; overflow: hidden; text-overflow: clip;
+    .plate-text, .plate-back { grid-area: 1 / 1; max-width: 100%; padding: .12em .1em; font-family: var(--script); font-weight: 400; font-size: calc(var(--fs) * 1cqw); line-height: 1.1; white-space: nowrap; }
+    .plate-text { position: relative;
       background: repeating-linear-gradient(0deg, var(--raised) 0 3px, color-mix(in srgb, var(--raised) 72%, #000) 3px 4px);
       -webkit-background-clip: text; background-clip: text; color: transparent; -webkit-text-fill-color: transparent; }
+    /* Cut-out name: raised lettering sitting on a thick outline that follows the letters */
+    .plate-back { display: none; color: var(--plate); -webkit-text-stroke: .24em var(--plate); paint-order: stroke fill; text-shadow: 0 .03em 0 rgba(0, 0, 0, .25), 0 .09em .14em rgba(0, 0, 0, .3); }
+    .plate[data-shape="cutout"] { width: min(100%, 340px); aspect-ratio: 16 / 8; background: transparent; box-shadow: none; border-radius: 0; overflow: visible; }
+    .plate[data-shape="cutout"]::before, .plate[data-shape="cutout"] .plate-hole { display: none; }
+    .plate[data-shape="cutout"] .plate-back { display: block; }
 
     .field { display: grid; gap: 6px; margin-bottom: 14px; font-weight: 700; font-size: 15px; }
     .field input[type="text"], .field select { width: 100%; min-height: 46px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px; font: inherit; font-weight: 400; color: var(--ink); background: #fff; }
@@ -235,18 +242,20 @@
           <p class="maker-sub">Preview a personalised print, then ask for a quote on it.</p>
 
           <div class="stage">
-            <div class="plate" id="plate" data-shape="tag" role="img" aria-label="Preview of a name tag reading Alex" aria-live="polite">
+            <div class="plate" id="plate" data-shape="cutout" role="img" aria-label="Preview of a cut-out name reading Nova, red and white" aria-live="polite">
               <span class="plate-hole"></span>
-              <span class="plate-text" id="plate-text">Alex</span>
+              <span class="plate-back" id="plate-back" aria-hidden="true">Nova</span>
+              <span class="plate-text" id="plate-text" aria-hidden="true">Nova</span>
             </div>
           </div>
 
           <div class="field-row">
             <label class="field">Text
-              <input type="text" id="maker-name" value="Alex" maxlength="14" autocomplete="off">
+              <input type="text" id="maker-name" value="Nova" maxlength="14" autocomplete="off">
             </label>
             <label class="field">Item
               <select id="maker-shape">
+                <option value="cutout">Cut-out name</option>
                 <option value="tag">Name tag</option>
                 <option value="sign">Desk sign</option>
                 <option value="keyring">Keyring</option>
@@ -257,7 +266,8 @@
           <fieldset class="swatches">
             <legend>Colours (base and lettering)</legend>
             <div class="swatch-row">
-              <label class="swatch"><input type="radio" name="pair" value="Blue and white" data-plate="#1f4fd8" data-text="#ffffff" aria-label="Blue and white" checked><span style="--p:#1f4fd8;--t:#ffffff"></span></label>
+              <label class="swatch"><input type="radio" name="pair" value="Red and white" data-plate="#cf3a1c" data-text="#ffffff" aria-label="Red and white" checked><span style="--p:#cf3a1c;--t:#ffffff"></span></label>
+              <label class="swatch"><input type="radio" name="pair" value="Blue and white" data-plate="#1f4fd8" data-text="#ffffff" aria-label="Blue and white"><span style="--p:#1f4fd8;--t:#ffffff"></span></label>
               <label class="swatch"><input type="radio" name="pair" value="Orange and black" data-plate="#ff6a1a" data-text="#101820" aria-label="Orange and black"><span style="--p:#ff6a1a;--t:#101820"></span></label>
               <label class="swatch"><input type="radio" name="pair" value="Green and white" data-plate="#1e7a5c" data-text="#ffffff" aria-label="Green and white"><span style="--p:#1e7a5c;--t:#ffffff"></span></label>
               <label class="swatch"><input type="radio" name="pair" value="Black and orange" data-plate="#101820" data-text="#ff6a1a" aria-label="Black and orange"><span style="--p:#101820;--t:#ff6a1a"></span></label>
@@ -447,9 +457,10 @@
     // ---- Design preview ---------------------------------------------------
     const plate = document.getElementById("plate");
     const plateText = document.getElementById("plate-text");
+    const plateBack = document.getElementById("plate-back");
     const nameInput = document.getElementById("maker-name");
     const shapeSelect = document.getElementById("maker-shape");
-    const shapeLabels = { tag: "name tag", sign: "desk sign", keyring: "keyring" };
+    const shapeLabels = { cutout: "cut-out name", tag: "name tag", sign: "desk sign", keyring: "keyring" };
 
     function currentPair() {
       return document.querySelector('input[name="pair"]:checked');
@@ -459,8 +470,9 @@
       const text = nameInput.value.trim() || "Your text";
       const pair = currentPair();
       plateText.textContent = text;
+      plateBack.textContent = text;
       // Roughly fit the lettering to the plate: long text gets smaller.
-      const size = Math.min(24, 118 / Math.max(text.length, 5));
+      const size = Math.min(26, 128 / Math.max(text.length, 5));
       plate.style.setProperty("--fs", size.toFixed(1));
       plate.style.setProperty("--plate", pair.dataset.plate);
       plate.style.setProperty("--raised", pair.dataset.text);
