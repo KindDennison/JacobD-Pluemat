@@ -3,29 +3,29 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+
   <title>Dennison Designs | Personalised 3D Printing and Custom Parts</title>
-  <meta name="description" content="Personalised 3D prints, practical replacement parts and prototypes, made to order by Jacob Dennison. Send an idea, sketch or photo and get a quote.">
-  <meta name="theme-color" content="#101820">
+  <meta name="description" content="Personalised 3D prints, practical replacement parts and prototypes, made to order by Jacob Dennison.">
 
-  <!-- TODO: once your domain is live, add: <link rel="canonical" href="https://YOURDOMAIN.co.uk/"> -->
-  <!-- TODO: add a share image (1200x630) and uncomment: <meta property="og:image" content="https://YOURDOMAIN.co.uk/share.jpg"> -->
+  <!-- TODO: uncomment and set once the domain is live -->
+  <!-- <link rel="canonical" href="https://dennisondesigns.co.uk/"> -->
+  <!-- <meta property="og:image" content="https://dennisondesigns.co.uk/images/og-cover.jpg"> -->
+
   <meta property="og:type" content="website">
-  <meta property="og:title" content="Dennison Designs | Personalised 3D Printing">
-  <meta property="og:description" content="Personalised prints, practical parts and prototypes, made to order.">
-  <meta property="og:locale" content="en_GB">
-
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23101820'/%3E%3Ctext x='32' y='42' font-family='Arial' font-size='28' font-weight='800' text-anchor='middle' fill='%23ff6a1a'%3EDD%3C/text%3E%3C/svg%3E">
+  <meta property="og:title" content="Dennison Designs | Personalised 3D Printing and Custom Parts">
+  <meta property="og:description" content="Personalised 3D prints, practical replacement parts and prototypes, made to order by Jacob Dennison.">
+  <meta name="theme-color" content="#101820">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Lily+Script+One&family=Public+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,700&family=Iceland&family=Lily+Script+One&family=Pacifico&family=Public+Sans:wght@400;600&display=swap" rel="stylesheet">
 
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
     "@type": "LocalBusiness",
     "name": "Dennison Designs",
-    "description": "Personalised 3D prints, practical parts and prototypes, made to order.",
+    "description": "Personalised 3D printing, custom replacement parts and prototypes made to order.",
     "email": "hello@dennisondesigns.co.uk",
     "founder": { "@type": "Person", "name": "Jacob Dennison" },
     "sameAs": ["https://www.instagram.com/KingDennison"]
@@ -42,626 +42,1271 @@
       --accent: #c8430f;
       --accent-dark: #a2350a;
       --glow: #ff6a1a;
-      --display: "Bricolage Grotesque", "Arial Black", Arial, sans-serif;
-      --body: "Public Sans", Arial, Helvetica, sans-serif;
-      --script: "Lily Script One", "Lobster", "Brush Script MT", cursive;
+      --radius: 12px;
     }
+
     * { box-sizing: border-box; }
-    html { scroll-behavior: smooth; scroll-padding-top: 84px; }
-    body { margin: 0; font-family: var(--body); font-size: 17px; line-height: 1.6; color: var(--ink); background: var(--bg); }
-    img, svg { max-width: 100%; }
-    a { color: inherit; }
-    :focus-visible { outline: 3px solid var(--glow); outline-offset: 3px; border-radius: 4px; }
 
-    .wrap { width: min(1120px, calc(100% - 32px)); margin-inline: auto; }
-    .skip { position: absolute; left: 12px; top: -60px; z-index: 50; padding: 10px 14px; background: var(--ink); color: #fff; border-radius: 8px; }
-    .skip:focus { top: 12px; }
+    html { scroll-behavior: smooth; }
 
-    /* Header */
-    .site-header { position: sticky; top: 0; z-index: 20; background: rgba(241, 243, 245, .94); border-bottom: 1px solid var(--line); backdrop-filter: blur(10px); }
-    .nav { min-height: 68px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
-    .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; font-family: var(--display); font-weight: 800; font-size: 20px; }
-    .brand-mark { width: 40px; height: 40px; display: grid; place-items: center; border-radius: 10px; background: var(--ink); color: var(--glow); font-size: 16px; }
-    .nav-links { display: flex; align-items: center; gap: 24px; font-size: 15px; font-weight: 600; }
-    .nav-links a { text-decoration: none; color: var(--muted); }
-    .nav-links a:hover { color: var(--ink); }
-    .nav-links .button { color: #fff; }
-    .menu-toggle { display: none; min-height: 44px; padding: 0 14px; border: 1px solid var(--line); border-radius: 8px; background: transparent; font: inherit; font-weight: 700; color: var(--ink); cursor: pointer; }
-
-    /* Buttons */
-    .button { display: inline-flex; align-items: center; justify-content: center; min-height: 46px; padding: 12px 20px; border: 1px solid transparent; border-radius: 8px; background: var(--accent); color: #fff; font: inherit; font-weight: 700; line-height: 1.1; text-decoration: none; cursor: pointer; }
-    .button:hover { background: var(--accent-dark); }
-    .button.ghost { background: transparent; color: var(--ink); border-color: var(--ink); }
-    .button.ghost:hover { background: var(--ink); color: #fff; }
-
-    /* Hero */
-    .hero { position: relative; overflow: hidden; padding: 72px 0 80px; border-bottom: 1px solid var(--line); }
-    .hero::before { content: ""; position: absolute; inset: 0; background: repeating-linear-gradient(0deg, rgba(16, 24, 32, .06) 0 1px, transparent 1px 7px); -webkit-mask-image: linear-gradient(100deg, transparent 25%, #000 100%); mask-image: linear-gradient(100deg, transparent 25%, #000 100%); pointer-events: none; }
-    .hero-grid { position: relative; display: grid; grid-template-columns: 1.05fr .95fr; gap: 48px; align-items: center; }
-    h1 { margin: 0; font-family: var(--display); font-weight: 800; font-size: clamp(40px, 6.4vw, 78px); line-height: .98; letter-spacing: -.02em; }
-    .hero-copy { max-width: 520px; margin: 22px 0 0; font-size: clamp(18px, 2vw, 21px); color: #364250; }
-    .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
-
-    /* Name tag customiser */
-    .maker { padding: 22px; border: 1px solid var(--line); border-radius: 16px; background: var(--panel); box-shadow: 0 24px 60px rgba(16, 24, 32, .12); }
-    .maker h2 { margin: 0 0 4px; font-family: var(--display); font-size: 22px; line-height: 1.2; }
-    .maker-sub { margin: 0 0 18px; color: var(--muted); font-size: 15px; }
-    .stage { display: grid; place-items: center; min-height: 200px; padding: 20px; border-radius: 10px; background: #e6e9ed; margin-bottom: 18px; }
-    .plate { --plate: #1f4fd8; --raised: #ffffff; --fs: 22; position: relative; container-type: inline-size; width: min(100%, 320px); aspect-ratio: 16 / 9; display: grid; place-items: center; border-radius: 14px; background: var(--plate); box-shadow: 0 2px 0 rgba(0, 0, 0, .18), 0 14px 26px rgba(16, 24, 32, .2); overflow: hidden; transition: background-color .25s; }
-    .plate::before { content: ""; position: absolute; inset: 0; background: repeating-linear-gradient(0deg, rgba(0, 0, 0, .1) 0 1px, transparent 1px 4px); pointer-events: none; }
-    .plate-hole { position: absolute; top: 10%; left: 6%; width: 7%; aspect-ratio: 1; border-radius: 50%; background: #e6e9ed; box-shadow: inset 0 1px 2px rgba(0, 0, 0, .35); }
-    .plate[data-shape="sign"] { width: min(100%, 360px); aspect-ratio: 20 / 9; border-radius: 8px 8px 4px 4px; }
-    .plate[data-shape="sign"] .plate-hole { display: none; }
-    .plate[data-shape="keyring"] { width: min(100%, 240px); aspect-ratio: 4 / 3; border-radius: 22px; }
-    .plate-text, .plate-back { grid-area: 1 / 1; max-width: 100%; padding: .12em .1em; font-family: var(--script); font-weight: 400; font-size: calc(var(--fs) * 1cqw); line-height: 1.1; white-space: nowrap; }
-    .plate-text { position: relative;
-      background: repeating-linear-gradient(0deg, var(--raised) 0 3px, color-mix(in srgb, var(--raised) 72%, #000) 3px 4px);
-      -webkit-background-clip: text; background-clip: text; color: transparent; -webkit-text-fill-color: transparent; }
-    .plate-back { display: none; color: var(--plate); -webkit-text-stroke: .24em var(--plate); paint-order: stroke fill; text-shadow: 0 .03em 0 rgba(0, 0, 0, .25), 0 .09em .14em rgba(0, 0, 0, .3); }
-    .plate[data-shape="cutout"] { width: min(100%, 340px); aspect-ratio: 16 / 8; background: transparent; box-shadow: none; border-radius: 0; overflow: visible; }
-    .plate[data-shape="cutout"]::before, .plate[data-shape="cutout"] .plate-hole { display: none; }
-    .plate[data-shape="cutout"] .plate-back { display: block; }
-
-    .field { display: grid; gap: 6px; margin-bottom: 14px; font-weight: 700; font-size: 15px; }
-    .field input[type="text"], .field select { width: 100%; min-height: 46px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px; font: inherit; font-weight: 400; color: var(--ink); background: #fff; }
-    .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-    fieldset.swatches { margin: 0 0 18px; padding: 0; border: 0; }
-    fieldset.swatches legend { padding: 0; margin-bottom: 8px; font-weight: 700; font-size: 15px; }
-    .swatch-row { display: flex; gap: 10px; flex-wrap: wrap; }
-    .swatch { position: relative; }
-    .swatch input { position: absolute; opacity: 0; inset: 0; width: 100%; height: 100%; margin: 0; cursor: pointer; }
-    .swatch span { display: block; width: 40px; height: 40px; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 0 0 1px var(--line); background: linear-gradient(135deg, var(--p) 50%, var(--t) 50%); }
-    .swatch input:checked + span { box-shadow: 0 0 0 3px var(--ink); }
-    .swatch input:focus-visible + span { outline: 3px solid var(--glow); outline-offset: 3px; }
-    .maker .button { width: 100%; }
-
-    /* Sections */
-    .section { padding: 84px 0; }
-    .section-head { max-width: 640px; margin-bottom: 36px; }
-    h2.title { margin: 0; font-family: var(--display); font-weight: 800; font-size: clamp(30px, 4.2vw, 48px); line-height: 1.02; letter-spacing: -.015em; }
-    .section-head p { margin: 14px 0 0; color: var(--muted); }
-
-    /* Services */
-    .rows { border-top: 2px solid var(--ink); }
-    .row { display: grid; grid-template-columns: 1fr 1.4fr 1fr; gap: 24px; padding: 26px 0; border-bottom: 1px solid var(--line); }
-    .row h3 { margin: 0; font-family: var(--display); font-size: 26px; line-height: 1.1; }
-    .row p { margin: 0; color: #364250; }
-    .row .examples { color: var(--muted); font-size: 15px; }
-
-    /* Gallery */
-    .gallery-section { border-top: 1px solid var(--line); }
-    .gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; margin: 0; padding: 0; list-style: none; }
-    .gallery li:first-child:not(:last-child) { grid-column: span 2; grid-row: span 2; }
-    .shot { position: relative; display: block; width: 100%; height: 100%; margin: 0; padding: 0; border: 0; border-radius: 12px; overflow: hidden; background: #dfe3e8; cursor: zoom-in; aspect-ratio: 4 / 3; }
-    .gallery li:first-child:not(:last-child) .shot { aspect-ratio: auto; min-height: 100%; }
-    .shot img { display: block; width: 100%; height: 100%; object-fit: cover; transition: transform .35s; }
-    .shot:hover img { transform: scale(1.03); }
-    .shot .cap { display: block; position: absolute; inset: auto 0 0 0; padding: 28px 16px 14px; text-align: left; font-size: 15px; font-weight: 600; color: #fff; background: linear-gradient(0deg, rgba(16, 24, 32, .78), rgba(16, 24, 32, 0)); }
-    .lightbox { width: min(1100px, 94vw); max-height: 92vh; padding: 0; border: 0; border-radius: 12px; background: var(--ink); color: #fff; overflow: hidden; }
-    .lightbox::backdrop { background: rgba(10, 16, 22, .82); }
-    .lightbox img { display: block; width: 100%; max-height: 78vh; object-fit: contain; background: #0a1016; }
-    .lightbox-bar { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 14px 18px; }
-    .lightbox-bar p { margin: 0; font-weight: 600; }
-    .lightbox-bar button { min-height: 40px; padding: 0 16px; border: 1px solid rgba(255, 255, 255, .4); border-radius: 8px; background: transparent; color: #fff; font: inherit; font-weight: 700; cursor: pointer; }
-    .lightbox-bar button:hover { background: rgba(255, 255, 255, .12); }
-
-    /* Materials */
-    .materials { background: #e6e9ed; border-block: 1px solid var(--line); }
-    .table-wrap { overflow-x: auto; border-radius: 12px; border: 1px solid var(--line); background: var(--panel); }
-    table { width: 100%; min-width: 620px; border-collapse: collapse; }
-    th, td { padding: 16px 20px; text-align: left; vertical-align: top; border-bottom: 1px solid var(--line); }
-    tr:last-child th, tr:last-child td { border-bottom: 0; }
-    thead th { font-size: 14px; color: var(--muted); font-weight: 600; background: #f7f8f9; }
-    tbody th { font-family: var(--display); font-size: 20px; white-space: nowrap; }
-    .note { margin: 18px 0 0; color: var(--muted); }
-
-    /* Process */
-    .steps { counter-reset: step; display: grid; grid-template-columns: repeat(4, 1fr); gap: 28px; margin: 0; padding: 0; list-style: none; }
-    .steps li { position: relative; padding-top: 58px; }
-    .steps li::before { counter-increment: step; content: counter(step); position: absolute; top: 0; left: 0; width: 40px; height: 40px; display: grid; place-items: center; border-radius: 50%; background: var(--ink); color: #fff; font-family: var(--display); font-weight: 800; }
-    .steps li::after { content: ""; position: absolute; top: 19px; left: 52px; right: -16px; height: 2px; background: repeating-linear-gradient(90deg, var(--line) 0 6px, transparent 6px 12px); }
-    .steps li:last-child::after { display: none; }
-    .steps h3 { margin: 0 0 8px; font-family: var(--display); font-size: 22px; line-height: 1.15; }
-    .steps p { margin: 0; color: var(--muted); }
-
-    /* FAQ */
-    .faq { max-width: 760px; border-top: 2px solid var(--ink); }
-    details { border-bottom: 1px solid var(--line); }
-    summary { display: flex; justify-content: space-between; gap: 16px; padding: 20px 0; font-family: var(--display); font-weight: 600; font-size: 20px; cursor: pointer; list-style: none; }
-    summary::-webkit-details-marker { display: none; }
-    summary::after { content: "+"; font-weight: 400; font-size: 26px; line-height: 1; }
-    details[open] summary::after { content: "\2212"; }
-    details p { margin: 0 0 20px; max-width: 62ch; color: #364250; }
-
-    /* Contact */
-    .contact { background: var(--ink); color: #fff; }
-    .contact .section-head p, .contact .side p, .form-note { color: rgba(255, 255, 255, .72); }
-    .contact-layout { display: grid; grid-template-columns: .8fr 1.2fr; gap: 48px; align-items: start; }
-    .contact-list { margin: 24px 0 0; padding: 0; list-style: none; display: grid; gap: 12px; }
-    .contact-list a { font-weight: 700; text-decoration-color: rgba(255, 255, 255, .4); }
-    form { display: grid; gap: 14px; padding: 24px; border: 1px solid rgba(255, 255, 255, .18); border-radius: 12px; background: rgba(255, 255, 255, .05); }
-    form label { display: grid; gap: 6px; font-weight: 700; font-size: 15px; }
-    form input, form select, form textarea { width: 100%; min-height: 46px; padding: 11px 12px; border: 1px solid rgba(255, 255, 255, .28); border-radius: 8px; font: inherit; font-weight: 400; color: #fff; background: rgba(255, 255, 255, .08); }
-    form select option { color: var(--ink); }
-    form textarea { min-height: 140px; resize: vertical; }
-    form ::placeholder { color: rgba(255, 255, 255, .55); }
-    form .button { width: fit-content; background: var(--glow); color: var(--ink); }
-    form .button:hover { background: #ff8140; }
-    .hp { position: absolute; left: -9999px; height: 0; overflow: hidden; }
-    .status { min-height: 1.5em; margin: 0; font-weight: 600; }
-    .form-note { margin: 0; font-size: 14px; }
-
-    .site-footer { padding: 24px 0; background: #0a1016; color: rgba(255, 255, 255, .66); font-size: 14px; }
-    .footer-inner { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
-
-    @media (max-width: 900px) {
-      .hero { padding: 48px 0 56px; }
-      .hero-grid, .contact-layout { grid-template-columns: 1fr; }
-      .row { grid-template-columns: 1fr; gap: 8px; }
-      .steps { grid-template-columns: 1fr 1fr; row-gap: 36px; }
-      .steps li::after { display: none; }
-      .menu-toggle { display: inline-flex; align-items: center; }
-      .nav { flex-wrap: wrap; padding-block: 12px; }
-      .nav-links { display: none; width: 100%; flex-direction: column; align-items: stretch; gap: 0; padding-bottom: 8px; }
-      .nav-links.open { display: flex; }
-      .nav-links a { padding: 12px 0; border-top: 1px solid var(--line); }
-      .nav-links .button { margin-top: 8px; text-align: center; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: 'Public Sans', system-ui, -apple-system, sans-serif;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
     }
+
+    h1, h2, h3 {
+      font-family: 'Bricolage Grotesque', system-ui, sans-serif;
+      line-height: 1.15;
+      margin: 0 0 0.75rem;
+    }
+
+    h1 { font-size: clamp(2rem, 5vw, 3.25rem); }
+    h2 { font-size: clamp(1.5rem, 3.5vw, 2.25rem); }
+    h3 { font-size: 1.1rem; }
+
+    p { margin: 0 0 1rem; }
+    a { color: var(--accent); }
+
+    img { max-width: 100%; display: block; }
+
+    .wrap {
+      width: min(1100px, 100% - 2.5rem);
+      margin-inline: auto;
+    }
+
+    .skip-link {
+      position: absolute;
+      left: -9999px;
+      top: 0;
+      background: var(--ink);
+      color: #fff;
+      padding: 0.75rem 1rem;
+      z-index: 50;
+    }
+    .skip-link:focus { left: 0.5rem; top: 0.5rem; }
+
+    /* ── Header ── */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: rgba(241, 243, 245, 0.92);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .site-header .wrap {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      min-height: 68px;
+    }
+
+    .brand {
+      font-family: 'Bricolage Grotesque', sans-serif;
+      font-weight: 700;
+      font-size: 1.15rem;
+      color: var(--ink);
+      text-decoration: none;
+      letter-spacing: -0.01em;
+    }
+    .brand span { color: var(--accent); }
+
+    .site-nav ul {
+      display: flex;
+      gap: 1.5rem;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    .site-nav a {
+      color: var(--ink);
+      text-decoration: none;
+      font-size: 0.94rem;
+      font-weight: 600;
+    }
+    .site-nav a:hover { color: var(--accent); }
+
+    .menu-toggle {
+      display: none;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0.5rem 0.7rem;
+      font: inherit;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    /* ── Buttons ── */
+    .btn {
+      display: inline-block;
+      background: var(--accent);
+      color: #fff;
+      text-decoration: none;
+      font-weight: 600;
+      padding: 0.75rem 1.35rem;
+      border: 0;
+      border-radius: 8px;
+      font: inherit;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s ease, transform 0.15s ease;
+    }
+    .btn:hover { background: var(--accent-dark); transform: translateY(-1px); }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--ink);
+      border: 1px solid var(--line);
+    }
+    .btn-ghost:hover { background: var(--panel); color: var(--ink); }
+
+    /* ── Hero ── */
+    .hero {
+      padding: clamp(3rem, 8vw, 5.5rem) 0 4rem;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 3rem;
+      align-items: center;
+    }
+
+    .eyebrow {
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--accent);
+      margin-bottom: 0.75rem;
+    }
+
+    .hero p.lead {
+      font-size: 1.08rem;
+      color: var(--muted);
+      max-width: 46ch;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      margin-top: 1.5rem;
+    }
+
+    /* ── Customiser ── */
+    .customiser {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      box-shadow: 0 18px 40px rgba(16, 24, 32, 0.07);
+    }
+
+    .customiser h2 {
+      font-size: 1.05rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      margin-bottom: 1rem;
+    }
+
+    .field { margin-bottom: 1rem; }
+
+    .field label {
+      display: block;
+      font-weight: 600;
+      font-size: 0.9rem;
+      margin-bottom: 0.4rem;
+    }
+
+    .field input[type="text"],
+    .field select,
+    .field textarea {
+      width: 100%;
+      font: inherit;
+      color: var(--ink);
+      background: var(--bg);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0.65rem 0.75rem;
+    }
+
+    .field input[type="text"]:focus-visible,
+    .field select:focus-visible,
+    .field textarea:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 1px;
+    }
+
+    .preview-plate {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 128px;
+      padding: 1.25rem;
+      margin-top: 1rem;
+      background: linear-gradient(135deg, #101820, #20303f);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .preview-plate span {
+      color: #fff;
+      font-size: clamp(1.6rem, 5vw, 2.4rem);
+      line-height: 1.2;
+      text-align: center;
+      word-break: break-word;
+      text-shadow: 0 0 18px rgba(255, 106, 26, 0.55);
+    }
+
+    /* ── Font picker classes ── */
+    .font-script { font-family: 'Lily Script One', cursive; }
+    .font-disney { font-family: 'Pacifico', cursive; }
+    .font-frozen {
+      font-family: 'Iceland', sans-serif;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    /* ── Sections ── */
+    section { padding: 4rem 0; }
+
+    .section-head {
+      max-width: 60ch;
+      margin-bottom: 2.25rem;
+    }
+    .section-head p { color: var(--muted); margin-bottom: 0; }
+
+    /* ── Services ── */
+    .services { border-top: 1px solid var(--line); }
+
+    .service-row {
+      display: grid;
+      grid-template-columns: 4rem 1fr;
+      gap: 1.25rem;
+      padding: 1.5rem 0;
+      border-bottom: 1px solid var(--line);
+      align-items: start;
+    }
+
+    .service-row .num {
+      font-family: 'Bricolage Grotesque', sans-serif;
+      font-weight: 700;
+      color: var(--accent);
+      font-size: 1.05rem;
+    }
+
+    .service-row p { color: var(--muted); margin-bottom: 0; }
+
+    /* ── Gallery ── */
+    .gallery {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+    }
+
+    .gallery li {
+      position: relative;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    .gallery img {
+      width: 100%;
+      height: 100%;
+      aspect-ratio: 4 / 3;
+      object-fit: cover;
+      cursor: zoom-in;
+    }
+
+    .gallery button {
+      all: unset;
+      display: block;
+      cursor: zoom-in;
+    }
+
+    .gallery .cap {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      padding: 1.75rem 0.85rem 0.7rem;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #fff;
+      background: linear-gradient(to top, rgba(16, 24, 32, 0.86), rgba(16, 24, 32, 0));
+      pointer-events: none;
+    }
+
+    /* Showcase tile */
+    @media (min-width: 521px) {
+      .gallery li:first-child:not(:last-child) {
+        grid-column: span 2;
+        grid-row: span 2;
+      }
+      .gallery li:first-child:not(:last-child) img { aspect-ratio: auto; }
+      .gallery li:first-child:not(:last-child) .cap { font-size: 0.95rem; }
+    }
+
+    /* ── Helmet sizing tool ── */
+    .helmet-section {
+      background: var(--panel);
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .helmet-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2.5rem;
+      align-items: start;
+    }
+
+    .helmet-section .lead { color: var(--muted); }
+
+    .size-tool {
+      background: var(--bg);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 1.75rem;
+    }
+
+    .size-input-row { margin-bottom: 1.25rem; }
+
+    .size-input-row label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 0.6rem;
+    }
+
+    .slider-wrap {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .slider-wrap input[type="range"] {
+      flex: 1;
+      height: 6px;
+      accent-color: var(--accent);
+      cursor: pointer;
+    }
+
+    .slider-wrap output {
+      font-variant-numeric: tabular-nums;
+      font-weight: 700;
+      font-size: 1.15rem;
+      color: var(--accent);
+      min-width: 4ch;
+      text-align: right;
+    }
+
+    .size-result {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 1rem;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      margin-bottom: 1rem;
+    }
+
+    .size-badge {
+      background: var(--accent);
+      color: #fff;
+      font-weight: 700;
+      font-size: 0.95rem;
+      padding: 0.35rem 0.85rem;
+      border-radius: 20px;
+      white-space: nowrap;
+    }
+
+    .size-result p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.88rem;
+    }
+
+    .size-note {
+      font-size: 0.82rem;
+      color: var(--muted);
+      line-height: 1.55;
+      margin-bottom: 1.25rem;
+    }
+
+    .helmet-list {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 1.5rem;
+    }
+
+    .helmet-list li {
+      padding-left: 1.5rem;
+      position: relative;
+      margin-bottom: 0.6rem;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .helmet-list li::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0.55em;
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--accent);
+    }
+
+    /* ── Materials ── */
+    .table-scroll { overflow-x: auto; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      overflow: hidden;
+      font-size: 0.92rem;
+    }
+
+    th, td {
+      text-align: left;
+      padding: 0.85rem 1rem;
+      border-bottom: 1px solid var(--line);
+      vertical-align: top;
+    }
+
+    th {
+      background: var(--ink);
+      color: #fff;
+      font-family: 'Bricolage Grotesque', sans-serif;
+      font-weight: 700;
+      font-size: 0.86rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    tbody tr:last-child td { border-bottom: 0; }
+    td:first-child { font-weight: 600; color: var(--ink); }
+
+    /* ── Steps ── */
+    .steps {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.25rem;
+      counter-reset: step;
+    }
+
+    .steps li {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 1.5rem 1.25rem;
+    }
+
+    .steps li::before {
+      counter-increment: step;
+      content: counter(step);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: #fff;
+      font-weight: 700;
+      font-size: 0.88rem;
+      margin-bottom: 0.85rem;
+    }
+
+    .steps p { color: var(--muted); font-size: 0.92rem; margin: 0; }
+
+    /* ── FAQ ── */
+    details {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      margin-bottom: 0.75rem;
+      padding: 0.9rem 1.15rem;
+    }
+
+    summary {
+      cursor: pointer;
+      font-weight: 600;
+      font-family: 'Bricolage Grotesque', sans-serif;
+    }
+
+    summary::marker { color: var(--accent); }
+
+    details p {
+      color: var(--muted);
+      margin: 0.75rem 0 0;
+      font-size: 0.94rem;
+    }
+
+    /* ── Contact ── */
+    .contact {
+      background: var(--ink);
+      color: #fff;
+      padding: 4.5rem 0;
+    }
+
+    .contact h2 { color: #fff; }
+    .contact p { color: #b9c2cc; }
+
+    .contact-grid {
+      display: grid;
+      grid-template-columns: 0.9fr 1.1fr;
+      gap: 3rem;
+      align-items: start;
+    }
+
+    .contact-links { list-style: none; padding: 0; margin: 1.5rem 0 0; }
+    .contact-links li { margin-bottom: 0.5rem; color: #b9c2cc; }
+    .contact-links a { color: var(--glow); }
+
+    .quote-form {
+      background: #17222c;
+      border: 1px solid #2b3947;
+      border-radius: var(--radius);
+      padding: 1.75rem;
+    }
+
+    .quote-form .field label { color: #e6eaee; }
+
+    .quote-form .field input,
+    .quote-form .field select,
+    .quote-form .field textarea {
+      background: #0d151c;
+      border-color: #2b3947;
+      color: #fff;
+    }
+
+    .hp {
+      position: absolute;
+      left: -9999px;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+    }
+
+    .form-status {
+      margin-top: 0.85rem;
+      font-size: 0.9rem;
+      min-height: 1.4em;
+    }
+    .form-status.ok { color: #7fdc9b; }
+    .form-status.err { color: #ff9a7a; }
+
+    /* ── Footer ── */
+    footer {
+      background: var(--ink);
+      color: #8792a0;
+      border-top: 1px solid #2b3947;
+      padding: 1.5rem 0;
+      font-size: 0.85rem;
+    }
+
+    footer .wrap {
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    /* ── Lightbox ── */
+    dialog#lightbox {
+      border: 0;
+      padding: 0;
+      background: transparent;
+      max-width: min(96vw, 1000px);
+    }
+
+    dialog#lightbox::backdrop { background: rgba(9, 14, 18, 0.88); }
+
+    .lb-inner {
+      background: var(--panel);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    .lb-inner img { width: 100%; height: auto; }
+
+    .lb-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 0.85rem 1rem;
+    }
+
+    .lb-bar p { margin: 0; font-size: 0.9rem; color: var(--muted); }
+
+    .lb-close {
+      background: var(--ink);
+      color: #fff;
+      border: 0;
+      border-radius: 8px;
+      padding: 0.45rem 0.85rem;
+      font: inherit;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 900px) {
+      .hero-grid,
+      .contact-grid,
+      .helmet-grid { grid-template-columns: 1fr; gap: 2rem; }
+      .steps { grid-template-columns: repeat(2, 1fr); }
+      .gallery { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 640px) {
+      .menu-toggle { display: block; }
+
+      .site-nav {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: var(--panel);
+        border-bottom: 1px solid var(--line);
+      }
+
+      .site-nav.open { display: block; }
+
+      .site-nav ul {
+        flex-direction: column;
+        gap: 0;
+        padding: 0.5rem 1.25rem 1rem;
+      }
+
+      .site-nav li { padding: 0.6rem 0; }
+    }
+
     @media (max-width: 520px) {
       .gallery { grid-template-columns: 1fr; }
-      .gallery li:first-child:not(:last-child) { grid-column: auto; grid-row: auto; }
-      .gallery li:first-child:not(:last-child) .shot { aspect-ratio: 4 / 3; min-height: 0; }
-      .section { padding: 60px 0; }
-      .hero-actions .button, form .button { width: 100%; }
-      .steps, .field-row { grid-template-columns: 1fr; }
-      .maker { padding: 16px; }
+      .steps { grid-template-columns: 1fr; }
+      .size-tool { padding: 1.25rem; }
+      .service-row { grid-template-columns: 1fr; gap: 0.35rem; }
     }
+
     @media (prefers-reduced-motion: reduce) {
       html { scroll-behavior: auto; }
-      .plate, .shot img { transition: none; }
+      * { transition: none !important; }
     }
   </style>
 </head>
+
 <body>
-  <a class="skip" href="#main">Skip to content</a>
+  <a class="skip-link" href="#main">Skip to content</a>
 
   <header class="site-header">
-    <nav class="wrap nav" aria-label="Main">
-      <a class="brand" href="#top" aria-label="Dennison Designs, back to top">
-        <span class="brand-mark" aria-hidden="true">DD</span>
-        <span>Dennison Designs</span>
-      </a>
-      <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="nav-links">Menu</button>
-      <div class="nav-links" id="nav-links">
-        <a href="#services">What I make</a>
-        <a href="#gallery">Gallery</a>
-        <a href="#materials">Materials</a>
-        <a href="#process">How it works</a>
-        <a href="#faq">Questions</a>
-        <a class="button" href="#contact">Get a quote</a>
-      </div>
-    </nav>
+    <div class="wrap">
+      <a class="brand" href="#top">Dennison<span>Designs</span></a>
+
+      <button class="menu-toggle" id="menu-toggle" aria-expanded="false" aria-controls="site-nav">Menu</button>
+
+      <nav class="site-nav" id="site-nav" aria-label="Main">
+        <ul>
+          <li><a href="#services">What I make</a></li>
+          <li><a href="#gallery">Gallery</a></li>
+          <li><a href="#helmet-sizes">Helmet sizing</a></li>
+          <li><a href="#materials">Materials</a></li>
+          <li><a href="#questions">Questions</a></li>
+          <li><a href="#contact">Get a quote</a></li>
+        </ul>
+      </nav>
+    </div>
   </header>
 
   <main id="main">
-    <div id="top"></div>
 
-    <section class="hero" aria-labelledby="hero-title">
+    <!-- ── Hero / customiser ── -->
+    <section class="hero" id="top">
       <div class="wrap hero-grid">
         <div>
-          <h1 id="hero-title">Personalised 3D prints, made to fit.</h1>
-          <p class="hero-copy">Name tags, gifts, practical parts and prototypes, printed to order by Jacob Dennison. Send an idea, a sketch or a photo of what needs replacing and get a price before anything is printed.</p>
+          <p class="eyebrow">Made to order</p>
+          <h1>Personalised prints, practical parts, and things that no longer exist.</h1>
+          <p class="lead">
+            I design and 3D print to order, from cut out names and play dough stamps
+            through to replacement parts you cannot buy any more. Send over an idea,
+            a sketch, or a photo and a rough size, and I will come back with a quote.
+          </p>
           <div class="hero-actions">
-            <a class="button" href="#contact">Get a quote</a>
-            <a class="button ghost" href="#services">See what I make</a>
+            <a class="btn" href="#contact">Get a quote</a>
+            <a class="btn btn-ghost" href="#gallery">See examples</a>
           </div>
         </div>
 
-        <div class="maker" id="maker">
+        <div class="customiser">
           <h2>Try a design</h2>
-          <p class="maker-sub">Preview a personalised print, then ask for a quote on it.</p>
 
-          <div class="stage">
-            <div class="plate" id="plate" data-shape="cutout" role="img" aria-label="Preview of a cut-out name reading Nova, red and white" aria-live="polite">
-              <span class="plate-hole"></span>
-              <span class="plate-back" id="plate-back" aria-hidden="true">Nova</span>
-              <span class="plate-text" id="plate-text" aria-hidden="true">Nova</span>
-            </div>
+          <div class="field">
+            <label for="design-name">Name or word</label>
+            <input type="text" id="design-name" maxlength="16" value="Nova" autocomplete="off" placeholder="Enter a name">
           </div>
 
-          <div class="field-row">
-            <label class="field">Text
-              <input type="text" id="maker-name" value="Nova" maxlength="14" autocomplete="off">
-            </label>
-            <label class="field">Item
-              <select id="maker-shape">
-                <option value="cutout">Cut-out name</option>
-                <option value="tag">Name tag</option>
-                <option value="sign">Desk sign</option>
-                <option value="keyring">Keyring</option>
-              </select>
-            </label>
+          <div class="field">
+            <label for="font-pick">Font style</label>
+            <select id="font-pick">
+              <option value="font-script">Script (classic)</option>
+              <option value="font-disney">Storybook script</option>
+              <option value="font-frozen">Icy display</option>
+            </select>
           </div>
 
-          <fieldset class="swatches">
-            <legend>Colours (base and lettering)</legend>
-            <div class="swatch-row">
-              <label class="swatch"><input type="radio" name="pair" value="Red and white" data-plate="#cf3a1c" data-text="#ffffff" aria-label="Red and white" checked><span style="--p:#cf3a1c;--t:#ffffff"></span></label>
-              <label class="swatch"><input type="radio" name="pair" value="Blue and white" data-plate="#1f4fd8" data-text="#ffffff" aria-label="Blue and white"><span style="--p:#1f4fd8;--t:#ffffff"></span></label>
-              <label class="swatch"><input type="radio" name="pair" value="Orange and black" data-plate="#ff6a1a" data-text="#101820" aria-label="Orange and black"><span style="--p:#ff6a1a;--t:#101820"></span></label>
-              <label class="swatch"><input type="radio" name="pair" value="Green and white" data-plate="#1e7a5c" data-text="#ffffff" aria-label="Green and white"><span style="--p:#1e7a5c;--t:#ffffff"></span></label>
-              <label class="swatch"><input type="radio" name="pair" value="Black and orange" data-plate="#101820" data-text="#ff6a1a" aria-label="Black and orange"><span style="--p:#101820;--t:#ff6a1a"></span></label>
-              <label class="swatch"><input type="radio" name="pair" value="White and blue" data-plate="#f4f4f0" data-text="#1f4fd8" aria-label="White and blue"><span style="--p:#f4f4f0;--t:#1f4fd8"></span></label>
-            </div>
-          </fieldset>
-
-          <button class="button" type="button" id="maker-send">Ask for a quote on this</button>
+          <div class="preview-plate">
+            <span id="preview-text" class="font-script" aria-live="polite">Nova</span>
+          </div>
         </div>
       </div>
     </section>
 
-    <section class="section" id="services" aria-labelledby="services-title">
+    <!-- ── What I make ── -->
+    <section class="services" id="services">
       <div class="wrap">
         <div class="section-head">
-          <h2 class="title" id="services-title">What I make</h2>
-          <p>Small batches and one-offs, checked for fit and finish before they leave.</p>
+          <h2>What I make</h2>
+          <p>Three broad types of job, though most enquiries land somewhere in between.</p>
         </div>
-        <div class="rows">
-          <article class="row">
+
+        <div class="service-row">
+          <span class="num">01</span>
+          <div>
             <h3>Personalised prints</h3>
-            <p>Made for one person, one desk or one occasion. Pick the text, the colours and the shape.</p>
-            <p class="examples">Name tags, desk signs, keyrings, labels, party pieces, gifts</p>
-          </article>
-          <article class="row">
-            <h3>Practical parts</h3>
-            <p>Fixes for the small things that break or never quite fit: a missing clip, a bracket, a spacer.</p>
-            <p class="examples">Cable clips, brackets, storage dividers, spacers, replacement parts</p>
-          </article>
-          <article class="row">
-            <h3>Prototypes</h3>
-            <p>Check the size and fit of an idea in your hands before committing to final manufacture.</p>
-            <p class="examples">Concept models, fit-check parts, enclosures, jigs</p>
-          </article>
+            <p>Cut out names, name tags, cake toppers, stamps and gifts. Choose the wording, the size and the colour, and it gets printed to your spec.</p>
+          </div>
+        </div>
+
+        <div class="service-row">
+          <span class="num">02</span>
+          <div>
+            <h3>Practical replacement parts</h3>
+            <p>Knobs, brackets, clips, adapters and panels that are no longer available. Usually measured off the original, or scaled from a photo with a ruler or coin in shot for reference.</p>
+          </div>
+        </div>
+
+        <div class="service-row">
+          <span class="num">03</span>
+          <div>
+            <h3>Prototypes and one-offs</h3>
+            <p>Working parts, enclosures, jigs and fixtures. If you have a rough sketch or a problem to solve, send it over and we can work through the design together.</p>
+          </div>
         </div>
       </div>
     </section>
 
-    <section class="section gallery-section" id="gallery" aria-labelledby="gallery-title">
+    <!-- ── Gallery ── -->
+    <section id="gallery">
       <div class="wrap">
         <div class="section-head">
-          <h2 class="title" id="gallery-title">Recent prints</h2>
-          <p>A few things I have made. Tap a photo to see it larger.</p>
+          <h2>Gallery</h2>
+          <p>A selection of recent prints. Everything here was made to order for a specific person or a specific job.</p>
         </div>
+
         <ul class="gallery">
-
-          <!-- SHOWCASE SLOT: first item spans 2x2. Use a photo that reads well at a wide/square crop. -->
           <li>
-            <button class="shot" type="button" data-full="images/ac-duct-adapter-rectangular.jpg" data-caption="Air conditioning duct adapter, rectangular outlet">
-              <img src="images/ac-duct-adapter-rectangular.jpg" width="1200" height="900" loading="lazy" alt="White printed adapter plate clipped over a wall mounted air conditioner, with a rectangular collar directing cold air into a flexible duct">
-              <span class="cap">Air conditioning duct adapter, rectangular outlet</span>
+            <button type="button" data-full="images/ac-duct-adapter-rectangular.jpg" data-caption="Air conditioning duct adapter, rectangular outlet">
+              <img src="images/ac-duct-adapter-rectangular.jpg" alt="Printed duct adapter with a rectangular outlet fitting" width="1200" height="900" loading="lazy" decoding="async">
             </button>
+            <span class="cap">Air conditioning duct adapter, rectangular outlet</span>
           </li>
 
           <li>
-            <button class="shot" type="button" data-full="images/ac-duct-adapter-round.jpg" data-caption="Air conditioning duct adapter, round outlet">
-              <img src="images/ac-duct-adapter-round.jpg" width="1200" height="900" loading="lazy" alt="Printed adapter plate fitted to an air conditioner faceplate, reducing to a round duct spigot">
-              <span class="cap">Air conditioning duct adapter, round outlet</span>
+            <button type="button" data-full="images/ac-duct-adapter-round.jpg" data-caption="Air conditioning duct adapter, round outlet">
+              <img src="images/ac-duct-adapter-round.jpg" alt="Printed duct adapter with a round outlet fitting" width="1200" height="900" loading="lazy" decoding="async">
             </button>
+            <span class="cap">Air conditioning duct adapter, round outlet</span>
           </li>
 
           <li>
-            <button class="shot" type="button" data-full="images/costume-helmet-red.jpg" data-caption="Wearable printed helmet, assembled from sections">
-              <img src="images/costume-helmet-red.jpg" width="1200" height="900" loading="lazy" alt="Red and black printed helmet with dark eye lenses, sitting on a workshop bench">
-              <span class="cap">Wearable printed helmet, assembled from sections</span>
+            <button type="button" data-full="images/costume-helmet-red.jpg" data-caption="Wearable printed helmet, assembled from sections">
+              <img src="images/costume-helmet-red.jpg" alt="Red and black wearable helmet with dark eye lenses" width="1200" height="900" loading="lazy" decoding="async">
             </button>
+            <span class="cap">Wearable printed helmet, assembled from sections</span>
           </li>
 
           <li>
-            <button class="shot" type="button" data-full="images/costume-helmet-yellow-blue.jpg" data-caption="Printed helmet with side fins">
-              <img src="images/costume-helmet-yellow-blue.jpg" width="1200" height="900" loading="lazy" alt="Yellow and blue printed helmet with pointed fins either side of the face">
-              <span class="cap">Printed helmet with side fins</span>
+            <button type="button" data-full="images/costume-helmet-yellow-blue.jpg" data-caption="Printed helmet with side fins">
+              <img src="images/costume-helmet-yellow-blue.jpg" alt="Printed helmet with pointed side fins" width="1200" height="900" loading="lazy" decoding="async">
             </button>
+            <span class="cap">Printed helmet with side fins</span>
           </li>
 
           <li>
-            <button class="shot" type="button" data-full="images/costume-helmet-web-pattern.jpg" data-caption="Printed helmet with raised web detail">
-              <img src="images/costume-helmet-web-pattern.jpg" width="1200" height="900" loading="lazy" alt="Red and blue printed helmet with a raised black web pattern across the surface">
-              <span class="cap">Printed helmet with raised web detail</span>
+            <button type="button" data-full="images/costume-helmet-web-pattern.jpg" data-caption="Printed helmet with raised web detail">
+              <img src="images/costume-helmet-web-pattern.jpg" alt="White printed helmet with raised web pattern and pink trim" width="1200" height="900" loading="lazy" decoding="async">
             </button>
+            <span class="cap">Printed helmet with raised web detail</span>
           </li>
 
           <li>
-            <button class="shot" type="button" data-full="images/name-tags-set.jpg" data-caption="Character-themed name tags">
-              <img src="images/name-tags-set.jpg" width="1200" height="900" loading="lazy" alt="Six printed name tags in assorted colours, each with a different name in rounded lettering">
-              <span class="cap">Character-themed name tags</span>
+            <button type="button" data-full="images/name-tags-set.jpg" data-caption="Character-themed name tags">
+              <img src="images/name-tags-set.jpg" alt="Set of character themed name tags in assorted colours" width="1200" height="900" loading="lazy" decoding="async">
             </button>
+            <span class="cap">Character-themed name tags</span>
           </li>
 
           <li>
-            <button class="shot" type="button" data-full="images/play-doh-stamps.jpg" data-caption="Custom play dough stamps">
-              <img src="images/play-doh-stamps.jpg" width="1200" height="900" loading="lazy" alt="Printed plastic stamps with animal and shape outlines, arranged next to a tub of modelling dough">
-              <span class="cap">Custom play dough stamps</span>
+            <button type="button" data-full="images/play-doh-stamps.jpg" data-caption="Custom play dough stamps">
+              <img src="images/play-doh-stamps.jpg" alt="Set of printed play dough stamps with shaped ends" width="1200" height="900" loading="lazy" decoding="async">
             </button>
+            <span class="cap">Custom play dough stamps</span>
           </li>
 
           <li>
-            <button class="shot" type="button" data-full="images/dashboard-panel-100e.jpg" data-caption="Custom dashboard panel for a 1950s Ford 100E">
-              <img src="images/dashboard-panel-100e.jpg" width="1200" height="900" loading="lazy" alt="Black printed dashboard panel with round instrument openings, test fitted inside a classic car interior">
-              <span class="cap">Custom dashboard panel for a 1950s Ford 100E</span>
+            <button type="button" data-full="images/dashboard-panel-100e.jpg" data-caption="Custom dashboard panel for a 1950s Ford 100E">
+              <img src="images/dashboard-panel-100e.jpg" alt="Printed dashboard panel with cut outs for gauges and switches" width="1200" height="900" loading="lazy" decoding="async">
             </button>
+            <span class="cap">Custom dashboard panel for a 1950s Ford 100E</span>
           </li>
 
           <li>
-            <button class="shot" type="button" data-full="images/echo-dot-wall-mount.jpg" data-caption="Echo Dot wall mount">
-              <img src="images/echo-dot-wall-mount.jpg" width="1200" height="900" loading="lazy" alt="Printed wall bracket holding a small cylindrical smart speaker, with the power cable routed neatly down the wall">
-              <span class="cap">Echo Dot wall mount</span>
+            <button type="button" data-full="images/echo-dot-wall-mount.jpg" data-caption="Echo Dot wall mount">
+              <img src="images/echo-dot-wall-mount.jpg" alt="Printed wall mount bracket holding a smart speaker" width="1200" height="900" loading="lazy" decoding="async">
             </button>
+            <span class="cap">Echo Dot wall mount</span>
           </li>
 
           <li>
-            <button class="shot" type="button" data-full="images/cat-flap-door.jpg" data-caption="Replacement cat flap door">
-              <img src="images/cat-flap-door.jpg" width="1200" height="900" loading="lazy" alt="Printed replacement flap fitted into a cat flap frame in a wooden door">
-              <span class="cap">Replacement cat flap door</span>
+            <button type="button" data-full="images/cat-flap-door.jpg" data-caption="Replacement cat flap door">
+              <img src="images/cat-flap-door.jpg" alt="Printed replacement flap door fitted into a frame" width="1200" height="900" loading="lazy" decoding="async">
             </button>
+            <span class="cap">Replacement cat flap door</span>
           </li>
 
           <li>
-            <button class="shot" type="button" data-full="images/nova-cutout-name.jpg" data-caption="Cut-out name in red and white">
-              <img src="images/nova-cutout-name.jpg" width="1200" height="788" loading="lazy" alt="Red and white 3D printed cut-out name sign reading Nova, standing on a granite worktop">
-              <span class="cap">Cut-out name in red and white</span>
+            <button type="button" data-full="images/nova-cutout-name.jpg" data-caption="Cut-out name in red and white">
+              <img src="images/nova-cutout-name.jpg" alt="Cut out letter name printed in red and white" width="1200" height="788" loading="lazy" decoding="async">
             </button>
+            <span class="cap">Cut-out name in red and white</span>
           </li>
-
-          <!--
-            ADD MORE PHOTOS: copy a <li> block, update the three filenames/text, and paste it below.
-            1) Save the photo in the images/ folder (about 1200px wide, JPG or WebP, lowercase-with-hyphens filename).
-            2) Update data-full and src to the filename, data-caption and cap to a short description,
-               alt to a plain description of what is in the photo, and width/height to the real pixel dimensions.
-          -->
-
         </ul>
+
+        <!-- ADD MORE PHOTOS: copy a <li> block above and update the src, width, height, alt and caption -->
       </div>
     </section>
 
-    <dialog class="lightbox" id="lightbox" aria-label="Photo viewer">
-      <img id="lightbox-img" src="" alt="">
-      <div class="lightbox-bar">
-        <p id="lightbox-caption"></p>
-        <button type="button" id="lightbox-close">Close</button>
-      </div>
-    </dialog>
+    <!-- ── Helmet sizing tool ── -->
+    <section id="helmet-sizes" class="helmet-section">
+      <div class="wrap helmet-grid">
+        <div>
+          <p class="eyebrow">Made to measure</p>
+          <h2>Custom helmet sizing</h2>
+          <p class="lead">
+            Helmets are printed to your measurement rather than a generic size, so they sit
+            properly instead of being close enough. Set the slider to your head diameter and
+            I will scale the model to match before printing.
+          </p>
 
-    <section class="section materials" id="materials" aria-labelledby="materials-title">
+          <ul class="helmet-list">
+            <li>Printed in sections and assembled, then finished by hand.</li>
+            <li>Children's sizes available, measured the same way.</li>
+            <li>Bring me a measurement or a tape measure, either works.</li>
+            <li>Lining and strap fittings can be added on request.</li>
+          </ul>
+
+          <a class="btn btn-ghost" href="#gallery">See helmets in the gallery</a>
+        </div>
+
+        <div class="size-tool">
+          <div class="size-input-row">
+            <label for="head-diameter">Head diameter &mdash; inches</label>
+            <div class="slider-wrap">
+              <input type="range" id="head-diameter" min="5.0" max="8.3" step="0.1" value="7.0"
+                     aria-valuemin="5.0" aria-valuemax="8.3" aria-valuenow="7.0">
+              <output id="diameter-display" for="head-diameter">7.0&Prime;</output>
+            </div>
+          </div>
+
+          <div class="size-result" role="status" aria-live="polite">
+            <span class="size-badge" id="size-badge">Adult S</span>
+            <p id="size-desc">Adult small. Approx. head circumference 22&Prime;.</p>
+          </div>
+
+          <p class="size-note">
+            Not sure of your diameter? Measure around the widest part of the head, just above
+            the ears, then divide by 3.14. For children, measure them standing still with the
+            tape level all the way round.
+          </p>
+
+          <a class="btn" href="#contact">Ask for this size</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Materials ── -->
+    <section id="materials">
       <div class="wrap">
         <div class="section-head">
-          <h2 class="title" id="materials-title">Which material?</h2>
-          <p>The right choice depends on what the part will live with. Heat, water, sunlight and flexing all matter.</p>
+          <h2>Materials</h2>
+          <p>Three filaments cover almost everything I get asked for. If you are unsure, tell me how the part will be used and I will pick.</p>
         </div>
-        <div class="table-wrap">
+
+        <div class="table-scroll">
           <table>
+            <caption class="hp">Filament comparison</caption>
             <thead>
-              <tr><th scope="col">Material</th><th scope="col">Good for</th><th scope="col">Watch out for</th></tr>
+              <tr>
+                <th scope="col">Material</th>
+                <th scope="col">Best for</th>
+                <th scope="col">Notes</th>
+              </tr>
             </thead>
             <tbody>
-              <tr><th scope="row">PLA</th><td>Gifts, signs, name tags and display pieces. Crisp detail and the widest colour choice.</td><td>Softens in high heat, such as a hot car or direct sun behind glass.</td></tr>
-              <tr><th scope="row">PETG</th><td>Workshop parts, brackets and anything that needs to be tougher or see damp and daylight.</td><td>Slightly less crisp fine detail than PLA.</td></tr>
-              <tr><th scope="row">TPU</th><td>Flexible parts such as grips, bumpers, feet and seals.</td><td>Too soft for rigid, load-bearing parts.</td></tr>
+              <tr>
+                <td>PLA</td>
+                <td>Names, tags, display pieces, anything decorative</td>
+                <td>Widest colour range and the crispest detail. Not suited to heat or strong sunlight.</td>
+              </tr>
+              <tr>
+                <td>PETG</td>
+                <td>Brackets, adapters, mounts, outdoor parts</td>
+                <td>Tougher and more heat resistant than PLA with a slight flex. Fewer colour options.</td>
+              </tr>
+              <tr>
+                <td>TPU</td>
+                <td>Seals, feet, gaskets, anything that needs to bend</td>
+                <td>Flexible rubber-like finish. Prints slower, so larger parts take longer.</td>
+              </tr>
             </tbody>
           </table>
         </div>
-        <p class="note">Not sure? Tell me where the part will be used and I will recommend one.</p>
       </div>
     </section>
 
-    <section class="section" id="process" aria-labelledby="process-title">
+    <!-- ── How it works ── -->
+    <section id="how">
       <div class="wrap">
         <div class="section-head">
-          <h2 class="title" id="process-title">How it works</h2>
-          <p>From idea to finished print in four steps.</p>
+          <h2>How it works</h2>
+          <p>Four steps, and usually only one of them involves you doing anything.</p>
         </div>
+
         <ol class="steps">
-          <li><h3>Send the idea</h3><p>Size, colour, what it is for, plus any photos, sketches or files.</p></li>
-          <li><h3>Get a quote</h3><p>I check it can be printed, suggest a material and confirm price and timing.</p></li>
-          <li><h3>I print it</h3><p>Printed, checked and tidied up for collection or postage.</p></li>
-          <li><h3>You receive it</h3><p>Something made for the job, the space or the person.</p></li>
+          <li>
+            <h3>Send the idea</h3>
+            <p>An STL, a sketch, a photo, or just a description. Measurements help, and a ruler or coin in a photo is enough to scale from.</p>
+          </li>
+          <li>
+            <h3>Get a quote</h3>
+            <p>A price and a rough turnaround. Design time is included, so there is no separate charge for working the model out.</p>
+          </li>
+          <li>
+            <h3>I design and print</h3>
+            <p>I build the model, print it, clean it up and check it fits or works before it goes anywhere.</p>
+          </li>
+          <li>
+            <h3>Collect or posted</h3>
+            <p>Collect in person or post out, whichever suits. I will send a photo before it leaves either way.</p>
+          </li>
         </ol>
       </div>
     </section>
 
-    <section class="section materials" id="faq" aria-labelledby="faq-title">
+    <!-- ── Questions ── -->
+    <section id="questions">
       <div class="wrap">
         <div class="section-head">
-          <h2 class="title" id="faq-title">Questions</h2>
+          <h2>Questions</h2>
+          <p>The ones that come up most often. Anything else, just ask.</p>
         </div>
-        <div class="faq">
-          <details>
-            <summary>What should I send?</summary>
-            <p>Whatever you have: an STL file, a sketch, a photo of the part, or a short description with measurements. Photos with a ruler or coin next to the part help a lot.</p>
-          </details>
-          <details>
-            <summary>Can you design something from scratch?</summary>
-            <p>Yes. Send a sketch, a photo of the part or the measurements and I will model it. Any design time is included in the quote so there are no surprises.</p>
-          </details>
-          <details>
-            <summary>How much does it cost?</summary>
-            <p>It depends on size, material, print time and any design work. I give you a price before I print anything.</p>
-          </details>
-          <details>
-            <summary>Can I collect, or do you post?</summary>
-            <p>Either. We agree which when I confirm the quote.</p>
-          </details>
-          <details>
-            <summary>Can you match a specific colour?</summary>
-            <p>Tell me the colour you want and I will say what is available.</p>
-          </details>
-        </div>
+
+        <details>
+          <summary>What do you need from me to get started?</summary>
+          <p>Anything you have. An STL, a sketch on paper, a photo of the part with a ruler or coin in shot for scale, or just written measurements. If it is a replacement part, a photo of where it fits is often the most useful thing.</p>
+        </details>
+
+        <details>
+          <summary>Can you design something from scratch?</summary>
+          <p>Yes. Design work is included in the quote, so you are not paying separately for the modelling. If it is a big job I will confirm the design direction before printing anything.</p>
+        </details>
+
+        <details>
+          <summary>How much does it cost?</summary>
+          <p>It depends on the size, the material, the print time and how much design work is needed. Send the details and you will get a fixed price before anything is made.</p>
+        </details>
+
+        <details>
+          <summary>Do you post, or is it collection only?</summary>
+          <p>Either. Collection in person is fine, and posting is not a problem for anything that fits in a parcel box. Larger items may need a courier quote.</p>
+        </details>
+
+        <details>
+          <summary>Can you match a colour?</summary>
+          <p>Usually. I keep a range of colours in stock and can order specific ones in. Send a photo or a colour reference and I will tell you how close I can get.</p>
+        </details>
       </div>
     </section>
 
-    <section class="section contact" id="contact" aria-labelledby="contact-title">
-      <div class="wrap">
-        <div class="section-head">
-          <h2 class="title" id="contact-title">Get a quote</h2>
-          <p>Tell me what you would like made, roughly how big it needs to be and when you need it.</p>
+    <!-- ── Contact ── -->
+    <section class="contact" id="contact">
+      <div class="wrap contact-grid">
+        <div>
+          <h2>Get a quote</h2>
+          <p>Tell me what you need and I will come back with a price and a timeframe. Photos are welcome, and if you have a head measurement for a helmet, pop it in the message.</p>
+
+          <ul class="contact-links">
+            <li>Email: <a href="mailto:hello@dennisondesigns.co.uk">hello@dennisondesigns.co.uk</a></li>
+            <li>Instagram: <a href="https://www.instagram.com/KingDennison" rel="noopener">@KingDennison</a></li>
+          </ul>
         </div>
-        <div class="contact-layout">
-          <div class="side">
-            <p>Prefer to email? Attach photos, sketches or STL files straight to your message.</p>
-            <ul class="contact-list">
-              <li>Email: <a href="mailto:hello@dennisondesigns.co.uk">hello@dennisondesigns.co.uk</a></li>
-              <li>Instagram: <a href="https://www.instagram.com/KingDennison" rel="noopener">@KingDennison</a></li>
-            </ul>
+
+        <form class="quote-form" id="quote-form" novalidate>
+          <div class="field">
+            <label for="q-name">Your name</label>
+            <input type="text" id="q-name" name="name" autocomplete="name" required>
           </div>
 
-          <form id="quote-form" novalidate>
-            <div class="field-row">
-              <label>Name
-                <input name="name" type="text" autocomplete="name" required placeholder="Your name">
-              </label>
-              <label>Email
-                <input name="email" type="email" autocomplete="email" required placeholder="you@example.com">
-              </label>
-            </div>
-            <label>What do you need?
-              <select name="project-type" id="project-type">
-                <option>Personalised print</option>
-                <option>Practical part</option>
-                <option>Prototype</option>
-                <option>Something else</option>
-              </select>
-            </label>
-            <label>Project details
-              <textarea name="message" id="message" required placeholder="Size, colour, quantity, deadline and any useful notes"></textarea>
-            </label>
-            <div class="hp" aria-hidden="true"><label>Leave this empty <input name="website" type="text" tabindex="-1" autocomplete="off"></label></div>
-            <button class="button" type="submit">Send enquiry</button>
-            <p class="status" id="form-status" role="status" aria-live="polite"></p>
-            <p class="form-note">I only use your details to reply to your enquiry.</p>
-          </form>
-        </div>
+          <div class="field">
+            <label for="q-email">Email</label>
+            <input type="email" id="q-email" name="email" autocomplete="email" required>
+          </div>
+
+          <div class="field">
+            <label for="q-type">What is it?</label>
+            <select id="q-type" name="type">
+              <option>Personalised print</option>
+              <option>Practical part</option>
+              <option>Prototype</option>
+              <option>Helmet</option>
+              <option>Something else</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="q-message">Details</label>
+            <textarea id="q-message" name="message" rows="5" required></textarea>
+          </div>
+
+          <div class="hp" aria-hidden="true">
+            <label for="q-website">Website</label>
+            <input type="text" id="q-website" name="website" tabindex="-1" autocomplete="off">
+          </div>
+
+          <button class="btn" type="submit">Send enquiry</button>
+          <p class="form-status" id="form-status" role="status" aria-live="polite"></p>
+        </form>
       </div>
     </section>
   </main>
 
-  <footer class="site-footer">
-    <div class="wrap footer-inner">
-      <span>&copy; <span id="year"></span> Dennison Designs</span>
-      <span>Personalised prints, practical parts and prototypes.</span>
+  <footer>
+    <div class="wrap">
+      <span>&copy; <span id="year">2026</span> Dennison Designs. Made in the UK.</span>
+      <span>Jacob Dennison</span>
     </div>
   </footer>
 
+  <!-- ── Lightbox ── -->
+  <dialog id="lightbox">
+    <div class="lb-inner">
+      <img id="lb-img" src="" alt="">
+      <div class="lb-bar">
+        <p id="lb-caption"></p>
+        <button class="lb-close" type="button" id="lb-close">Close</button>
+      </div>
+    </div>
+  </dialog>
+
   <script>
-    // ---- Config -----------------------------------------------------------
-    const FORM_ENDPOINT = "";
-    const CONTACT_EMAIL = "hello@dennisondesigns.co.uk";
+    /* ── Mobile menu ── */
+    (function () {
+      const toggle = document.getElementById('menu-toggle');
+      const nav    = document.getElementById('site-nav');
+      if (!toggle || !nav) return;
 
-    document.getElementById("year").textContent = new Date().getFullYear();
-
-    // ---- Mobile menu ------------------------------------------------------
-    const toggle = document.querySelector(".menu-toggle");
-    const links = document.getElementById("nav-links");
-    toggle.addEventListener("click", () => {
-      const open = links.classList.toggle("open");
-      toggle.setAttribute("aria-expanded", String(open));
-    });
-    links.addEventListener("click", (e) => {
-      if (e.target.closest("a")) {
-        links.classList.remove("open");
-        toggle.setAttribute("aria-expanded", "false");
-      }
-    });
-
-    // ---- Design preview ---------------------------------------------------
-    const plate = document.getElementById("plate");
-    const plateText = document.getElementById("plate-text");
-    const plateBack = document.getElementById("plate-back");
-    const nameInput = document.getElementById("maker-name");
-    const shapeSelect = document.getElementById("maker-shape");
-    const shapeLabels = { cutout: "cut-out name", tag: "name tag", sign: "desk sign", keyring: "keyring" };
-
-    function currentPair() {
-      return document.querySelector('input[name="pair"]:checked');
-    }
-
-    function updatePreview() {
-      const text = nameInput.value.trim() || "Your text";
-      const pair = currentPair();
-      plateText.textContent = text;
-      plateBack.textContent = text;
-      const size = Math.min(26, 128 / Math.max(text.length, 5));
-      plate.style.setProperty("--fs", size.toFixed(1));
-      plate.style.setProperty("--plate", pair.dataset.plate);
-      plate.style.setProperty("--raised", pair.dataset.text);
-      plate.dataset.shape = shapeSelect.value;
-      plate.setAttribute("aria-label",
-        "Preview of a " + shapeLabels[shapeSelect.value] + " reading " + text + ", " + pair.value.toLowerCase());
-    }
-    nameInput.addEventListener("input", updatePreview);
-    shapeSelect.addEventListener("change", updatePreview);
-    document.querySelectorAll('input[name="pair"]').forEach((r) => r.addEventListener("change", updatePreview));
-    updatePreview();
-
-    document.getElementById("maker-send").addEventListener("click", () => {
-      const text = nameInput.value.trim() || "Your text";
-      const pair = currentPair().value.toLowerCase();
-      document.getElementById("project-type").value = "Personalised print";
-      document.getElementById("message").value =
-        "I would like a " + shapeLabels[shapeSelect.value] + " that says \"" + text + "\" in " + pair + ".\n\nQuantity: \nNeeded by: ";
-      document.getElementById("contact").scrollIntoView({ behavior: "smooth" });
-      setTimeout(() => document.querySelector('#quote-form [name="name"]').focus({ preventScroll: true }), 400);
-    });
-
-    // ---- Gallery lightbox -------------------------------------------------
-    const lightbox = document.getElementById("lightbox");
-    const lightboxImg = document.getElementById("lightbox-img");
-    const lightboxCaption = document.getElementById("lightbox-caption");
-    document.querySelectorAll(".gallery .shot").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        lightboxImg.src = btn.dataset.full;
-        lightboxImg.alt = btn.querySelector("img").alt;
-        lightboxCaption.textContent = btn.dataset.caption || "";
-        lightbox.showModal();
+      toggle.addEventListener('click', () => {
+        const open = nav.classList.toggle('open');
+        toggle.setAttribute('aria-expanded', open);
       });
-    });
-    document.getElementById("lightbox-close").addEventListener("click", () => lightbox.close());
-    lightbox.addEventListener("click", (e) => { if (e.target === lightbox) lightbox.close(); });
 
-    // ---- Quote form -------------------------------------------------------
-    const form = document.getElementById("quote-form");
-    const status = document.getElementById("form-status");
+      nav.addEventListener('click', (e) => {
+        if (e.target.tagName === 'A') {
+          nav.classList.remove('open');
+          toggle.setAttribute('aria-expanded', 'false');
+        }
+      });
+    }());
 
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const data = Object.fromEntries(new FormData(form).entries());
-      if (data.website) return;
-      if (!data.name || !data.email || !data.message || !form.email.checkValidity()) {
-        status.textContent = "Please add your name, a valid email and a few project details.";
-        return;
+    /* ── Design name preview ── */
+    (function () {
+      const input   = document.getElementById('design-name');
+      const preview = document.getElementById('preview-text');
+      if (!input || !preview) return;
+
+      input.addEventListener('input', () => {
+        preview.textContent = input.value.trim() || 'Nova';
+      });
+    }());
+
+    /* ── Font picker ── */
+    (function () {
+      const pick    = document.getElementById('font-pick');
+      const preview = document.getElementById('preview-text');
+      if (!pick || !preview) return;
+
+      const fonts = ['font-script', 'font-disney', 'font-frozen'];
+
+      pick.addEventListener('change', () => {
+        fonts.forEach(f => preview.classList.remove(f));
+        preview.classList.add(pick.value);
+      });
+    }());
+
+    /* ── Helmet size tool ── */
+    (function () {
+      const slider  = document.getElementById('head-diameter');
+      const display = document.getElementById('diameter-display');
+      const badge   = document.getElementById('size-badge');
+      const desc    = document.getElementById('size-desc');
+      if (!slider) return;
+
+      const INCH = '\u2033';
+
+      const sizes = [
+        { max: 5.4, label: 'Toddler',  note: 'Toddler, roughly age 1 to 3. Approx. circumference 17' + INCH + '.' },
+        { max: 5.9, label: 'Child S',  note: 'Child small, roughly age 3 to 5. Approx. circumference 18.5' + INCH + '.' },
+        { max: 6.3, label: 'Child M',  note: 'Child medium, roughly age 5 to 8. Approx. circumference 19.8' + INCH + '.' },
+        { max: 6.7, label: 'Child L',  note: 'Child large or early teen, roughly age 8 to 12. Approx. circumference 21' + INCH + '.' },
+        { max: 7.1, label: 'Adult S',  note: 'Adult small. Approx. head circumference 22' + INCH + '.' },
+        { max: 7.5, label: 'Adult M',  note: 'Adult medium, the most common size. Approx. circumference 23.5' + INCH + '.' },
+        { max: 7.9, label: 'Adult L',  note: 'Adult large. Approx. head circumference 24.8' + INCH + '.' },
+        { max: 99,  label: 'Adult XL', note: 'Adult extra large. Approx. head circumference 26' + INCH + '.' }
+      ];
+
+      function update() {
+        const val = parseFloat(slider.value);
+        display.textContent = val.toFixed(1) + INCH;
+        slider.setAttribute('aria-valuenow', val);
+
+        const size = sizes.find(s => val <= s.max);
+        badge.textContent = size.label;
+        desc.textContent  = size.note;
       }
 
-      if (FORM_ENDPOINT) {
-        status.textContent = "Sending...";
+      slider.addEventListener('input', update);
+      update();
+    }());
+
+    /* ── Lightbox ── */
+    (function () {
+      const dialog  = document.getElementById('lightbox');
+      const img     = document.getElementById('lb-img');
+      const caption = document.getElementById('lb-caption');
+      const close   = document.getElementById('lb-close');
+      const gallery = document.querySelector('.gallery');
+      if (!dialog || !gallery) return;
+
+      gallery.addEventListener('click', (e) => {
+        const btn = e.target.closest('button[data-full]');
+        if (!btn) return;
+
+        img.src = btn.dataset.full;
+        img.alt = btn.querySelector('img')?.alt || '';
+        caption.textContent = btn.dataset.caption || '';
+        dialog.showModal();
+      });
+
+      close.addEventListener('click', () => dialog.close());
+
+      dialog.addEventListener('click', (e) => {
+        if (e.target === dialog) dialog.close();
+      });
+    }());
+
+    /* ── Quote form ── */
+    (function () {
+      const form   = document.getElementById('quote-form');
+      const status = document.getElementById('form-status');
+      if (!form) return;
+
+      const FORM_ENDPOINT = '';
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        if (form.website.value) return;
+
+        const name    = form.name.value.trim();
+        const email   = form.email.value.trim();
+        const message = form.message.value.trim();
+
+        if (!name || !email || !message) {
+          status.textContent = 'Please fill in your name, email and details.';
+          status.className = 'form-status err';
+          return;
+        }
+
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+          status.textContent = 'That email address does not look right.';
+          status.className = 'form-status err';
+          return;
+        }
+
+        if (!FORM_ENDPOINT) {
+          const subject = encodeURIComponent('Quote enquiry from ' + name);
+          const body = encodeURIComponent(
+            name + ' (' + email + ')\n' + form.type.value + '\n\n' + message
+          );
+          window.location.href = 'mailto:hello@dennisondesigns.co.uk?subject=' + subject + '&body=' + body;
+          status.textContent = 'Opening your email app to send this through.';
+          status.className = 'form-status ok';
+          return;
+        }
+
+        status.textContent = 'Sending...';
+        status.className = 'form-status';
+
         try {
           const res = await fetch(FORM_ENDPOINT, {
-            method: "POST",
-            headers: { "Content-Type": "application/json", "Accept": "application/json" },
-            body: JSON.stringify({ name: data.name, email: data.email, projectType: data["project-type"], message: data.message })
+            method: 'POST',
+            headers: { Accept: 'application/json' },
+            body: new FormData(form)
           });
-          if (!res.ok) throw new Error("Bad response");
-          form.reset();
-          status.textContent = "Thanks, your enquiry is in. I will reply by email.";
-        } catch (err) {
-          status.textContent = "That did not send. Please email " + CONTACT_EMAIL + " instead.";
-        }
-        return;
-      }
 
-      const subject = "Quote request: " + data["project-type"];
-      const body = "Name: " + data.name + "\nEmail: " + data.email + "\nType: " + data["project-type"] + "\n\n" + data.message;
-      window.location.href = "mailto:" + CONTACT_EMAIL + "?subject=" + encodeURIComponent(subject) + "&body=" + encodeURIComponent(body);
-      status.textContent = "Your email app should open with the details filled in. If it does not, email " + CONTACT_EMAIL + ".";
-    });
+          if (!res.ok) throw new Error('Bad response');
+
+          form.reset();
+          status.textContent = 'Thanks, that is through. I will come back to you shortly.';
+          status.className = 'form-status ok';
+        } catch (err) {
+          status.textContent = 'Something went wrong. Email hello@dennisondesigns.co.uk instead.';
+          status.className = 'form-status err';
+        }
+      });
+    }());
+
+    /* ── Footer year ── */
+    (function () {
+      const year = document.getElementById('year');
+      if (year) year.textContent = new Date().getFullYear();
+    }());
   </script>
 </body>
 </html>
-
