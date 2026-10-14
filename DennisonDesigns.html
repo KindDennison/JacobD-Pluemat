@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Dennison Designs creates personalised 3D printed items, practical parts and custom creations.">
+  <title>Dennison Designs | Personalised 3D Prints</title>
+  <style>
+    :root { --ink:#17212b; --muted:#5f6b76; --paper:#f7f7f3; --panel:#fff; --line:#d9ddd7; --green:#2f7d67; --green-dark:#1f5f4e; --coral:#d96c55; --amber:#e7b84e; --blue:#3f6f9f; --shadow:0 18px 55px rgba(23,33,43,.12); }
+    * { box-sizing:border-box; }
+    html { scroll-behavior:smooth; }
+    body { margin:0; font-family:Arial, Helvetica, sans-serif; color:var(--ink); background:var(--paper); line-height:1.55; }
+    a { color:inherit; }
+    .site-header { position:sticky; top:0; z-index:10; background:rgba(247,247,243,.94); border-bottom:1px solid var(--line); backdrop-filter:blur(12px); }
+    .nav { width:min(1120px, calc(100% - 32px)); margin:0 auto; min-height:72px; display:flex; align-items:center; justify-content:space-between; gap:20px; }
+    .brand { display:flex; align-items:center; gap:12px; text-decoration:none; font-weight:800; }
+    .brand-mark { width:42px; height:42px; display:grid; place-items:center; border-radius:8px; background:var(--ink); color:#fff; font-size:15px; }
+    .nav-links { display:flex; align-items:center; gap:22px; font-size:15px; }
+    .nav-links a { text-decoration:none; color:var(--muted); font-weight:700; }
+    .nav-links a:hover { color:var(--ink); }
+    .button { display:inline-flex; align-items:center; justify-content:center; min-height:44px; padding:12px 18px; border-radius:8px; border:1px solid transparent; background:var(--green); color:#fff; text-decoration:none; font-weight:800; line-height:1.1; box-shadow:0 8px 18px rgba(47,125,103,.22); cursor:pointer; }
+    .button:hover { background:var(--green-dark); }
+    .button.secondary { background:transparent; color:var(--ink); border-color:var(--line); box-shadow:none; }
+    .hero { min-height:calc(100vh - 72px); display:flex; align-items:center; padding:64px 0 44px; background:linear-gradient(90deg, rgba(247,247,243,.97) 0%, rgba(247,247,243,.86) 48%, rgba(247,247,243,.34) 100%), url("https://images.unsplash.com/photo-1639322537228-f710d846310a?auto=format&fit=crop&w=1800&q=80") center right / cover; border-bottom:1px solid var(--line); }
+    .hero-inner, .section-inner { width:min(1120px, calc(100% - 32px)); margin:0 auto; }
+    .hero-content { max-width:660px; }
+    .eyebrow { margin:0 0 14px; color:var(--green-dark); font-weight:800; text-transform:uppercase; font-size:13px; letter-spacing:.08em; }
+    h1 { margin:0; font-size:clamp(44px, 8vw, 88px); line-height:.94; letter-spacing:0; }
+    .hero-copy { margin:24px 0 0; max-width:590px; font-size:clamp(18px, 2vw, 23px); color:#384653; }
+    .hero-actions { display:flex; flex-wrap:wrap; gap:12px; margin-top:30px; }
+    .quick-notes { display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:12px; margin-top:46px; max-width:700px; }
+    .note { min-height:104px; padding:16px; border:1px solid rgba(23,33,43,.12); background:rgba(255,255,255,.74); border-radius:8px; box-shadow:0 12px 30px rgba(23,33,43,.08); }
+    .note strong { display:block; margin-bottom:4px; }
+    .note span { color:var(--muted); font-size:14px; }
+    section { padding:74px 0; }
+    .section-heading { display:flex; align-items:end; justify-content:space-between; gap:24px; margin-bottom:28px; }
+    h2 { margin:0; font-size:clamp(30px, 4vw, 46px); line-height:1; letter-spacing:0; }
+    .section-heading p { max-width:470px; margin:0; color:var(--muted); }
+    .services-grid { display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:18px; }
+    .service-card, .process-step { background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:24px; box-shadow:0 10px 30px rgba(23,33,43,.06); }
+    .service-card h3, .process-step h3 { margin:0 0 10px; font-size:22px; line-height:1.15; }
+    .service-card p, .process-step p { margin:0; color:var(--muted); }
+    .accent-bar { width:54px; height:5px; border-radius:999px; margin-bottom:22px; background:var(--coral); }
+    .service-card:nth-child(2) .accent-bar { background:var(--amber); }
+    .service-card:nth-child(3) .accent-bar { background:var(--blue); }
+    .showcase { background:#e9ece7; border-top:1px solid var(--line); border-bottom:1px solid var(--line); }
+    .showcase-layout { display:grid; grid-template-columns:1.05fr .95fr; gap:34px; align-items:center; }
+    .showcase-image { min-height:430px; border-radius:8px; background:linear-gradient(180deg, rgba(23,33,43,.05), rgba(23,33,43,.16)), url("https://images.unsplash.com/photo-1612036782180-6f0b6cd846fe?auto=format&fit=crop&w=1400&q=80") center / cover; box-shadow:var(--shadow); }
+    .tag-list { display:flex; flex-wrap:wrap; gap:10px; margin-top:24px; }
+    .tag-list span { padding:8px 12px; border-radius:999px; background:#fff; border:1px solid var(--line); color:#34414d; font-size:14px; font-weight:700; }
+    .process-grid { display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:16px; }
+    .step-number { width:38px; height:38px; display:grid; place-items:center; border-radius:8px; background:var(--ink); color:#fff; font-weight:800; margin-bottom:18px; }
+    .contact { background:var(--ink); color:#fff; }
+    .contact .section-heading p, .contact-form label span, .contact-footnote { color:rgba(255,255,255,.72); }
+    .contact-layout { display:grid; grid-template-columns:.8fr 1.2fr; gap:34px; align-items:start; }
+    .contact-list { margin:28px 0 0; padding:0; list-style:none; display:grid; gap:14px; }
+    .contact-list a { color:#fff; font-weight:800; text-decoration-color:rgba(255,255,255,.35); }
+    .contact-form { display:grid; gap:14px; padding:24px; border:1px solid rgba(255,255,255,.18); border-radius:8px; background:rgba(255,255,255,.06); }
+    .field-row { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+    label { display:grid; gap:7px; font-weight:800; }
+    input, textarea, select { width:100%; min-height:46px; border:1px solid rgba(255,255,255,.22); border-radius:8px; padding:11px 12px; font:inherit; color:#fff; background:rgba(255,255,255,.09); outline:none; }
+    select option { color:var(--ink); }
+    textarea { min-height:140px; resize:vertical; }
+    input::placeholder, textarea::placeholder { color:rgba(255,255,255,.52); }
+    input:focus, textarea:focus, select:focus { border-color:var(--amber); box-shadow:0 0 0 3px rgba(231,184,78,.22); }
+    .contact-form .button { width:fit-content; background:var(--amber); color:var(--ink); box-shadow:none; }
+    .contact-footnote { margin:0; font-size:13px; }
+    .site-footer { padding:24px 0; background:#111922; color:rgba(255,255,255,.68); font-size:14px; }
+    .footer-inner { width:min(1120px, calc(100% - 32px)); margin:0 auto; display:flex; justify-content:space-between; gap:16px; flex-wrap:wrap; }
+
+    @media (max-width:860px) {
+      .nav { min-height:auto; padding:14px 0; align-items:flex-start; }
+      .nav-links { display:none; }
+      .hero { min-height:auto; padding:54px 0 38px; background:linear-gradient(180deg, rgba(247,247,243,.96) 0%, rgba(247,247,243,.86) 60%, rgba(247,247,243,.72) 100%), url("https://images.unsplash.com/photo-1639322537228-f710d846310a?auto=format&fit=crop&w=1200&q=80") center / cover; }
+      .quick-notes, .services-grid, .process-grid, .showcase-layout, .contact-layout, .field-row { grid-template-columns:1fr; }
+      .section-heading { display:grid; }
+      .showcase-image { min-height:300px; }
+    }
+
+    @media (max-width:520px) {
+      .hero-actions, .button { width:100%; }
+      .button { padding-left:14px; padding-right:14px; }
+      section { padding:56px 0; }
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <nav class="nav" aria-label="Main navigation">
+      <a class="brand" href="#top" aria-label="Dennison Designs home">
+        <span class="brand-mark">DD</span>
+        <span>Dennison Designs</span>
+      </a>
+      <div class="nav-links">
+        <a href="#services">Services</a>
+        <a href="#showcase">Ideas</a>
+        <a href="#process">Process</a>
+        <a href="#contact">Contact</a>
+      </div>
+    </nav>
+  </header>
+
+  <main id="top">
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="hero-inner">
+        <div class="hero-content">
+          <p class="eyebrow">Custom 3D printing by Jacob Dennison</p>
+          <h1 id="hero-title">Dennison Designs</h1>
+          <p class="hero-copy">Personalised prints, practical parts and custom creations. Made for gifts, prototypes, tidy workshops and the little ideas that deserve to exist.</p>
+          <div class="hero-actions">
+            <a class="button" href="#contact">Request a Quote</a>
+            <a class="button secondary" href="#services">See What I Make</a>
+          </div>
+          <div class="quick-notes" aria-label="Key services">
+            <div class="note">
+              <strong>Personalised Items</strong>
+              <span>Name tags, gifts, keepsakes and custom lettering.</span>
+            </div>
+            <div class="note">
+              <strong>Practical Parts</strong>
+              <span>Brackets, clips, spacers, organisers and replacements.</span>
+            </div>
+            <div class="note">
+              <strong>Design Support</strong>
+              <span>Help turning a sketch, photo or idea into a printable part.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="services" aria-labelledby="services-title">
+      <div class="section-inner">
+        <div class="section-heading">
+          <h2 id="services-title">What I Make</h2>
+          <p>Small-batch 3D prints with a practical eye for detail, fit and finish.</p>
+        </div>
+        <div class="services-grid">
+          <article class="service-card">
+            <div class="accent-bar"></div>
+            <h3>Personalised Prints</h3>
+            <p>Custom name tags, signs, labels, party pieces and thoughtful gifts made to suit a person, colour scheme or occasion.</p>
+          </article>
+          <article class="service-card">
+            <div class="accent-bar"></div>
+            <h3>Useful Parts</h3>
+            <p>Workshop aids, cable clips, storage dividers, brackets, spacers and replacement parts for everyday problems.</p>
+          </article>
+          <article class="service-card">
+            <div class="accent-bar"></div>
+            <h3>Prototypes</h3>
+            <p>Early concept models and fit-check parts for makers, hobby projects and engineering ideas before committing to final manufacture.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="showcase" class="showcase" aria-labelledby="showcase-title">
+      <div class="section-inner showcase-layout">
+        <div class="showcase-image" role="img" aria-label="Colourful custom 3D printed parts"></div>
+        <div>
+          <p class="eyebrow">Ideas Welcome</p>
+          <h2 id="showcase-title">From name tags to useful little fixes.</h2>
+          <p>Whether you know exactly what you want or only have a rough idea, I can help work through size, material, colour and finish. Send a sketch, photo, STL file or a short description and I will come back with a practical option.</p>
+          <div class="tag-list" aria-label="Example print types">
+            <span>Name Tags</span>
+            <span>Desk Signs</span>
+            <span>Tool Storage</span>
+            <span>Brackets</span>
+            <span>Clips</span>
+            <span>Prototype Parts</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="process" aria-labelledby="process-title">
+      <div class="section-inner">
+        <div class="section-heading">
+          <h2 id="process-title">Simple Process</h2>
+          <p>A straightforward route from idea to finished print.</p>
+        </div>
+        <div class="process-grid">
+          <article class="process-step">
+            <div class="step-number">1</div>
+            <h3>Send the Idea</h3>
+            <p>Share the size, colour, use case and any files or reference photos.</p>
+          </article>
+          <article class="process-step">
+            <div class="step-number">2</div>
+            <h3>Confirm Details</h3>
+            <p>I will check feasibility, material choice, lead time and price.</p>
+          </article>
+          <article class="process-step">
+            <div class="step-number">3</div>
+            <h3>Print and Finish</h3>
+            <p>Your part is printed, checked and prepared for collection or postage.</p>
+          </article>
+          <article class="process-step">
+            <div class="step-number">4</div>
+            <h3>Enjoy It</h3>
+            <p>You receive something made for the job, the space or the person.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="contact" class="contact" aria-labelledby="contact-title">
+      <div class="section-inner">
+        <div class="section-heading">
+          <h2 id="contact-title">Request a Quote</h2>
+          <p>Replace the email address below with your preferred contact details before publishing.</p>
+        </div>
+        <div class="contact-layout">
+          <div>
+            <p>Tell me what you would like made, roughly how big it needs to be and when you need it. Photos, sketches and existing files are all useful.</p>
+            <ul class="contact-list">
+              <li>Email: <a href="mailto:hello@dennisondesigns.co.uk">hello@dennisondesigns.co.uk</a></li>
+              <li>Instagram: <a href="https://www.instagram.com/KingDennison">@KingDennison</a></li>
+            </ul>
+          </div>
+          <form class="contact-form" action="mailto:hello@dennisondesigns.co.uk" method="post" enctype="text/plain">
+            <div class="field-row">
+              <label>
+                <span>Name</span>
+                <input name="name" type="text" autocomplete="name" placeholder="Your name">
+              </label>
+              <label>
+                <span>Email</span>
+                <input name="email" type="email" autocomplete="email" placeholder="you@example.com">
+              </label>
+            </div>
+            <label>
+              <span>What do you need?</span>
+              <select name="project-type">
+                <option>Personalised print</option>
+                <option>Practical part</option>
+                <option>Prototype</option>
+                <option>Something else</option>
+              </select>
+            </label>
+            <label>
+              <span>Project details</span>
+              <textarea name="message" placeholder="Size, colour, quantity, deadline and any useful notes"></textarea>
+            </label>
+            <button class="button" type="submit">Send Enquiry</button>
+            <p class="contact-footnote">This simple form opens your email app. For a live website form, connect a service such as Formspree, Netlify Forms or Google Forms.</p>
+          </form>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <span>&copy; <span id="year"></span> Dennison Designs</span>
+      <span>Personalised prints, practical parts and custom creations.</span>
+    </div>
+  </footer>
+
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>
