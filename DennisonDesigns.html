@@ -62,7 +62,7 @@
     .nav { min-height: 68px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
     .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; font-family: var(--display); font-weight: 800; font-size: 20px; }
     .brand-mark { width: 40px; height: 40px; display: grid; place-items: center; border-radius: 10px; background: var(--ink); color: var(--glow); font-size: 16px; }
-    .nav-links { display: flex; align-items: center; gap: 24px; font-size: 15px; font-weight: 600; }
+    .nav-links { display: flex; align-items: center; gap: 22px; font-size: 15px; font-weight: 600; }
     .nav-links a { text-decoration: none; color: var(--muted); }
     .nav-links a:hover { color: var(--ink); }
     .nav-links .button { color: #fff; }
@@ -145,6 +145,27 @@
     .lightbox-bar button { min-height: 40px; padding: 0 16px; border: 1px solid rgba(255, 255, 255, .4); border-radius: 8px; background: transparent; color: #fff; font: inherit; font-weight: 700; cursor: pointer; }
     .lightbox-bar button:hover { background: rgba(255, 255, 255, .12); }
 
+    /* Helmet sizing */
+    .sizing-section { border-top: 1px solid var(--line); }
+    .sizing { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: start; }
+    .sizer { padding: 24px; border: 1px solid var(--line); border-radius: 12px; background: var(--panel); box-shadow: 0 18px 40px rgba(16, 24, 32, .08); }
+    .sizer .field { margin-bottom: 6px; }
+    .sizer input[type="range"] { width: 100%; min-height: 44px; margin: 0; accent-color: var(--accent); cursor: pointer; }
+    .scale-marks { display: flex; justify-content: space-between; margin: 0 0 16px; font-size: 13px; font-weight: 600; color: var(--muted); }
+    .readout { display: grid; gap: 6px; padding: 18px; margin-bottom: 18px; border: 1px solid var(--line); border-radius: 10px; background: #f7f8f9; }
+    .measure { font-family: var(--display); font-weight: 800; font-size: 38px; line-height: 1; font-variant-numeric: tabular-nums; }
+    .band { display: inline-block; width: fit-content; padding: 4px 12px; border-radius: 999px; background: var(--accent); color: #fff; font-size: 14px; font-weight: 700; }
+    .readout .calc { margin: 4px 0 0; color: var(--muted); font-size: 15px; }
+    .sizer .button { width: 100%; }
+    .hint { margin: 12px 0 0; font-size: 14px; color: var(--muted); }
+    .size-list { margin: 24px 0 0; padding: 0; list-style: none; display: grid; gap: 10px; }
+    .size-list li { position: relative; padding-left: 26px; color: #364250; }
+    .size-list li::before { content: ""; position: absolute; left: 0; top: .55em; width: 10px; height: 10px; border-radius: 50%; background: var(--accent); }
+    .band-table { min-width: 0; margin-top: 26px; }
+    .band-table th, .band-table td { padding: 10px 14px; }
+    .band-table tbody th { font-size: 16px; }
+    .band-table td { color: var(--muted); white-space: nowrap; }
+
     /* Materials */
     .materials { background: #e6e9ed; border-block: 1px solid var(--line); }
     .table-wrap { overflow-x: auto; border-radius: 12px; border: 1px solid var(--line); background: var(--panel); }
@@ -196,7 +217,7 @@
 
     @media (max-width: 900px) {
       .hero { padding: 48px 0 56px; }
-      .hero-grid, .contact-layout { grid-template-columns: 1fr; }
+      .hero-grid, .contact-layout, .sizing { grid-template-columns: 1fr; }
       .row { grid-template-columns: 1fr; gap: 8px; }
       .steps { grid-template-columns: 1fr 1fr; row-gap: 36px; }
       .steps li::after { display: none; }
@@ -215,6 +236,8 @@
       .hero-actions .button, form .button { width: 100%; }
       .steps, .field-row { grid-template-columns: 1fr; }
       .maker { padding: 16px; }
+      .sizer { padding: 16px; }
+      .measure { font-size: 32px; }
     }
     @media (prefers-reduced-motion: reduce) {
       html { scroll-behavior: auto; }
@@ -235,6 +258,7 @@
       <div class="nav-links" id="nav-links">
         <a href="#services">What I make</a>
         <a href="#gallery">Gallery</a>
+        <a href="#sizing">Helmet sizing</a>
         <a href="#materials">Materials</a>
         <a href="#process">How it works</a>
         <a href="#faq">Questions</a>
@@ -431,6 +455,63 @@
       </div>
     </dialog>
 
+    <section class="section sizing-section" id="sizing" aria-labelledby="sizing-title">
+      <div class="wrap">
+        <div class="section-head">
+          <h2 class="title" id="sizing-title">Custom helmet sizing</h2>
+          <p>Helmets are printed to your measurement rather than a one-size shell, so they sit on the head properly instead of being nearly right. Set your circumference below and ask for a quote at that size.</p>
+        </div>
+
+        <div class="sizing">
+          <div class="sizer">
+            <label class="field" for="head-size">Head circumference (inches)
+              <input type="range" id="head-size" min="17.5" max="25.5" step="0.1" value="22.5" aria-describedby="sizing-help">
+            </label>
+            <div class="scale-marks" aria-hidden="true"><span>17.5&Prime;</span><span>21.5&Prime;</span><span>25.5&Prime;</span></div>
+
+            <div class="readout" role="status" aria-live="polite">
+              <span class="measure" id="size-value">22.5&Prime;</span>
+              <span class="band" id="size-band">Adult medium</span>
+              <p class="calc" id="size-calc">Model diameter about 7.16&Prime;, plus clearance for hair and lining.</p>
+            </div>
+
+            <button class="button" type="button" id="size-send">Ask for a quote at this size</button>
+            <p class="hint" id="sizing-help">Measured in inches around the widest part of the head, just above the ears. Read the band, but treat it as a guide. The tape measure decides.</p>
+          </div>
+
+          <div>
+            <p>Measure around the widest part of the head, just above the ears and across the mid forehead, keeping the tape level all the way round. Snug, not tight. That number is the one that gets used.</p>
+            <p class="note">If the tape sits over thick hair, add about 0.4&Prime; so the shell still clears. For a child, measure them standing still and slacken the tape back to the same snugness rather than letting them hold their breath.</p>
+
+            <ul class="size-list">
+              <li>Printed in sections and joined, so a bigger shell does not need a bigger printer.</li>
+              <li>The model is scaled to your measurement before printing, not picked off a shelf.</li>
+              <li>Lining and strap fixings can be added. Say so in your enquiry and I will quote for them.</li>
+              <li>If you already own a helmet that fits well, send its internal width and I will work back from that.</li>
+            </ul>
+
+            <div class="table-wrap">
+              <table class="band-table">
+                <caption class="hp">Helmet size bands by head circumference</caption>
+                <thead>
+                  <tr><th scope="col">Size band</th><th scope="col">Circumference</th></tr>
+                </thead>
+                <tbody>
+                  <tr><th scope="row">Toddler</th><td>Up to 18.9&Prime;</td></tr>
+                  <tr><th scope="row">Child small</th><td>19&Prime; to 20.4&Prime;</td></tr>
+                  <tr><th scope="row">Child medium</th><td>20.5&Prime; to 21.4&Prime;</td></tr>
+                  <tr><th scope="row">Adult small</th><td>21.5&Prime; to 22.2&Prime;</td></tr>
+                  <tr><th scope="row">Adult medium</th><td>22.3&Prime; to 23&Prime;</td></tr>
+                  <tr><th scope="row">Adult large</th><td>23.1&Prime; to 24&Prime;</td></tr>
+                  <tr><th scope="row">Adult extra large</th><td>24.1&Prime; and over</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <section class="section materials" id="materials" aria-labelledby="materials-title">
       <div class="wrap">
         <div class="section-head">
@@ -483,6 +564,10 @@
             <p>Yes. Send a sketch, a photo of the part or the measurements and I will model it. Any design time is included in the quote so there are no surprises.</p>
           </details>
           <details>
+            <summary>How do I measure for a helmet?</summary>
+            <p>Run a tape around the widest part of the head, just above the ears and across the mid forehead, then give me that circumference in inches. The sizing section above works the rest out, and a photo of the tape in place is a useful double check.</p>
+          </details>
+          <details>
             <summary>How much does it cost?</summary>
             <p>It depends on size, material, print time and any design work. I give you a price before I print anything.</p>
           </details>
@@ -527,6 +612,7 @@
                 <option>Personalised print</option>
                 <option>Practical part</option>
                 <option>Prototype</option>
+                <option>Helmet</option>
                 <option>Something else</option>
               </select>
             </label>
@@ -607,6 +693,50 @@
       document.getElementById("project-type").value = "Personalised print";
       document.getElementById("message").value =
         "I would like a " + shapeLabels[shapeSelect.value] + " that says \"" + text + "\" in " + pair + ".\n\nQuantity: \nNeeded by: ";
+      document.getElementById("contact").scrollIntoView({ behavior: "smooth" });
+      setTimeout(() => document.querySelector('#quote-form [name="name"]').focus({ preventScroll: true }), 400);
+    });
+
+    // ---- Helmet sizing ----------------------------------------------------
+    const sizeInput = document.getElementById("head-size");
+    const sizeValue = document.getElementById("size-value");
+    const sizeBand = document.getElementById("size-band");
+    const sizeCalc = document.getElementById("size-calc");
+    const INCH = "\u2033";
+
+    // Bands are upper bounds in inches, taken from standard head circumference charts.
+    const sizeBands = [
+      { max: 18.9, label: "Toddler" },
+      { max: 20.4, label: "Child small" },
+      { max: 21.4, label: "Child medium" },
+      { max: 22.2, label: "Adult small" },
+      { max: 23.0, label: "Adult medium" },
+      { max: 24.0, label: "Adult large" },
+      { max: 99,   label: "Adult extra large" }
+    ];
+
+    function bandFor(circumference) {
+      return sizeBands.find((b) => circumference <= b.max);
+    }
+
+    function updateSize() {
+      const circ = parseFloat(sizeInput.value);
+      const band = bandFor(circ);
+      const diameter = (circ / Math.PI).toFixed(2);
+      sizeValue.textContent = circ.toFixed(1) + INCH;
+      sizeBand.textContent = band.label;
+      sizeCalc.textContent = "Model diameter about " + diameter + INCH + ", plus clearance for hair and lining.";
+      sizeInput.setAttribute("aria-valuetext", circ.toFixed(1) + " inches, " + band.label);
+    }
+    sizeInput.addEventListener("input", updateSize);
+    updateSize();
+
+    document.getElementById("size-send").addEventListener("click", () => {
+      const circ = parseFloat(sizeInput.value);
+      const band = bandFor(circ).label;
+      document.getElementById("project-type").value = "Helmet";
+      document.getElementById("message").value =
+        "I would like a helmet printed to fit.\n\nHead circumference: " + circ.toFixed(1) + " inches (" + band + ")\nStyle: \nColour: \nLining or strap fixings needed: ";
       document.getElementById("contact").scrollIntoView({ behavior: "smooth" });
       setTimeout(() => document.querySelector('#quote-form [name="name"]').focus({ preventScroll: true }), 400);
     });
