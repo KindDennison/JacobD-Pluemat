@@ -39,9 +39,9 @@
       --ink: #101820;
       --muted: #566170;
       --line: #d5dae0;
-      --accent: #c8430f;        /* buttons and text on light backgrounds */
+      --accent: #c8430f;
       --accent-dark: #a2350a;
-      --glow: #ff6a1a;          /* decorative, and on dark backgrounds */
+      --glow: #ff6a1a;
       --display: "Bricolage Grotesque", "Arial Black", Arial, sans-serif;
       --body: "Public Sans", Arial, Helvetica, sans-serif;
       --script: "Lily Script One", "Lobster", "Brush Script MT", cursive;
@@ -82,7 +82,7 @@
     .hero-copy { max-width: 520px; margin: 22px 0 0; font-size: clamp(18px, 2vw, 21px); color: #364250; }
     .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
 
-    /* Name tag customiser: the memorable bit */
+    /* Name tag customiser */
     .maker { padding: 22px; border: 1px solid var(--line); border-radius: 16px; background: var(--panel); box-shadow: 0 24px 60px rgba(16, 24, 32, .12); }
     .maker h2 { margin: 0 0 4px; font-family: var(--display); font-size: 22px; line-height: 1.2; }
     .maker-sub { margin: 0 0 18px; color: var(--muted); font-size: 15px; }
@@ -97,7 +97,6 @@
     .plate-text { position: relative;
       background: repeating-linear-gradient(0deg, var(--raised) 0 3px, color-mix(in srgb, var(--raised) 72%, #000) 3px 4px);
       -webkit-background-clip: text; background-clip: text; color: transparent; -webkit-text-fill-color: transparent; }
-    /* Cut-out name: raised lettering sitting on a thick outline that follows the letters */
     .plate-back { display: none; color: var(--plate); -webkit-text-stroke: .24em var(--plate); paint-order: stroke fill; text-shadow: 0 .03em 0 rgba(0, 0, 0, .25), 0 .09em .14em rgba(0, 0, 0, .3); }
     .plate[data-shape="cutout"] { width: min(100%, 340px); aspect-ratio: 16 / 8; background: transparent; box-shadow: none; border-radius: 0; overflow: visible; }
     .plate[data-shape="cutout"]::before, .plate[data-shape="cutout"] .plate-hole { display: none; }
@@ -122,7 +121,7 @@
     h2.title { margin: 0; font-family: var(--display); font-weight: 800; font-size: clamp(30px, 4.2vw, 48px); line-height: 1.02; letter-spacing: -.015em; }
     .section-head p { margin: 14px 0 0; color: var(--muted); }
 
-    /* Services as ruled rows, not cards */
+    /* Services */
     .rows { border-top: 2px solid var(--ink); }
     .row { display: grid; grid-template-columns: 1fr 1.4fr 1fr; gap: 24px; padding: 26px 0; border-bottom: 1px solid var(--line); }
     .row h3 { margin: 0; font-family: var(--display); font-size: 26px; line-height: 1.1; }
@@ -156,7 +155,7 @@
     tbody th { font-family: var(--display); font-size: 20px; white-space: nowrap; }
     .note { margin: 18px 0 0; color: var(--muted); }
 
-    /* Process: a real sequence, so numbering is earned */
+    /* Process */
     .steps { counter-reset: step; display: grid; grid-template-columns: repeat(4, 1fr); gap: 28px; margin: 0; padding: 0; list-style: none; }
     .steps li { position: relative; padding-top: 58px; }
     .steps li::before { counter-increment: step; content: counter(step); position: absolute; top: 0; left: 0; width: 40px; height: 40px; display: grid; place-items: center; border-radius: 50%; background: var(--ink); color: #fff; font-family: var(--display); font-weight: 800; }
@@ -334,25 +333,92 @@
           <p>A few things I have made. Tap a photo to see it larger.</p>
         </div>
         <ul class="gallery">
+
+          <!-- SHOWCASE SLOT: first item spans 2x2. Use a photo that reads well at a wide/square crop. -->
+          <li>
+            <button class="shot" type="button" data-full="images/ac-duct-adapter-rectangular.jpg" data-caption="Air conditioning duct adapter, rectangular outlet">
+              <img src="images/ac-duct-adapter-rectangular.jpg" width="1200" height="900" loading="lazy" alt="White printed adapter plate clipped over a wall mounted air conditioner, with a rectangular collar directing cold air into a flexible duct">
+              <span class="cap">Air conditioning duct adapter, rectangular outlet</span>
+            </button>
+          </li>
+
+          <li>
+            <button class="shot" type="button" data-full="images/ac-duct-adapter-round.jpg" data-caption="Air conditioning duct adapter, round outlet">
+              <img src="images/ac-duct-adapter-round.jpg" width="1200" height="900" loading="lazy" alt="Printed adapter plate fitted to an air conditioner faceplate, reducing to a round duct spigot">
+              <span class="cap">Air conditioning duct adapter, round outlet</span>
+            </button>
+          </li>
+
+          <li>
+            <button class="shot" type="button" data-full="images/costume-helmet-red.jpg" data-caption="Wearable printed helmet, assembled from sections">
+              <img src="images/costume-helmet-red.jpg" width="1200" height="900" loading="lazy" alt="Red and black printed helmet with dark eye lenses, sitting on a workshop bench">
+              <span class="cap">Wearable printed helmet, assembled from sections</span>
+            </button>
+          </li>
+
+          <li>
+            <button class="shot" type="button" data-full="images/costume-helmet-yellow-blue.jpg" data-caption="Printed helmet with side fins">
+              <img src="images/costume-helmet-yellow-blue.jpg" width="1200" height="900" loading="lazy" alt="Yellow and blue printed helmet with pointed fins either side of the face">
+              <span class="cap">Printed helmet with side fins</span>
+            </button>
+          </li>
+
+          <li>
+            <button class="shot" type="button" data-full="images/costume-helmet-web-pattern.jpg" data-caption="Printed helmet with raised web detail">
+              <img src="images/costume-helmet-web-pattern.jpg" width="1200" height="900" loading="lazy" alt="Red and blue printed helmet with a raised black web pattern across the surface">
+              <span class="cap">Printed helmet with raised web detail</span>
+            </button>
+          </li>
+
+          <li>
+            <button class="shot" type="button" data-full="images/name-tags-set.jpg" data-caption="Character-themed name tags">
+              <img src="images/name-tags-set.jpg" width="1200" height="900" loading="lazy" alt="Six printed name tags in assorted colours, each with a different name in rounded lettering">
+              <span class="cap">Character-themed name tags</span>
+            </button>
+          </li>
+
+          <li>
+            <button class="shot" type="button" data-full="images/play-doh-stamps.jpg" data-caption="Custom play dough stamps">
+              <img src="images/play-doh-stamps.jpg" width="1200" height="900" loading="lazy" alt="Printed plastic stamps with animal and shape outlines, arranged next to a tub of modelling dough">
+              <span class="cap">Custom play dough stamps</span>
+            </button>
+          </li>
+
+          <li>
+            <button class="shot" type="button" data-full="images/dashboard-panel-100e.jpg" data-caption="Custom dashboard panel for a 1950s Ford 100E">
+              <img src="images/dashboard-panel-100e.jpg" width="1200" height="900" loading="lazy" alt="Black printed dashboard panel with round instrument openings, test fitted inside a classic car interior">
+              <span class="cap">Custom dashboard panel for a 1950s Ford 100E</span>
+            </button>
+          </li>
+
+          <li>
+            <button class="shot" type="button" data-full="images/echo-dot-wall-mount.jpg" data-caption="Echo Dot wall mount">
+              <img src="images/echo-dot-wall-mount.jpg" width="1200" height="900" loading="lazy" alt="Printed wall bracket holding a small cylindrical smart speaker, with the power cable routed neatly down the wall">
+              <span class="cap">Echo Dot wall mount</span>
+            </button>
+          </li>
+
+          <li>
+            <button class="shot" type="button" data-full="images/cat-flap-door.jpg" data-caption="Replacement cat flap door">
+              <img src="images/cat-flap-door.jpg" width="1200" height="900" loading="lazy" alt="Printed replacement flap fitted into a cat flap frame in a wooden door">
+              <span class="cap">Replacement cat flap door</span>
+            </button>
+          </li>
+
           <li>
             <button class="shot" type="button" data-full="images/nova-cutout-name.jpg" data-caption="Cut-out name in red and white">
               <img src="images/nova-cutout-name.jpg" width="1200" height="788" loading="lazy" alt="Red and white 3D printed cut-out name sign reading Nova, standing on a granite worktop">
               <span class="cap">Cut-out name in red and white</span>
             </button>
           </li>
-          <!--
-            ADD MORE PHOTOS: copy this whole <li> block, change the three filenames/text, and paste it below.
-            1) Save the photo in the images folder (about 1200px wide, JPG or WebP, lowercase-with-hyphens name).
-            2) Update data-full and src to the filename, data-caption and the caption text to a short description,
-               alt to a plain description of what is in the photo, and width/height to the photo's real size.
 
-          <li>
-            <button class="shot" type="button" data-full="images/your-photo.jpg" data-caption="Short caption">
-              <img src="images/your-photo.jpg" width="1200" height="900" loading="lazy" alt="Describe what is in the photo">
-              <span class="cap">Short caption</span>
-            </button>
-          </li>
+          <!--
+            ADD MORE PHOTOS: copy a <li> block, update the three filenames/text, and paste it below.
+            1) Save the photo in the images/ folder (about 1200px wide, JPG or WebP, lowercase-with-hyphens filename).
+            2) Update data-full and src to the filename, data-caption and cap to a short description,
+               alt to a plain description of what is in the photo, and width/height to the real pixel dimensions.
           -->
+
         </ul>
       </div>
     </section>
@@ -486,8 +552,6 @@
 
   <script>
     // ---- Config -----------------------------------------------------------
-    // Paste your Formspree (or compatible) endpoint here, e.g. "https://formspree.io/f/abcdwxyz".
-    // While this is empty, the form opens the visitor's email app with everything pre-filled instead.
     const FORM_ENDPOINT = "";
     const CONTACT_EMAIL = "hello@dennisondesigns.co.uk";
 
@@ -524,7 +588,6 @@
       const pair = currentPair();
       plateText.textContent = text;
       plateBack.textContent = text;
-      // Roughly fit the lettering to the plate: long text gets smaller.
       const size = Math.min(26, 128 / Math.max(text.length, 5));
       plate.style.setProperty("--fs", size.toFixed(1));
       plate.style.setProperty("--plate", pair.dataset.plate);
@@ -570,7 +633,7 @@
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
       const data = Object.fromEntries(new FormData(form).entries());
-      if (data.website) return; // honeypot: bots fill this in
+      if (data.website) return;
       if (!data.name || !data.email || !data.message || !form.email.checkValidity()) {
         status.textContent = "Please add your name, a valid email and a few project details.";
         return;
@@ -601,3 +664,4 @@
   </script>
 </body>
 </html>
+
