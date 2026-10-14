@@ -129,6 +129,23 @@
     .row p { margin: 0; color: #364250; }
     .row .examples { color: var(--muted); font-size: 15px; }
 
+    /* Gallery */
+    .gallery-section { border-top: 1px solid var(--line); }
+    .gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; margin: 0; padding: 0; list-style: none; }
+    .gallery li:first-child:not(:last-child) { grid-column: span 2; grid-row: span 2; }
+    .shot { position: relative; display: block; width: 100%; height: 100%; margin: 0; padding: 0; border: 0; border-radius: 12px; overflow: hidden; background: #dfe3e8; cursor: zoom-in; aspect-ratio: 4 / 3; }
+    .gallery li:first-child:not(:last-child) .shot { aspect-ratio: auto; min-height: 100%; }
+    .shot img { display: block; width: 100%; height: 100%; object-fit: cover; transition: transform .35s; }
+    .shot:hover img { transform: scale(1.03); }
+    .shot .cap { display: block; position: absolute; inset: auto 0 0 0; padding: 28px 16px 14px; text-align: left; font-size: 15px; font-weight: 600; color: #fff; background: linear-gradient(0deg, rgba(16, 24, 32, .78), rgba(16, 24, 32, 0)); }
+    .lightbox { width: min(1100px, 94vw); max-height: 92vh; padding: 0; border: 0; border-radius: 12px; background: var(--ink); color: #fff; overflow: hidden; }
+    .lightbox::backdrop { background: rgba(10, 16, 22, .82); }
+    .lightbox img { display: block; width: 100%; max-height: 78vh; object-fit: contain; background: #0a1016; }
+    .lightbox-bar { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 14px 18px; }
+    .lightbox-bar p { margin: 0; font-weight: 600; }
+    .lightbox-bar button { min-height: 40px; padding: 0 16px; border: 1px solid rgba(255, 255, 255, .4); border-radius: 8px; background: transparent; color: #fff; font: inherit; font-weight: 700; cursor: pointer; }
+    .lightbox-bar button:hover { background: rgba(255, 255, 255, .12); }
+
     /* Materials */
     .materials { background: #e6e9ed; border-block: 1px solid var(--line); }
     .table-wrap { overflow-x: auto; border-radius: 12px; border: 1px solid var(--line); background: var(--panel); }
@@ -192,6 +209,9 @@
       .nav-links .button { margin-top: 8px; text-align: center; }
     }
     @media (max-width: 520px) {
+      .gallery { grid-template-columns: 1fr; }
+      .gallery li:first-child:not(:last-child) { grid-column: auto; grid-row: auto; }
+      .gallery li:first-child:not(:last-child) .shot { aspect-ratio: 4 / 3; min-height: 0; }
       .section { padding: 60px 0; }
       .hero-actions .button, form .button { width: 100%; }
       .steps, .field-row { grid-template-columns: 1fr; }
@@ -199,7 +219,7 @@
     }
     @media (prefers-reduced-motion: reduce) {
       html { scroll-behavior: auto; }
-      .plate { transition: none; }
+      .plate, .shot img { transition: none; }
     }
   </style>
 </head>
@@ -215,6 +235,7 @@
       <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="nav-links">Menu</button>
       <div class="nav-links" id="nav-links">
         <a href="#services">What I make</a>
+        <a href="#gallery">Gallery</a>
         <a href="#materials">Materials</a>
         <a href="#process">How it works</a>
         <a href="#faq">Questions</a>
@@ -306,11 +327,43 @@
       </div>
     </section>
 
-    <!--
-      TODO: add a gallery of real prints here. Real photos will sell this site better than anything else.
-      Suggested: 6 photos of finished work on a plain background, each with a short caption (what it is, material, size).
-      <section class="section" id="gallery" aria-labelledby="gallery-title"> ... </section>
-    -->
+    <section class="section gallery-section" id="gallery" aria-labelledby="gallery-title">
+      <div class="wrap">
+        <div class="section-head">
+          <h2 class="title" id="gallery-title">Recent prints</h2>
+          <p>A few things I have made. Tap a photo to see it larger.</p>
+        </div>
+        <ul class="gallery">
+          <li>
+            <button class="shot" type="button" data-full="images/nova-cutout-name.jpg" data-caption="Cut-out name in red and white">
+              <img src="images/nova-cutout-name.jpg" width="1200" height="788" loading="lazy" alt="Red and white 3D printed cut-out name sign reading Nova, standing on a granite worktop">
+              <span class="cap">Cut-out name in red and white</span>
+            </button>
+          </li>
+          <!--
+            ADD MORE PHOTOS: copy this whole <li> block, change the three filenames/text, and paste it below.
+            1) Save the photo in the images folder (about 1200px wide, JPG or WebP, lowercase-with-hyphens name).
+            2) Update data-full and src to the filename, data-caption and the caption text to a short description,
+               alt to a plain description of what is in the photo, and width/height to the photo's real size.
+
+          <li>
+            <button class="shot" type="button" data-full="images/your-photo.jpg" data-caption="Short caption">
+              <img src="images/your-photo.jpg" width="1200" height="900" loading="lazy" alt="Describe what is in the photo">
+              <span class="cap">Short caption</span>
+            </button>
+          </li>
+          -->
+        </ul>
+      </div>
+    </section>
+
+    <dialog class="lightbox" id="lightbox" aria-label="Photo viewer">
+      <img id="lightbox-img" src="" alt="">
+      <div class="lightbox-bar">
+        <p id="lightbox-caption"></p>
+        <button type="button" id="lightbox-close">Close</button>
+      </div>
+    </dialog>
 
     <section class="section materials" id="materials" aria-labelledby="materials-title">
       <div class="wrap">
@@ -494,6 +547,21 @@
       document.getElementById("contact").scrollIntoView({ behavior: "smooth" });
       setTimeout(() => document.querySelector('#quote-form [name="name"]').focus({ preventScroll: true }), 400);
     });
+
+    // ---- Gallery lightbox -------------------------------------------------
+    const lightbox = document.getElementById("lightbox");
+    const lightboxImg = document.getElementById("lightbox-img");
+    const lightboxCaption = document.getElementById("lightbox-caption");
+    document.querySelectorAll(".gallery .shot").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        lightboxImg.src = btn.dataset.full;
+        lightboxImg.alt = btn.querySelector("img").alt;
+        lightboxCaption.textContent = btn.dataset.caption || "";
+        lightbox.showModal();
+      });
+    });
+    document.getElementById("lightbox-close").addEventListener("click", () => lightbox.close());
+    lightbox.addEventListener("click", (e) => { if (e.target === lightbox) lightbox.close(); });
 
     // ---- Quote form -------------------------------------------------------
     const form = document.getElementById("quote-form");
