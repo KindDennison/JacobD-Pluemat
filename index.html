@@ -1,165 +1,254 @@
 <!DOCTYPE html>
 <html lang="en-GB">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Jacob's Apps</title>
-  <style>
-    :root {
-      --bg: #f4f4f4;
-      --card: #ffffff;
-      --primary: #0055a5;
-      --primary-dark: #003f7f;
-      --text: #333;
-      --muted: #666;
-      --border: #d9d9d9;
-      --placeholder-bg: #eef2f6;
-      --placeholder-text: #5f6b7a;
-    }
-
-    * {
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: Arial, sans-serif;
-      background: var(--bg);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      margin: 0;
-      padding: 20px;
-    }
-
-    .main-container {
-      background: var(--card);
-      padding: 2rem;
-      border-radius: 12px;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.08);
-      text-align: center;
-      max-width: 800px;
-      width: 100%;
-      border: 1px solid var(--border);
-    }
-
-    h1 {
-      color: var(--primary);
-      margin: 0 0 0.75rem;
-      font-size: 2rem;
-    }
-
-    p {
-      color: var(--muted);
-      margin: 0 0 1.5rem;
-      font-size: 1rem;
-    }
-
-    .app-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 1rem;
-      margin-top: 1.5rem;
-    }
-
-    .app-icon {
-      background: var(--primary);
-      padding: 1.5rem 1rem;
-      border-radius: 12px;
-      text-decoration: none;
-      color: #fff;
-      font-weight: bold;
-      font-size: 1.05rem;
-      transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
-      display: flex;
-      flex-direction: column;
-      justify-content: centre;
-      align-items: centre;
-      min-height: 150px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.06);
-    }
-
-    .app-icon:hover {
-      background: var(--primary-dark);
-      transform: translateY(-4px);
-    }
-
-    .app-icon .icon {
-      width: 56px;
-      height: 56px;
-      margin-bottom: 10px;
-      display: block;
-    }
-
-    .app-name {
-      margin-top: 4px;
-    }
-
-    .app-placeholder {
-      background: var(--placeholder-bg);
-      color: var(--placeholder-text);
-      border: 2px dashed #c9d4df;
-    }
-
-    .app-placeholder:hover {
-      background: #e4ebf2;
-      color: #435160;
-    }
-
-    .app-placeholder .icon {
-      width: 56px;
-      height: 56px;
-      margin-bottom: 10px;
-      display: block;
-      color: var(--placeholder-text);
-    }
-
-    .small-note {
-      margin-top: 1rem;
-      font-size: 0.9rem;
-      color: #888;
-    }
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Fat Fighters</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{--bg:#eef1f6;--card:#fff;--ink:#14213d;--mute:#5d6b85;--line:#d9dfea;--acc:#2b59ff;--good:#0f9d58;--bad:#d93025;--gold:#f5b700}
+@media(prefers-color-scheme:dark){:root{--bg:#0e1424;--card:#172038;--ink:#eaf0ff;--mute:#9aa8c7;--line:#27324f;--acc:#6f93ff;--good:#3ddc84;--bad:#ff6b5e}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:500 16px/1.45 Barlow,system-ui,sans-serif}
+h1,h2,.num{font-family:"Barlow Condensed","Arial Narrow",sans-serif;font-weight:800;letter-spacing:.2px;margin:0}
+.wrap{max-width:1100px;margin:0 auto;padding:16px}
+header{display:flex;flex-wrap:wrap;gap:12px 24px;align-items:flex-end;justify-content:space-between;padding:20px 0 8px}
+h1{font-size:clamp(36px,9vw,68px);line-height:1.1;padding-bottom:6px}
+.tot{text-align:right}.tot .num{font-size:44px;color:var(--good);line-height:1}
+.sub{color:var(--mute);font-size:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px;margin-top:14px}
+h2{font-size:26px;margin-bottom:10px}
+.bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.pill,button,select,input{font:inherit;color:var(--ink)}
+.pill{border:1.5px solid var(--line);background:transparent;border-radius:99px;padding:8px 14px;cursor:pointer}
+.pill.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.pill i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px}
+.sp{flex:1}
+.seg{display:inline-flex;border:1.5px solid var(--line);border-radius:8px;overflow:hidden}
+.seg button{border:0;background:transparent;padding:8px 14px;cursor:pointer}
+.seg button.on{background:var(--acc);color:#fff}
+.chartbox{position:relative;height:340px;margin-top:10px}
+.empty{color:var(--mute);padding:30px 0;text-align:center}
+.row{display:grid;grid-template-columns:34px 1fr auto;gap:4px 12px;align-items:center;padding:12px 0;border-top:1px solid var(--line)}
+.row:first-of-type{border-top:0}
+.rk{font:800 28px "Barlow Condensed",sans-serif;text-align:center;color:var(--mute)}
+.nm{font-weight:600;font-size:18px}.nm i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:8px}
+.big{font-size:32px;line-height:1;text-align:right}
+.pos{color:var(--good)}.neg{color:var(--bad)}
+.meta{grid-column:2/4;color:var(--mute);font-size:14px}
+.prog{grid-column:2/4;height:7px;background:var(--line);border-radius:9px;overflow:hidden}
+.prog b{display:block;height:100%;background:var(--good)}
+.tag{display:inline-block;border:1px solid var(--line);border-radius:6px;padding:0 7px;margin-right:6px;font-size:13px;color:var(--ink)}
+.forms{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:14px}
+form{display:grid;gap:8px}
+label{font-size:14px;color:var(--mute)}
+input,select{width:100%;padding:9px 10px;border:1.5px solid var(--line);border-radius:8px;background:var(--bg)}
+.go{background:var(--acc);color:#fff;border:0;border-radius:8px;padding:10px;font-weight:600;cursor:pointer}
+.go:hover{filter:brightness(1.1)}
+:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+.hist{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:7px 0;border-top:1px solid var(--line)}
+.x{border:0;background:none;color:var(--mute);cursor:pointer;font-size:18px;line-height:1;padding:6px 10px}.x:hover{color:var(--bad)}
+.hint{font-size:13px;color:var(--mute);min-height:18px}
+#err{display:none;background:var(--bad);color:#fff;padding:10px 14px;border-radius:8px;margin-top:12px}
+.hist>span,.nm,.meta{min-width:0;overflow-wrap:anywhere}
+@media(max-width:720px){.chartbox{height:300px}.sp{flex-basis:100%;height:0}}
+@media(max-width:520px){
+ .wrap{padding:12px}.card{padding:12px}
+ header{flex-direction:column;align-items:flex-start;gap:10px;padding-top:12px}
+ .tot{text-align:left}.tot .num{font-size:36px}
+ .chartbox{height:260px}
+ .row{grid-template-columns:26px 1fr auto;gap:4px 8px}
+ .rk{font-size:22px}.big{font-size:26px}.nm{font-size:17px}
+ h2{font-size:23px}
+}
+@media(min-width:1200px){.wrap{max-width:1200px}.chartbox{height:420px}}
+</style>
 </head>
 <body>
-  <div class="main-container">
-    <h1>Welcome!</h1>
-    <p>Select an application to get started:</p>
+<div class="wrap">
+<header>
+  <div><h1>Fat Fighters</h1><div class="sub">Weigh-in every Monday and Friday at lunch</div></div>
+  <div class="tot"><div class="num" id="teamLost">0.0kg</div><div class="sub">lost by the whole team</div></div>
+</header>
+<div id="err"></div>
 
-    <div class="app-grid">
-      <a href="poll.html" class="app-icon">
-        <svg class="icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-          <path d="M4 5h16v2H4V5zm0 6h10v2H4v-2zm0 6h16v2H4v-2zm14-9 3 3-3 3V8z"/>
-        </svg>
-        <div class="app-name">Poll</div>
-      </a>
-
-      <div class="app-grid">
-      <a href="doodle.html" class="app-icon">
-        <svg class="icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-          <path d="M4 5h16v2H4V5zm0 6h10v2H4v-2zm0 6h16v2H4v-2zm14-9 3 3-3 3V8z"/>
-        </svg>
-        <div class="app-name">Doodle</div>
-      </a>
-
-      <a href="fatfighteres.html" class="app-icon app-placeholder">
-        <svg class="icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-          <path d="M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2zm-7 13H7v-2h5v2zm5-4H7v-2h10v2zm0-4H7V6h10v2z"/>
-        </svg>
-        <div class="app-name">Fat Fighters</div>
-      </a>
-
-      <a href="under-development.html" class="app-icon app-placeholder">
-        <svg class="icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-          <path d="M12 2 1 21h22L12 2zm1 16h-2v-2h2v2zm0-4h-2V9h2v5z"/>
-        </svg>
-        <div class="app-name">App Placeholder 3</div>
-      </a>
-    </div>
-
-    <div class="small-note">
-      More apps will be added here as they are developed.
-    </div>
+<section class="card">
+  <div class="bar">
+    <div class="bar" id="who"></div><span class="sp"></span>
+    <div class="seg" id="metric"><button data-m="abs" class="on">Weight</button><button data-m="pct">% change</button></div>
+    <div class="seg" id="unit"><button data-u="kg" class="on">kg</button><button data-u="lb">lb</button></div>
   </div>
+  <div class="chartbox"><canvas id="chart"></canvas></div>
+  <div class="empty" id="noData" hidden>No weigh-ins yet. Add the lads below and log the first weight.</div>
+</section>
+
+<section class="card"><h2>Leaderboard</h2><div id="board"></div></section>
+
+<div class="forms">
+  <section class="card"><h2>Log a weigh-in</h2>
+    <form id="fWeight">
+      <label>Who<select id="wPerson" required></select></label>
+      <label>Weight (<span class="uL">kg</span>)<input id="wVal" type="number" step="0.1" min="20" max="500" inputmode="decimal" required></label>
+      <label>Date<input id="wDate" type="date" required></label>
+      <div class="hint" id="dayHint"></div>
+      <button class="go">Save weigh-in</button>
+    </form>
+  </section>
+  <section class="card"><h2>Add a fighter</h2>
+    <form id="fPerson">
+      <label>Name<input id="pName" maxlength="24" required></label>
+      <label>Goal weight (<span class="uL">kg</span>, optional)<input id="pGoal" type="number" step="0.1" min="20" max="500" inputmode="decimal"></label>
+      <button class="go">Add fighter</button>
+    </form>
+    <div id="people" style="margin-top:12px"></div>
+  </section>
+</div>
+
+<section class="card"><h2>Recent weigh-ins</h2><div id="hist"></div></section>
+</div>
+
+<script type="module">
+import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {getFirestore,collection,addDoc,deleteDoc,doc,onSnapshot} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDJXVZE2VZXPH9jJvzgz9ozBvvbiJfmLbw",
+  authDomain: "teamdennisontracker.firebaseapp.com",
+  projectId: "teamdennisontracker",
+  storageBucket: "teamdennisontracker.firebasestorage.app",
+  messagingSenderId: "915336870349",
+  appId: "1:915336870349:web:c070e9b3fc0b688fe62c84"
+};
+const db = getFirestore(initializeApp(firebaseConfig));
+const PEOPLE = collection(db,'ff_people'), WEIGHTS = collection(db,'ff_weights');
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const COL = ['#e8590c','#2b59ff','#0f9d58','#ae3ec9','#f5b700','#0ca678','#d6336c','#7048e8','#74b816','#e03131'];
+const LB = 2.20462;
+let people=[], weights=[], unit='kg', view='all', metric='abs', chart;
+
+const cv = kg => unit==='kg' ? kg : kg*LB;
+const fmt = kg => cv(kg).toFixed(1)+unit;
+const sg = d => (d>0?'+':d<0?'−':'')+Math.abs(cv(d)).toFixed(1)+unit;
+const day = d => new Date(d+'T12:00:00');
+const lbl = d => day(d).toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'});
+const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const today = () => { const d=new Date(); return new Date(d-d.getTimezoneOffset()*6e4).toISOString().slice(0,10); };
+const fail = e => { const b=$('#err'); b.style.display='block'; b.textContent='Could not reach the database: '+e.message+' (check your Firestore rules allow ff_people and ff_weights)'; };
+
+onSnapshot(PEOPLE, s=>{ people=s.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>a.created-b.created); render(); }, fail);
+onSnapshot(WEIGHTS, s=>{ weights=s.docs.map(d=>({id:d.id,...d.data()})); render(); }, fail);
+
+function stats(p){
+  const ws = weights.filter(w=>w.personId===p.id).sort((a,b)=>a.date.localeCompare(b.date));
+  if(!ws.length) return {p,ws,n:0};
+  const s=ws[0].kg, l=ws[ws.length-1].kg, we=[], wk=[];
+  for(let i=1;i<ws.length;i++){
+    const a=day(ws[i-1].date).getDay(), b=day(ws[i].date).getDay(), d=ws[i].kg-ws[i-1].kg;
+    if(a===5&&b===1) we.push(d); else if(a===1&&b===5) wk.push(d);
+  }
+  let streak=0; for(let i=ws.length-1;i>0&&ws[i].kg<ws[i-1].kg;i--) streak++;
+  const avg=a=>a.length?a.reduce((x,y)=>x+y)/a.length:null;
+  return {p,ws,n:ws.length,s,l,lost:s-l,pct:(s-l)/s*100,we:avg(we),wk:avg(wk),streak};
+}
+
+function render(){
+  const st = people.map(stats);
+  const active = st.filter(x=>x.n);
+  $('#teamLost').textContent = fmt(active.reduce((t,x)=>t+x.lost,0));
+  document.querySelectorAll('.uL').forEach(e=>e.textContent=unit);
+
+  if(view!=='all' && !people.some(p=>p.id===view)) view='all';
+  $('#who').innerHTML = `<button class="pill ${view==='all'?'on':''}" data-v="all">Everyone</button>` +
+    people.map(p=>`<button class="pill ${view===p.id?'on':''}" data-v="${p.id}"><i style="background:${p.color}"></i>${esc(p.name)}</button>`).join('');
+
+  const sel=$('#wPerson'), keep=sel.value;
+  sel.innerHTML = people.map(p=>`<option value="${p.id}">${esc(p.name)}</option>`).join('');
+  if(keep) sel.value=keep;
+
+  const ranked=[...active].sort((a,b)=>b.pct-a.pct);
+  $('#board').innerHTML = ranked.length ? ranked.map((x,i)=>{
+    const g=x.p.goal, prog=g&&x.s>g?Math.max(0,Math.min(100,(x.s-x.l)/(x.s-g)*100)):null;
+    const tags=[];
+    if(i===0&&ranked.length>1&&x.lost>0) tags.push('👑 Leading');
+    if(x.streak>=2) tags.push(`🔥 ${x.streak} losses in a row`);
+    if(x.we!==null&&x.we<=0) tags.push('🏖️ Weekend warrior');
+    return `<div class="row">
+      <div class="rk">${i+1}</div>
+      <div class="nm"><i style="background:${x.p.color}"></i>${esc(x.p.name)}</div>
+      <div class="num big ${x.lost>=0?'pos':'neg'}">${x.lost>=0?'−':'+'}${Math.abs(cv(x.lost)).toFixed(1)}${unit}</div>
+      <div class="meta">Now ${fmt(x.l)} · ${x.pct.toFixed(1)}% ${x.lost>=0?'down':'up'} from ${fmt(x.s)}${g?` · goal ${fmt(g)}`:''}</div>
+      ${prog!==null?`<div class="prog"><b style="width:${prog}%"></b></div>`:''}
+      <div class="meta">${tags.map(t=>`<span class="tag">${t}</span>`).join('')}${x.wk!==null?`Weekdays ${sg(x.wk)} avg `:''}${x.we!==null?`· Weekends ${sg(x.we)} avg`:''}</div>
+    </div>`;}).join('') : '<div class="empty">Nobody on the board yet.</div>';
+
+  $('#people').innerHTML = people.map(p=>`<div class="hist"><span><i style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${p.color};margin-right:8px"></i>${esc(p.name)}</span><button class="x" data-dp="${p.id}" title="Remove ${esc(p.name)}" aria-label="Remove ${esc(p.name)}">×</button></div>`).join('');
+
+  const nameOf=id=>(people.find(p=>p.id===id)||{}).name||'?';
+  const recent=weights.filter(w=>view==='all'||w.personId===view).sort((a,b)=>b.date.localeCompare(a.date)).slice(0,12);
+  $('#hist').innerHTML = recent.length ? recent.map(w=>`<div class="hist"><span>${lbl(w.date)} · <b>${esc(nameOf(w.personId))}</b></span><span>${fmt(w.kg)} <button class="x" data-dw="${w.id}" title="Delete weigh-in" aria-label="Delete weigh-in">×</button></span></div>`).join('') : '<div class="empty">No weigh-ins logged yet.</div>';
+
+  drawChart(active);
+}
+
+function drawChart(act){
+  act = act.filter(x=>view==='all'||x.p.id===view);
+  $('#noData').hidden = act.length>0;
+  const dates=[...new Set(act.flatMap(x=>x.ws.map(w=>w.date)))].sort();
+  const ds=act.map(x=>{
+    const m=Object.fromEntries(x.ws.map(w=>[w.date,w.kg]));
+    return {label:x.p.name,borderColor:x.p.color,backgroundColor:x.p.color,tension:.25,spanGaps:true,pointRadius:4,borderWidth:view==='all'?2.5:3.5,
+      data:dates.map(d=>m[d]==null?null:metric==='abs'?+cv(m[d]).toFixed(2):+((m[d]-x.s)/x.s*100).toFixed(2))};
+  });
+  if(view!=='all'&&act[0]&&act[0].p.goal&&metric==='abs')
+    ds.push({label:'Goal',data:dates.map(()=>+cv(act[0].p.goal).toFixed(2)),borderDash:[6,6],borderColor:css('--mute'),pointRadius:0,borderWidth:2});
+  chart&&chart.destroy();
+  const tick=css('--mute'), grid=css('--line');
+  chart=new Chart($('#chart'),{type:'line',data:{labels:dates.map(lbl),datasets:ds},options:{
+    responsive:true,maintainAspectRatio:false,interaction:{mode:'nearest',intersect:false},
+    plugins:{legend:{labels:{color:css('--ink')}},tooltip:{callbacks:{label:c=>`${c.dataset.label}: ${c.parsed.y}${metric==='abs'?unit:'%'}`}}},
+    scales:{x:{ticks:{color:tick},grid:{color:grid}},y:{ticks:{color:tick},grid:{color:grid},title:{display:true,text:metric==='abs'?unit:'% change from start',color:tick}}}}});
+}
+
+// controls
+$('#who').onclick=e=>{const b=e.target.closest('[data-v]'); if(b){view=b.dataset.v; render();}};
+$('#metric').onclick=e=>{const b=e.target.closest('[data-m]'); if(!b)return; metric=b.dataset.m; document.querySelectorAll('#metric button').forEach(x=>x.classList.toggle('on',x===b)); render();};
+$('#unit').onclick=e=>{const b=e.target.closest('[data-u]'); if(!b)return; unit=b.dataset.u; document.querySelectorAll('#unit button').forEach(x=>x.classList.toggle('on',x===b)); render();};
+matchMedia('(prefers-color-scheme:dark)').addEventListener('change',render);
+
+$('#wDate').value=today();
+function hint(){const d=$('#wDate').value; if(!d){$('#dayHint').textContent='';return;} const w=day(d).getDay(); $('#dayHint').textContent=w===1?'Monday lunchtime weigh-in':w===5?'Friday lunchtime weigh-in':'Not a Monday or Friday, but it will still count.';}
+$('#wDate').oninput=hint; hint();
+
+$('#fWeight').onsubmit=async e=>{
+  e.preventDefault();
+  const v=parseFloat($('#wVal').value); if(!(v>0)||!$('#wPerson').value) return;
+  try{
+    await addDoc(WEIGHTS,{personId:$('#wPerson').value,kg:+(unit==='kg'?v:v/LB).toFixed(2),date:$('#wDate').value});
+    $('#wVal').value=''; $('#wVal').focus();
+  }catch(err){fail(err);}
+};
+$('#fPerson').onsubmit=async e=>{
+  e.preventDefault();
+  const name=$('#pName').value.trim(), g=parseFloat($('#pGoal').value); if(!name) return;
+  try{
+    await addDoc(PEOPLE,{name,color:COL[people.length%COL.length],created:Date.now(),goal:g>0?+(unit==='kg'?g:g/LB).toFixed(2):null});
+    e.target.reset();
+  }catch(err){fail(err);}
+};
+document.addEventListener('click',async e=>{
+  const w=e.target.closest('[data-dw]'), p=e.target.closest('[data-dp]');
+  try{
+    if(w&&confirm('Delete this weigh-in?')) await deleteDoc(doc(db,'ff_weights',w.dataset.dw));
+    if(p&&confirm('Remove this fighter and all their weigh-ins?')){
+      await Promise.all(weights.filter(x=>x.personId===p.dataset.dp).map(x=>deleteDoc(doc(db,'ff_weights',x.id))));
+      await deleteDoc(doc(db,'ff_people',p.dataset.dp));
+    }
+  }catch(err){fail(err);}
+});
+</script>
 </body>
 </html>
