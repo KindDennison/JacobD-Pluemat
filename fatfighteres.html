@@ -15,19 +15,19 @@ body{margin:0;background:var(--bg);color:var(--ink);font:500 16px/1.45 Barlow,sy
 h1,h2,.num{font-family:"Barlow Condensed","Arial Narrow",sans-serif;font-weight:800;letter-spacing:.2px;margin:0}
 .wrap{max-width:1100px;margin:0 auto;padding:16px}
 header{display:flex;flex-wrap:wrap;gap:12px 24px;align-items:flex-end;justify-content:space-between;padding:20px 0 8px}
-h1{font-size:clamp(40px,8vw,68px);line-height:.9}
+h1{font-size:clamp(36px,9vw,68px);line-height:1.1;padding-bottom:6px}
 .tot{text-align:right}.tot .num{font-size:44px;color:var(--good);line-height:1}
 .sub{color:var(--mute);font-size:14px}
 .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px;margin-top:14px}
 h2{font-size:26px;margin-bottom:10px}
 .bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
 .pill,button,select,input{font:inherit;color:var(--ink)}
-.pill{border:1.5px solid var(--line);background:transparent;border-radius:99px;padding:5px 14px;cursor:pointer}
+.pill{border:1.5px solid var(--line);background:transparent;border-radius:99px;padding:8px 14px;cursor:pointer}
 .pill.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
 .pill i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px}
 .sp{flex:1}
 .seg{display:inline-flex;border:1.5px solid var(--line);border-radius:8px;overflow:hidden}
-.seg button{border:0;background:transparent;padding:5px 12px;cursor:pointer}
+.seg button{border:0;background:transparent;padding:8px 14px;cursor:pointer}
 .seg button.on{background:var(--acc);color:#fff}
 .chartbox{position:relative;height:340px;margin-top:10px}
 .empty{color:var(--mute);padding:30px 0;text-align:center}
@@ -41,17 +41,29 @@ h2{font-size:26px;margin-bottom:10px}
 .prog{grid-column:2/4;height:7px;background:var(--line);border-radius:9px;overflow:hidden}
 .prog b{display:block;height:100%;background:var(--good)}
 .tag{display:inline-block;border:1px solid var(--line);border-radius:6px;padding:0 7px;margin-right:6px;font-size:13px;color:var(--ink)}
-.forms{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px}
+.forms{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:14px}
 form{display:grid;gap:8px}
 label{font-size:14px;color:var(--mute)}
 input,select{width:100%;padding:9px 10px;border:1.5px solid var(--line);border-radius:8px;background:var(--bg)}
 .go{background:var(--acc);color:#fff;border:0;border-radius:8px;padding:10px;font-weight:600;cursor:pointer}
 .go:hover{filter:brightness(1.1)}
 :focus-visible{outline:3px solid var(--acc);outline-offset:2px}
-.hist{display:flex;justify-content:space-between;gap:8px;padding:7px 0;border-top:1px solid var(--line)}
-.x{border:0;background:none;color:var(--mute);cursor:pointer;font-size:18px;line-height:1}.x:hover{color:var(--bad)}
+.hist{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:7px 0;border-top:1px solid var(--line)}
+.x{border:0;background:none;color:var(--mute);cursor:pointer;font-size:18px;line-height:1;padding:6px 10px}.x:hover{color:var(--bad)}
 .hint{font-size:13px;color:var(--mute);min-height:18px}
 #err{display:none;background:var(--bad);color:#fff;padding:10px 14px;border-radius:8px;margin-top:12px}
+.hist>span,.nm,.meta{min-width:0;overflow-wrap:anywhere}
+@media(max-width:720px){.chartbox{height:300px}.sp{flex-basis:100%;height:0}}
+@media(max-width:520px){
+ .wrap{padding:12px}.card{padding:12px}
+ header{flex-direction:column;align-items:flex-start;gap:10px;padding-top:12px}
+ .tot{text-align:left}.tot .num{font-size:36px}
+ .chartbox{height:260px}
+ .row{grid-template-columns:26px 1fr auto;gap:4px 8px}
+ .rk{font-size:22px}.big{font-size:26px}.nm{font-size:17px}
+ h2{font-size:23px}
+}
+@media(min-width:1200px){.wrap{max-width:1200px}.chartbox{height:420px}}
 </style>
 </head>
 <body>
