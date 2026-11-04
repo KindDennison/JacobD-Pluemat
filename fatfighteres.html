@@ -80,6 +80,7 @@ input,select{width:100%;padding:9px 10px;border:1.5px solid var(--line);border-r
 <section class="card">
   <div class="bar">
     <div class="bar" id="who"></div><span class="sp"></span>
+    <button class="pill" id="pieTog" aria-pressed="false">🥧 Show pies</button>
     <div class="seg" id="metric"><button data-m="abs" class="on">Weight</button><button data-m="pct">% change</button></div>
     <div class="seg" id="unit"><button data-u="kg" class="on">kg</button><button data-u="lb">lb</button></div>
   </div>
@@ -88,6 +89,8 @@ input,select{width:100%;padding:9px 10px;border:1.5px solid var(--line);border-r
 </section>
 
 <section class="card"><h2>Leaderboard</h2><div id="board"></div></section>
+
+<section class="card"><h2>🥧 Pie impact</h2><div class="sub">Average weight change between weigh-ins, with and without pies in between</div><div id="pieBoard"></div></section>
 
 <div class="forms">
   <section class="card"><h2>Log a weigh-in</h2>
@@ -109,9 +112,18 @@ input,select{width:100%;padding:9px 10px;border:1.5px solid var(--line);border-r
     <div class="sub" style="margin-top:14px">Edit a fighter's chart colour or goal weight (leave goal blank to clear it)</div>
     <div id="people"></div>
   </section>
+  <section class="card"><h2>Log a pie 🥧</h2>
+    <form id="fPie">
+      <label>Who<select id="pPerson" required></select></label>
+      <label>How many pies<input id="pieN" type="number" min="1" max="20" step="1" value="1" inputmode="numeric" required></label>
+      <label>Date<input id="pieDate" type="date" required></label>
+      <label>Which pie? (optional)<input id="pieNote" maxlength="30" placeholder="Steak &amp; ale"></label>
+      <button class="go">Confess a pie</button>
+    </form>
+  </section>
 </div>
 
-<section class="card"><h2>Recent weigh-ins</h2><div id="hist"></div></section>
+<section class="card"><h2>Recent weigh-ins</h2><div id="hist"></div><h2 style="margin-top:18px">Recent pies</h2><div id="pieHist"></div></section>
 </div>
 
 <script type="module">
@@ -127,13 +139,13 @@ const firebaseConfig = {
   appId: "1:915336870349:web:c070e9b3fc0b688fe62c84"
 };
 const db = getFirestore(initializeApp(firebaseConfig));
-const PEOPLE = collection(db,'ff_people'), WEIGHTS = collection(db,'ff_weights');
+const PEOPLE = collection(db,'ff_people'), WEIGHTS = collection(db,'ff_weights'), PIES = collection(db,'ff_pies');
 
 const $ = s => document.querySelector(s);
 const esc = s => String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const COL = ['#e8590c','#2b59ff','#0f9d58','#ae3ec9','#f5b700','#0ca678','#d6336c','#7048e8','#74b816','#e03131'];
 const LB = 2.20462;
-let people=[], weights=[], unit='kg', view='all', metric='abs', chart;
+let people=[], weights=[], pies=[], showPies=false, unit='kg', view='all', metric='abs', chart;
 
 const cv = kg => unit==='kg' ? kg : kg*LB;
 const fmt = kg => cv(kg).toFixed(1)+unit;
@@ -146,6 +158,7 @@ const fail = e => { const b=$('#err'); b.style.display='block'; b.textContent='C
 
 onSnapshot(PEOPLE, s=>{ people=s.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>a.created-b.created); render(); }, fail);
 onSnapshot(WEIGHTS, s=>{ weights=s.docs.map(d=>({id:d.id,...d.data()})); render(); }, fail);
+onSnapshot(PIES, s=>{ pies=s.docs.map(d=>({id:d.id,...d.data()})); render(); }, fail);
 
 function stats(p){
   const ws = weights.filter(w=>w.personId===p.id).sort((a,b)=>a.date.localeCompare(b.date));
@@ -170,9 +183,7 @@ function render(){
   $('#who').innerHTML = `<button class="pill ${view==='all'?'on':''}" data-v="all">Everyone</button>` +
     people.map(p=>`<button class="pill ${view===p.id?'on':''}" data-v="${p.id}"><i style="background:${p.color}"></i>${esc(p.name)}</button>`).join('');
 
-  const sel=$('#wPerson'), keep=sel.value;
-  sel.innerHTML = people.map(p=>`<option value="${p.id}">${esc(p.name)}</option>`).join('');
-  if(keep) sel.value=keep;
+  ['#wPerson','#pPerson'].forEach(q=>{const sel=$(q), keep=sel.value; sel.innerHTML=people.map(p=>`<option value="${p.id}">${esc(p.name)}</option>`).join(''); if(keep) sel.value=keep;});
 
   const ranked=[...active].sort((a,b)=>b.pct-a.pct);
   $('#board').innerHTML = ranked.length ? ranked.map((x,i)=>{
@@ -181,6 +192,7 @@ function render(){
     if(i===0&&ranked.length>1&&x.lost>0) tags.push('👑 Leading');
     if(x.streak>=2) tags.push(`🔥 ${x.streak} losses in a row`);
     if(x.we!==null&&x.we<=0) tags.push('🏖️ Weekend warrior');
+    const pc=pies.filter(q=>q.personId===x.p.id).reduce((t,q)=>t+q.count,0); if(pc) tags.push(`🥧 ${pc} pie${pc>1?'s':''}`);
     return `<div class="row">
       <div class="rk">${i+1}</div>
       <div class="nm"><i style="background:${x.p.color}"></i>${esc(x.p.name)}</div>
@@ -197,26 +209,48 @@ function render(){
   const recent=weights.filter(w=>view==='all'||w.personId===view).sort((a,b)=>b.date.localeCompare(a.date)).slice(0,12);
   $('#hist').innerHTML = recent.length ? recent.map(w=>`<div class="hist"><span>${lbl(w.date)} · <b>${esc(nameOf(w.personId))}</b></span><span>${fmt(w.kg)} <button class="x" data-dw="${w.id}" title="Delete weigh-in" aria-label="Delete weigh-in">×</button></span></div>`).join('') : '<div class="empty">No weigh-ins logged yet.</div>';
 
+  const pr=pies.filter(w=>view==='all'||w.personId===view).sort((a,b)=>b.date.localeCompare(a.date)).slice(0,12);
+  $('#pieHist').innerHTML = pr.length ? pr.map(q=>`<div class="hist"><span>${lbl(q.date)} · <b>${esc(nameOf(q.personId))}</b>${q.note?` · ${esc(q.note)}`:''}</span><span>🥧 ×${q.count} <button class="x" data-dpie="${q.id}" title="Delete pie" aria-label="Delete pie">×</button></span></div>`).join('') : '<div class="empty">No pies confessed. Suspicious.</div>';
+  renderPies(st);
   drawChart(active);
 }
 
+const av=a=>a.length?a.reduce((t,v)=>t+v,0)/a.length:null;
+function ivs(x){const r=[];for(let i=1;i<x.ws.length;i++){const a=x.ws[i-1].date,b=x.ws[i].date;
+  const n=pies.filter(q=>q.personId===x.p.id&&q.date>a&&q.date<=b).reduce((t,q)=>t+q.count,0);
+  r.push({d:x.ws[i].kg-x.ws[i-1].kg,n});}return r;}
+function pieLine(iv){
+  const a=av(iv.filter(i=>i.n).map(i=>i.d)), b=av(iv.filter(i=>!i.n).map(i=>i.d));
+  return (a===null?'No pie periods yet':`With pies ${sg(a)} avg`)+' · '+(b===null?'no pie-free periods yet':`pie-free ${sg(b)} avg`)+(a!==null&&b!==null?` · pie effect ${sg(a-b)} per period`:'');
+}
+function renderPies(st){
+  if(!pies.length){$('#pieBoard').innerHTML='<div class="empty">No pies logged yet. Log one to see the damage.</div>';return;}
+  const all=[], rows=st.map(x=>{const iv=ivs(x); all.push(...iv); return {x,iv,tot:pies.filter(q=>q.personId===x.p.id).reduce((t,q)=>t+q.count,0)};}).filter(r=>r.tot).sort((a,b)=>b.tot-a.tot);
+  const row=(rk,dot,name,tot,iv)=>`<div class="row"><div class="rk">${rk}</div><div class="nm"><i style="background:${dot}"></i>${esc(name)}</div><div class="num big">${tot}🥧</div><div class="meta">${pieLine(iv)}</div></div>`;
+  $('#pieBoard').innerHTML = row('Σ','var(--mute)','Whole team',rows.reduce((t,r)=>t+r.tot,0),all)+rows.map((r,i)=>row(i+1,r.x.p.color,r.x.p.name,r.tot,r.iv)).join('');
+}
+
 function drawChart(act){
-  act = act.filter(x=>view==='all'||x.p.id===view);
-  $('#noData').hidden = act.length>0;
-  const dates=[...new Set(act.flatMap(x=>x.ws.map(w=>w.date)))].sort();
+  act=act.filter(x=>view==='all'||x.p.id===view);
+  const pp=showPies?people.filter(p=>view==='all'||p.id===view).map(p=>({p,m:pies.filter(q=>q.personId===p.id).reduce((m,q)=>(m[q.date]=(m[q.date]||0)+q.count,m),{})})).filter(x=>Object.keys(x.m).length):[];
+  const dates=[...new Set([...act.flatMap(x=>x.ws.map(w=>w.date)),...pp.flatMap(x=>Object.keys(x.m))])].sort();
+  $('#noData').hidden=dates.length>0;
   const ds=act.map(x=>{
     const m=Object.fromEntries(x.ws.map(w=>[w.date,w.kg]));
-    return {label:x.p.name,borderColor:x.p.color,backgroundColor:x.p.color,tension:.25,spanGaps:true,pointRadius:4,borderWidth:view==='all'?2.5:3.5,
+    return {label:x.p.name,borderColor:x.p.color,backgroundColor:x.p.color,tension:.25,spanGaps:true,pointRadius:4,borderWidth:view==='all'?2.5:3.5,order:0,
       data:dates.map(d=>m[d]==null?null:metric==='abs'?+cv(m[d]).toFixed(2):+((m[d]-x.s)/x.s*100).toFixed(2))};
   });
   if(view!=='all'&&act[0]&&act[0].p.goal&&metric==='abs')
-    ds.push({label:'Goal',data:dates.map(()=>+cv(act[0].p.goal).toFixed(2)),borderDash:[6,6],borderColor:css('--mute'),pointRadius:0,borderWidth:2});
+    ds.push({label:'Goal',data:dates.map(()=>+cv(act[0].p.goal).toFixed(2)),borderDash:[6,6],borderColor:css('--mute'),pointRadius:0,borderWidth:2,order:0});
+  pp.forEach(x=>ds.push({type:'bar',label:x.p.name+' 🥧',yAxisID:'y2',order:2,backgroundColor:x.p.color+'66',borderColor:x.p.color,borderWidth:1,borderRadius:3,data:dates.map(d=>x.m[d]||null)}));
   chart&&chart.destroy();
   const tick=css('--mute'), grid=css('--line');
+  const scales={x:{offset:pp.length>0,ticks:{color:tick},grid:{color:grid}},y:{ticks:{color:tick},grid:{color:grid},title:{display:true,text:metric==='abs'?unit:'% change from start',color:tick}}};
+  if(pp.length) scales.y2={position:'right',beginAtZero:true,suggestedMax:5,ticks:{precision:0,color:tick},grid:{drawOnChartArea:false},title:{display:true,text:'🥧 pies',color:tick}};
   chart=new Chart($('#chart'),{type:'line',data:{labels:dates.map(lbl),datasets:ds},options:{
     responsive:true,maintainAspectRatio:false,interaction:{mode:'nearest',intersect:false},
-    plugins:{legend:{labels:{color:css('--ink')}},tooltip:{callbacks:{label:c=>`${c.dataset.label}: ${c.parsed.y}${metric==='abs'?unit:'%'}`}}},
-    scales:{x:{ticks:{color:tick},grid:{color:grid}},y:{ticks:{color:tick},grid:{color:grid},title:{display:true,text:metric==='abs'?unit:'% change from start',color:tick}}}}});
+    plugins:{legend:{labels:{color:css('--ink')}},tooltip:{callbacks:{label:c=>c.dataset.yAxisID==='y2'?`${c.dataset.label}: ${c.parsed.y}`:`${c.dataset.label}: ${c.parsed.y}${metric==='abs'?unit:'%'}`}}},
+    scales}});
 }
 
 // controls
@@ -225,7 +259,7 @@ $('#metric').onclick=e=>{const b=e.target.closest('[data-m]'); if(!b)return; met
 $('#unit').onclick=e=>{const b=e.target.closest('[data-u]'); if(!b)return; unit=b.dataset.u; document.querySelectorAll('#unit button').forEach(x=>x.classList.toggle('on',x===b)); render();};
 matchMedia('(prefers-color-scheme:dark)').addEventListener('change',render);
 
-$('#wDate').value=today();
+$('#wDate').value=today(); $('#pieDate').value=today();
 function hint(){const d=$('#wDate').value; if(!d){$('#dayHint').textContent='';return;} const w=day(d).getDay(); $('#dayHint').textContent=w===1?'Monday lunchtime weigh-in':w===5?'Friday lunchtime weigh-in':'Not a Monday or Friday, but it will still count.';}
 $('#pColor').oninput=e=>{e.target.dataset.t=1;};
 $('#wDate').oninput=hint; hint();
@@ -236,6 +270,15 @@ $('#fWeight').onsubmit=async e=>{
   try{
     await addDoc(WEIGHTS,{personId:$('#wPerson').value,kg:+(unit==='kg'?v:v/LB).toFixed(2),date:$('#wDate').value});
     $('#wVal').value=''; $('#wVal').focus();
+  }catch(err){fail(err);}
+};
+$('#pieTog').onclick=()=>{showPies=!showPies; $('#pieTog').classList.toggle('on',showPies); $('#pieTog').setAttribute('aria-pressed',showPies); render();};
+$('#fPie').onsubmit=async e=>{
+  e.preventDefault();
+  const n=parseInt($('#pieN').value,10); if(!(n>0)||!$('#pPerson').value) return;
+  try{
+    await addDoc(PIES,{personId:$('#pPerson').value,date:$('#pieDate').value,count:n,note:$('#pieNote').value.trim().slice(0,30)});
+    $('#pieN').value=1; $('#pieNote').value='';
   }catch(err){fail(err);}
 };
 $('#fPerson').onsubmit=async e=>{
@@ -254,11 +297,12 @@ document.addEventListener('change',async e=>{
   }catch(err){fail(err);}
 });
 document.addEventListener('click',async e=>{
-  const w=e.target.closest('[data-dw]'), p=e.target.closest('[data-dp]');
+  const w=e.target.closest('[data-dw]'), p=e.target.closest('[data-dp]'), pi=e.target.closest('[data-dpie]');
   try{
+    if(pi&&confirm('Delete this pie entry?')) await deleteDoc(doc(db,'ff_pies',pi.dataset.dpie));
     if(w&&confirm('Delete this weigh-in?')) await deleteDoc(doc(db,'ff_weights',w.dataset.dw));
     if(p&&confirm('Remove this fighter and all their weigh-ins?')){
-      await Promise.all(weights.filter(x=>x.personId===p.dataset.dp).map(x=>deleteDoc(doc(db,'ff_weights',x.id))));
+      await Promise.all([...weights.filter(x=>x.personId===p.dataset.dp).map(x=>deleteDoc(doc(db,'ff_weights',x.id))),...pies.filter(x=>x.personId===p.dataset.dp).map(x=>deleteDoc(doc(db,'ff_pies',x.id)))]);
       await deleteDoc(doc(db,'ff_people',p.dataset.dp));
     }
   }catch(err){fail(err);}
