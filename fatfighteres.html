@@ -64,6 +64,9 @@ input,select{width:100%;padding:9px 10px;border:1.5px solid var(--line);border-r
  h2{font-size:23px}
 }
 @media(min-width:1200px){.wrap{max-width:1200px}.chartbox{height:420px}}
+.pe{display:flex;align-items:center;gap:8px}
+.clr{width:38px;height:38px;padding:2px;border-radius:8px;cursor:pointer;flex:none}
+.gl{width:100px;padding:6px 8px}
 </style>
 </head>
 <body>
@@ -100,9 +103,11 @@ input,select{width:100%;padding:9px 10px;border:1.5px solid var(--line);border-r
     <form id="fPerson">
       <label>Name<input id="pName" maxlength="24" required></label>
       <label>Goal weight (<span class="uL">kg</span>, optional)<input id="pGoal" type="number" step="0.1" min="20" max="500" inputmode="decimal"></label>
+      <div class="pe"><label for="pColor">Chart colour</label><input id="pColor" type="color" class="clr"></div>
       <button class="go">Add fighter</button>
     </form>
-    <div id="people" style="margin-top:12px"></div>
+    <div class="sub" style="margin-top:14px">Edit a fighter's chart colour or goal weight (leave goal blank to clear it)</div>
+    <div id="people"></div>
   </section>
 </div>
 
@@ -111,7 +116,7 @@ input,select{width:100%;padding:9px 10px;border:1.5px solid var(--line);border-r
 
 <script type="module">
 import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import {getFirestore,collection,addDoc,deleteDoc,doc,onSnapshot} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import {getFirestore,collection,addDoc,deleteDoc,updateDoc,doc,onSnapshot} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDJXVZE2VZXPH9jJvzgz9ozBvvbiJfmLbw",
@@ -185,7 +190,8 @@ function render(){
       <div class="meta">${tags.map(t=>`<span class="tag">${t}</span>`).join('')}${x.wk!==null?`Weekdays ${sg(x.wk)} avg `:''}${x.we!==null?`· Weekends ${sg(x.we)} avg`:''}</div>
     </div>`;}).join('') : '<div class="empty">Nobody on the board yet.</div>';
 
-  $('#people').innerHTML = people.map(p=>`<div class="hist"><span><i style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${p.color};margin-right:8px"></i>${esc(p.name)}</span><button class="x" data-dp="${p.id}" title="Remove ${esc(p.name)}" aria-label="Remove ${esc(p.name)}">×</button></div>`).join('');
+  $('#people').innerHTML = people.map(p=>`<div class="hist"><span class="pe"><input type="color" class="clr" value="${p.color}" data-pc="${p.id}" aria-label="Chart colour for ${esc(p.name)}"><b>${esc(p.name)}</b></span><span class="pe"><input class="gl" type="number" step="0.1" min="20" max="500" inputmode="decimal" placeholder="Goal ${unit}" value="${p.goal?cv(p.goal).toFixed(1):''}" data-pg="${p.id}" aria-label="Goal weight for ${esc(p.name)}"><button class="x" data-dp="${p.id}" title="Remove ${esc(p.name)}" aria-label="Remove ${esc(p.name)}">×</button></span></div>`).join('');
+  if(!$('#pColor').dataset.t) $('#pColor').value=COL[people.length%COL.length];
 
   const nameOf=id=>(people.find(p=>p.id===id)||{}).name||'?';
   const recent=weights.filter(w=>view==='all'||w.personId===view).sort((a,b)=>b.date.localeCompare(a.date)).slice(0,12);
@@ -221,6 +227,7 @@ matchMedia('(prefers-color-scheme:dark)').addEventListener('change',render);
 
 $('#wDate').value=today();
 function hint(){const d=$('#wDate').value; if(!d){$('#dayHint').textContent='';return;} const w=day(d).getDay(); $('#dayHint').textContent=w===1?'Monday lunchtime weigh-in':w===5?'Friday lunchtime weigh-in':'Not a Monday or Friday, but it will still count.';}
+$('#pColor').oninput=e=>{e.target.dataset.t=1;};
 $('#wDate').oninput=hint; hint();
 
 $('#fWeight').onsubmit=async e=>{
@@ -235,10 +242,17 @@ $('#fPerson').onsubmit=async e=>{
   e.preventDefault();
   const name=$('#pName').value.trim(), g=parseFloat($('#pGoal').value); if(!name) return;
   try{
-    await addDoc(PEOPLE,{name,color:COL[people.length%COL.length],created:Date.now(),goal:g>0?+(unit==='kg'?g:g/LB).toFixed(2):null});
-    e.target.reset();
+    await addDoc(PEOPLE,{name,color:$('#pColor').value,created:Date.now(),goal:g>0?+(unit==='kg'?g:g/LB).toFixed(2):null});
+    e.target.reset();delete $('#pColor').dataset.t;render();
   }catch(err){fail(err);}
 };
+document.addEventListener('change',async e=>{
+  const c=e.target.closest('[data-pc]'), g=e.target.closest('[data-pg]');
+  try{
+    if(c) await updateDoc(doc(db,'ff_people',c.dataset.pc),{color:c.value});
+    if(g){const v=parseFloat(g.value); await updateDoc(doc(db,'ff_people',g.dataset.pg),{goal:v>0?+(unit==='kg'?v:v/LB).toFixed(2):null});}
+  }catch(err){fail(err);}
+});
 document.addEventListener('click',async e=>{
   const w=e.target.closest('[data-dw]'), p=e.target.closest('[data-dp]');
   try{
