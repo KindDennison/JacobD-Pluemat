@@ -67,10 +67,23 @@ main{flex:1;min-height:0;display:flex;flex-direction:column;padding:12px 18px 18
 .tv .cal{overflow:hidden;gap:12px;grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:minmax(0,1fr)}
 .tv .mgrid{grid-template-rows:auto repeat(var(--n),minmax(0,1fr))}
 .tv .dn b{font-size:clamp(12px,2vh,24px)}
-.tv .chip{font-size:clamp(11px,calc(.5vw + .5vh),22px);white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.tv .chip{font-size:clamp(13px,calc(.6vw + .85vh),28px);white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;padding:3px 7px}
+.tv .day.one .chip{-webkit-line-clamp:1}
+.tv .mgrid{grid-template-columns:repeat(5,minmax(0,1fr)) minmax(0,.4fr) minmax(0,.4fr)}
+.tv .more{font-size:clamp(12px,1.8vh,22px);color:var(--amber);font-weight:600}
+.more:empty{display:none}
+.tv .strip{max-height:9vh;overflow:hidden}
+.tv .strip .chip{display:block;-webkit-line-clamp:unset;white-space:nowrap;font-size:clamp(12px,2vh,24px);max-width:24vw;width:auto}
+.tv .strip span{font-size:clamp(13px,2vh,24px)}
+.tv .legend{font-size:clamp(12px,1.8vh,22px)}
 .tv header .ctl,.tv #addBtn,.tv .legend .hide,.tv #viewSeg{display:none}
-.tv #clock{display:block}
-.tv header{padding:8px 18px}
+.tv #clock{display:block;font-size:clamp(20px,3.4vh,42px)}
+.tv{overflow:hidden;width:100vw;height:100vh}
+.tv header{padding:1.2vh 3vw}
+.tv main{padding:0 3vw 2.5vh;gap:1vh}
+.tv h1{font-size:clamp(22px,3.2vh,42px)}
+.tv .stats{font-size:clamp(14px,2.2vh,28px)}
+.tv .stats b{font-size:clamp(20px,3.4vh,42px)}
 .list{overflow:auto;flex:1}
 table{width:100%;border-collapse:collapse}
 th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
@@ -210,7 +223,7 @@ function render(){
 }
 
 function renderCal(){
-  const cap = document.body.classList.contains("tv") ? 3 : 99;
+  const cap = 99;
   const now = new Date(), today = iso(now), idx = d => (d.getDay() + 6) % 7;
   const first = new Date(now.getFullYear(), now.getMonth() + off, 1), startIso = iso(first);
   const by = {};
@@ -237,6 +250,27 @@ function renderCal(){
     h += `<section class="mon mc${k}"><div class="mh">${m.toLocaleDateString("en-GB", {month:"long", year:"numeric"})}</div><div class="mgrid" style="--n:${n}">${dows}${cells}</div></section>`;
   }
   $("cal").innerHTML = h;
+  fitTV();
+}
+
+// TV only: shrink or drop chips until every day fits its cell, so no text is cut off mid-line.
+function fitTV(){
+  if (!document.body.classList.contains("tv")) return;
+  const over = el => el.scrollHeight > el.clientHeight + 1;
+  document.querySelectorAll(".day:not(.pad)").forEach(d => {
+    if (!over(d)) return;
+    d.classList.add("one");
+    if (!over(d)) return;
+    const chips = [...d.querySelectorAll(".chip")], more = document.createElement("div");
+    more.className = "more"; d.appendChild(more);
+    let hidden = 0;
+    while (chips.length > 1 && over(d)){ chips.pop().remove(); more.textContent = "+" + (++hidden) + " more"; }
+  });
+  const st = $("strip"), chips = [...st.querySelectorAll(".chip")];
+  if (!chips.length) return;
+  const more = document.createElement("span"); more.className = "more"; st.appendChild(more);
+  let hidden = 0;
+  while (chips.length > 1 && over(st)){ chips.pop().remove(); more.textContent = "+" + (++hidden) + " more"; }
 }
 
 function renderList(){
@@ -333,6 +367,8 @@ $("impBtn").onclick = async () => {
 
 setInterval(() => { $("clock").textContent = new Date().toLocaleString("en-GB", {weekday:"short", day:"numeric", month:"short", hour:"2-digit", minute:"2-digit"}); }, 1000);
 setInterval(() => { if (!$("dlg").open) render(); }, 60000);
+let rz; addEventListener("resize", () => { clearTimeout(rz); rz = setTimeout(render, 200); });
+document.fonts?.ready.then(render);
 render();
 </script>
 </body>
