@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Project Timeline</title>
+<style>
+:root{
+  --bg:#f4f6f9; --ink:#1f2937; --muted:#6b7280; --line:#e5e7eb; --brand:#1f4e79;
+  --blue:#6fa8dc; --green:#8bc34a; --orange:#ed7d31; --teal:#5bc0c9; --pale:#cfe0f3;
+  --left:600px; --rowh:28px;
+}
+body.compact{ --left:340px; }
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{font:13px/1.35 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink);display:flex;flex-direction:column;overflow:hidden}
+
+/* top bar */
+.topbar{display:flex;align-items:center;gap:18px;background:var(--brand);color:#fff;padding:0 16px;height:46px;flex:none}
+.topbar .brand{font-weight:700;font-size:15px;white-space:nowrap}
+.topbar nav{display:flex;gap:4px;overflow-x:auto}
+.topbar nav a{color:#dbe7f3;text-decoration:none;padding:7px 12px;border-radius:6px;font-weight:600;white-space:nowrap}
+.topbar nav a:hover{background:rgba(255,255,255,.14)}
+.topbar nav a.on{background:#fff;color:var(--brand)}
+
+/* toolbar */
+.toolbar{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;padding:8px 14px;background:#fff;border-bottom:1px solid var(--line);flex:none}
+.grp{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.toolbar button,.toolbar select,.toolbar input[type=search]{font:inherit;padding:5px 10px;border:1px solid #cfd6df;border-radius:6px;background:#fff;color:var(--ink)}
+.toolbar button{cursor:pointer}
+.toolbar button:hover{background:#eef3f9}
+.toolbar button.pri{background:var(--brand);border-color:var(--brand);color:#fff}
+.toolbar button.pri:hover{background:#17405f}
+.toolbar button.warn{background:#fff3cd;border-color:#e0b100}
+.toolbar button.on{background:#dfe9f5;border-color:#8fb0d6}
+.toolbar input[type=range]{width:110px}
+.toolbar input[type=search]{width:150px}
+.status{margin-left:auto;font-size:12px;color:var(--muted)}
+.status.ok{color:#2e7d32}.status.warn{color:#b26a00}.status.err{color:#c62828}
+.tip{width:100%;font-size:11.5px;color:var(--muted)}
+
+/* chart */
+#scroller{flex:1;overflow:auto;position:relative;background:#fff}
+#chart{position:relative}
+.hdr{display:flex;position:sticky;top:0;z-index:6;background:#fff;height:62px}
+.hl{position:sticky;left:0;z-index:7;width:var(--left);flex:none;background:#eaeff6;border-right:1px solid #cdd5df;border-bottom:1px solid #cdd5df;
+  display:grid;grid-template-columns:32px minmax(0,1fr) 106px 106px 48px 52px;align-items:end;font-weight:700;font-size:11.5px;color:#374151}
+.hl span{padding:0 6px 4px}
+.hr{position:relative;flex:none;border-bottom:1px solid #cdd5df;background:#f7f9fc}
+.hr div{position:absolute;height:20px;line-height:20px;font-size:11px;white-space:nowrap;overflow:hidden;border-left:1px solid #d5dbe4;padding-left:4px;color:#374151}
+.hr .q{top:0;font-weight:700;background:#e9eef6}
+.hr .mo{top:20px;font-weight:600}
+.hr .wk{top:40px;color:#6b7280;font-size:10px}
+.hr .wk.we{background:#eef0f3}
+body.compact .cs{display:none}
+body.compact .hl,body.compact .lc{grid-template-columns:32px minmax(0,1fr) 52px}
+
+.body{position:relative}
+.ov{position:absolute;top:0;bottom:0;left:var(--left);z-index:0;pointer-events:none;background-image:linear-gradient(to right,#eef1f5 1px,transparent 1px)}
+.ov .ml{position:absolute;top:0;bottom:0;width:1px;background:#d3dae4}
+.ov .we{position:absolute;top:0;bottom:0;background:rgba(0,0,0,.035)}
+.ov .today{position:absolute;top:0;bottom:0;width:2px;background:#e53935;opacity:.85}
+.row{display:flex;height:var(--rowh);position:relative;z-index:1}
+.lc{position:sticky;left:0;z-index:3;width:var(--left);flex:none;display:grid;grid-template-columns:32px minmax(0,1fr) 106px 106px 48px 52px;align-items:center;background:#fff;border-right:1px solid #cdd5df;border-bottom:1px solid #eef1f5}
+.row.proj .lc{background:#dfe9f5;font-weight:700}
+.row.sumr .lc{background:#f3f6fa;font-weight:600}
+.row:hover .lc{background:#fffbe6}
+.rc{position:relative;flex:none;border-bottom:1px solid #eef1f5}
+.row.proj .rc{background:rgba(31,78,121,.07)}
+.idc{text-align:center;color:#9aa3af;font-size:11px;font-weight:400}
+.nm{display:flex;align-items:center;min-width:0}
+.tg{width:16px;height:16px;border:0;background:none;cursor:pointer;color:#6b7280;padding:0;font-size:11px;flex:none}
+.tg.sp{cursor:default}
+.lc input{font:inherit;color:inherit;background:transparent;border:1px solid transparent;border-radius:4px;padding:2px 4px;width:100%;min-width:0;height:22px}
+.lc input:hover{border-color:#cfd6df;background:#fff}
+.lc input:focus{outline:2px solid #5b9bd5;background:#fff;border-color:transparent}
+.lc input[type=date]{font-size:11.5px;padding:1px 2px}
+.lc input.dur{text-align:center;padding:2px 0;-moz-appearance:textfield}
+.act{display:flex;gap:2px;justify-content:center}
+.act button{border:0;background:none;cursor:pointer;color:#6b7280;font-size:14px;padding:2px 4px;border-radius:4px}
+.act button:hover{background:#e3e9f2;color:var(--brand)}
+
+/* bars */
+.bar{position:absolute;top:7px;height:14px;border-radius:3px;cursor:grab;touch-action:none}
+.bar.blue{background:var(--blue)}.bar.green{background:var(--green)}.bar.orange{background:var(--orange)}.bar.teal{background:var(--teal)}.bar.pale{background:var(--pale)}
+.bar .pc{position:absolute;left:0;top:5px;height:4px;background:rgba(0,0,0,.5);border-radius:2px}
+.bar .h{position:absolute;top:0;bottom:0;width:6px;cursor:ew-resize}
+.bar .h.l{left:0}.bar .h.r{right:0}
+.sum{position:absolute;top:8px;height:6px;background:#222;cursor:grab;touch-action:none}
+.sum.proj{height:8px;top:7px}
+.sum::before,.sum::after{content:"";position:absolute;top:100%;width:0;height:0;border-top:6px solid #222}
+.sum::before{left:0;border-right:6px solid transparent}
+.sum::after{right:0;border-left:6px solid transparent}
+.ms{position:absolute;top:7px;width:14px;height:14px;transform:rotate(45deg) scale(.72);background:#222;cursor:grab;touch-action:none}
+.ms.green{background:var(--green)}.ms.orange{background:var(--orange)}.ms.teal{background:var(--teal)}.ms.pale{background:#9db9d9}
+.lbl{position:absolute;top:7px;font-size:11px;font-weight:700;white-space:nowrap;color:#374151;line-height:14px;pointer-events:none}
+.empty{padding:30px;color:var(--muted)}
+
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;padding:6px 14px;background:#fff;border-top:1px solid var(--line);font-size:11.5px;color:var(--muted);flex:none}
+.legend i{display:inline-block;width:14px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+
+/* modal */
+#modal{display:none;position:fixed;inset:0;background:rgba(15,23,42,.45);z-index:50;align-items:center;justify-content:center;padding:16px}
+#modal.open{display:flex}
+#modal .card{background:#fff;border-radius:12px;padding:18px 20px;width:520px;max-width:100%;max-height:94vh;overflow:auto;box-shadow:0 20px 50px rgba(0,0,0,.3)}
+#modal h3{margin:0 0 12px;font-size:16px}
+#modal label{display:block;font-size:11.5px;font-weight:600;color:#4b5563;margin-bottom:10px}
+#modal input,#modal select,#modal textarea{display:block;width:100%;margin-top:3px;font:inherit;padding:6px 8px;border:1px solid #cfd6df;border-radius:6px}
+#modal .two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+#modal .btns{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:6px}
+#modal .btns .sp{flex:1}
+#modal button{font:inherit;padding:6px 12px;border:1px solid #cfd6df;border-radius:6px;background:#fff;cursor:pointer}
+#modal button.pri{background:var(--brand);border-color:var(--brand);color:#fff}
+#modal button.danger{color:#c62828;border-color:#e6b4b4}
+#modal button.danger.armed{background:#c62828;color:#fff}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">📅 Project Timeline</div>
+  <nav id="nav"></nav>
+</header>
+
+<div class="toolbar">
+  <div class="grp">
+    <select id="projSel" title="Show one project"></select>
+    <input type="search" id="q" placeholder="Search tasks…">
+  </div>
+  <div class="grp">
+    <button data-zoom="2.5">Quarter</button>
+    <button data-zoom="5">Month</button>
+    <button data-zoom="12">Week</button>
+    <button data-zoom="28">Day</button>
+    <input type="range" id="zoom" min="2" max="32" step="0.5" value="5" title="Zoom">
+    <button id="btnToday">Today</button>
+  </div>
+  <div class="grp">
+    <button id="btnExpand">Expand all</button>
+    <button id="btnCollapse">Collapse all</button>
+    <button id="btnCompact" title="Hide the date columns">Table: full</button>
+  </div>
+  <div class="grp">
+    <button id="btnAddProj" class="pri">＋ Project</button>
+    <button id="btnRoll" title="Set every summary bar to span its children">Roll up summaries</button>
+    <button id="btnExport">Export</button>
+    <button id="btnImport">Import</button>
+    <button id="btnReset">Reset to original</button>
+    <input type="file" id="file" accept=".json,application/json" hidden>
+  </div>
+  <div class="status" id="status"></div>
+  <div class="tip">Drag a bar to move it · drag its edges to resize · drag a grey summary bar to move everything under it · double-click a bar (or press ✎) for full edit · ＋ adds a row.</div>
+</div>
+
+<div id="scroller"><div id="chart"></div></div>
+
+<div class="legend">
+  <span><i style="background:var(--blue)"></i>Task</span>
+  <span><i style="background:var(--green)"></i>PUK Shopfloor</span>
+  <span><i style="background:var(--orange)"></i>Integration</span>
+  <span><i style="background:var(--teal)"></i>On hold / contingency</span>
+  <span><i style="background:var(--pale)"></i>Inactive</span>
+  <span><i style="background:#222;height:6px"></i>Summary</span>
+  <span>◆ Milestone</span>
+  <span><i style="background:#e53935;width:3px"></i>Today</span>
+</div>
+
+<div id="modal"></div>
+
+<script>
+(function(){
+'use strict';
+
+/* =====================  SETTINGS YOU CAN EDIT  ===================== */
+
+// Links shown in this page's top bar. Match these to your other pages.
+const NAV_LINKS = [
+  {label:'Home',             href:'index.html'},
+  {label:'Project Timeline', href:'project_timeline.html'}
+];
+
+// To save + share edits between people/devices, paste your Firebase web config here
+// (the same object your other pages use), e.g. {apiKey:"...", projectId:"...", ...}
+// Leave as null to run without cloud saving (use Export/Import).
+const FIREBASE_CONFIG = null;
+const FS_COLLECTION = 'projectTimeline';
+const FS_DOC = 'puk-plan';
+
+/* ================================================================== */
+
+const DAY = 86400000;
+const MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const COLS = {blue:'Blue (task)',green:'Green (PUK Shopfloor)',orange:'Orange (integration)',teal:'Teal (on hold / contingency)',pale:'Pale (inactive)'};
+
+/* Seed data from the PDF: [MS Project ID, indent, name, start, finish, flags]
+   flags: s=summary m=milestone g=shopfloor(green) o=orange t=teal x=pale c=complete */
+const SEED = [
+[1,0,'2730 - LABOPHAR','13/04/26','16/10/26','s'],
+
+[20,0,'2735 - Amneal LAF','27/07/26','28/06/27','s'],
+[21,1,'On Hold','27/07/26','31/08/26','t'],
+[22,1,'Design Phase','12/10/26','06/11/26','s'],
+[23,2,'Design of LAF - Mech','12/10/26','06/11/26',''],
+[24,2,'Design of LAF - Elec','12/10/26','06/11/26',''],
+[25,1,'Procurement Phase','23/12/26','16/03/27','s'],
+[26,2,'Fab of LAF','23/12/26','16/03/27',''],
+[27,2,'Delivery of Parts','06/01/27','16/03/27',''],
+[28,1,'Assembly & Test Phase','17/03/27','28/06/27','s'],
+[29,2,'LAF Assembly','17/03/27','13/04/27','g'],
+[30,2,'FAT LAF','14/04/27','27/04/27','g'],
+[31,2,'Packing','28/04/27','04/05/27','g'],
+[32,2,'Ex-Works','04/05/27','04/05/27','m'],
+[33,2,'Shipping','05/05/27','11/05/27',''],
+[34,2,'Contingency','12/05/27','01/06/27',''],
+[35,2,'Germany','01/06/27','28/06/27','s'],
+[36,3,'Arrival','01/06/27','01/06/27','m'],
+[37,3,'Integration','02/06/27','22/06/27','o'],
+[38,3,'FAT of System','22/06/27','28/06/27',''],
+
+[40,0,'PA301125 STI - R&D','18/05/26','03/02/27','s'],
+[41,1,'Design','18/05/26','10/07/26','c'],
+[42,1,'Fabrication','04/06/26','26/08/26',''],
+[43,1,'Assembly','27/08/26','14/10/26','g'],
+[44,1,'FAT','15/10/26','28/10/26','g'],
+[45,1,'Open Day','28/09/26','28/09/26','m'],
+[46,1,'Internal Testing & Prep for Sale','15/10/26','03/02/27','g'],
+
+[48,0,'5001/2 - Otsuka LAF (2 Units)','10/08/26','16/07/27','s'],
+[49,1,'Design Phase','10/08/26','18/09/26','s'],
+[50,2,'Design of LAF - Mech','10/08/26','04/09/26',''],
+[51,2,'Design of LAF - Elec','10/08/26','04/09/26',''],
+[52,2,'Contingency','07/09/26','18/09/26',''],
+[53,1,'Procurement Phase','21/09/26','10/03/27','s'],
+[54,2,'5001 Fab & Procurement of LAF','21/09/26','13/11/26',''],
+[55,2,'5002 Fab & Procurement of LAF','16/12/26','10/03/27',''],
+[56,1,'Assembly & Test Phase','16/11/26','16/07/27','s'],
+[57,2,'5001 LAF Assembly','16/11/26','11/12/26','g'],
+[58,2,'5001 FAT LAF','14/12/26','25/12/26','g'],
+[59,2,'5001 Packing','28/12/26','30/12/26','g'],
+[60,2,'5002 LAF Assembly','10/03/27','07/04/27','g'],
+[61,2,'5002 FAT LAF','07/04/27','21/04/27','g'],
+[62,2,'5002 Packing','21/04/27','23/04/27','g'],
+[63,2,'Ex-Works','23/04/27','23/04/27','m'],
+[64,2,'Shipping','26/04/27','04/06/27',''],
+[65,2,'United States','04/06/27','16/07/27','s'],
+[66,3,'Arrival','04/06/27','04/06/27','m'],
+[67,3,'Installation','07/06/27','25/06/27',''],
+[68,3,'Commissioning','28/06/27','16/07/27','x'],
+
+[69,0,'5003/4/5 - Otsuka LAF (3 Units)','19/11/26','03/11/27','s'],
+[70,1,'Design Phase','19/11/26','13/01/27','s'],
+[71,2,'Design of LAF - Mech','19/11/26','16/12/26',''],
+[72,2,'Design of LAF - Elec','19/11/26','16/12/26',''],
+[73,2,'Contingency','17/12/26','13/01/27',''],
+[74,1,'Procurement Phase','14/01/27','23/06/27','s'],
+[75,2,'Fab & Procurement of LAF','14/01/27','07/04/27',''],
+[76,2,'Fab & Procurement of LAF','25/02/27','19/05/27',''],
+[77,2,'Fab & Procurement of LAF','01/04/27','23/06/27',''],
+[78,1,'Assembly & Test Phase','08/04/27','03/11/27','s'],
+[79,2,'LAF Assembly','08/04/27','28/04/27','g'],
+[80,2,'FAT LAF','29/04/27','12/05/27','g'],
+[81,2,'Packing','13/05/27','19/05/27','g'],
+[82,2,'LAF Assembly','20/05/27','09/06/27','g'],
+[83,2,'FAT LAF','10/06/27','16/06/27','g'],
+[84,2,'Packing','17/06/27','23/06/27','g'],
+[85,2,'LAF Assembly','24/06/27','14/07/27','g'],
+[86,2,'FAT LAF','15/07/27','21/07/27','g'],
+[87,2,'Packing','22/07/27','28/07/27','g'],
+[88,2,'Ex-Works','29/07/27','29/07/27','m'],
+[89,2,'Shipping','29/07/27','08/09/27',''],
+[90,2,'United States','08/09/27','03/11/27','s'],
+[91,3,'Arrival','08/09/27','08/09/27','m'],
+[92,3,'Installation','23/09/27','13/10/27','x'],
+[93,3,'Commissioning','14/10/27','03/11/27','x'],
+
+[95,0,'5000 - AMNEAL Isolator','04/05/26','03/03/28','s'],
+[96,1,'Design Phase','04/05/26','02/12/26','s'],
+[97,2,'Design of Fast Gassing Chamber','04/05/26','10/07/26',''],
+[98,2,'Preliminary Design','10/08/26','04/09/26',''],
+[99,2,'Ergo Trial','07/09/26','09/09/26',''],
+[100,2,'Design of Bag Removal Chamber','10/09/26','21/10/26',''],
+[101,2,'Design of Filling & O-RABS','22/10/26','02/12/26',''],
+[102,1,'Fabrication & Procurement Stage','07/09/26','24/03/27','s'],
+[103,2,'Fabrication of FG Chamber','07/09/26','11/12/26',''],
+[104,2,'Material for FG Chamber','07/09/26','27/11/26',''],
+[105,2,'Fabrication of Bag Removal Chamber','22/10/26','27/01/27',''],
+[106,2,'Material for Bag Removal Chamber','22/10/26','13/01/27',''],
+[107,2,'Fabrication of Filling Chamber','03/12/26','24/03/27',''],
+[108,2,'Material for Filling Chamber','03/12/26','24/02/27',''],
+[109,1,'Assembly & Test','14/12/26','12/11/27','s'],
+[110,2,'Assembly of FG Chamber','14/12/26','05/02/27','g'],
+[111,2,'Assembly of Bag Removal Chamber','08/02/27','02/04/27','g'],
+[112,2,'Assembly of Filling Chamber','05/04/27','28/05/27','g'],
+[113,2,'Combination & Test','31/05/27','20/08/27','g'],
+[114,2,'Contingency','23/08/27','01/10/27','t'],
+[115,2,'FAT','04/10/27','15/10/27','g'],
+[116,2,'Breakdown for Shipping','01/11/27','12/11/27','g'],
+[117,2,'Ex-Works','12/11/27','12/11/27','m'],
+[118,1,'Site Work - India','20/07/26','03/03/28','s'],
+[119,2,'Shipping','15/11/27','24/12/27',''],
+[120,2,'Installation','27/12/27','21/01/28',''],
+[121,2,'Commissioning','24/01/28','03/03/28',''],
+
+[123,0,'UKO100012 STAQ, Columbus Ohio','20/07/26','29/01/27','s'],
+
+[129,0,'Quote 100022 (A15240) Octapharm','01/09/26','14/06/27','s'],
+[130,1,'Order Placement','23/11/26','23/11/26','mt'],
+[131,1,'Design Phase','23/11/26','18/12/26','s'],
+[132,2,'Design of LAF - Mech','23/11/26','18/12/26',''],
+[133,2,'Design of LAF - Elec','23/11/26','18/12/26',''],
+[134,1,'Procurement Phase','05/01/27','15/03/27','s'],
+[135,2,'Fab of LAF','05/01/27','15/03/27',''],
+[136,2,'Delivery of Parts','19/01/27','15/03/27',''],
+[137,1,'Assembly & Test Phase','01/09/26','14/06/27','s'],
+[138,2,'LAF Assembly','16/03/27','12/04/27','g'],
+[139,2,'FAT LAF','13/04/27','26/04/27','g'],
+[140,2,'Packing','27/04/27','03/05/27','g'],
+[141,2,'Ex-Works','03/05/27','03/05/27','m'],
+[142,2,'Shipping','04/05/27','10/05/27',''],
+[143,2,'Contingency','11/05/27','17/05/27',''],
+[144,2,'Germany','01/09/26','14/06/27','s'],
+[145,3,'Arrival','17/05/27','17/05/27','m'],
+[146,3,'Integration','18/05/27','07/06/27','o'],
+[147,3,'FAT of System','08/06/27','14/06/27',''],
+
+[149,0,'2751 Al Razi - LAF and Bench','01/09/26','25/01/27','s'],
+[150,1,'Order Placement','01/09/26','01/09/26','mt'],
+[151,1,'Design Phase','01/09/26','21/09/26','s'],
+[152,2,'Design of LAF - Mech','01/09/26','21/09/26',''],
+[153,2,'Design of LAF - Elec','01/09/26','21/09/26',''],
+[154,1,'Procurement Phase','22/09/26','16/11/26','s'],
+[155,2,'Fab of LAF','22/09/26','16/11/26',''],
+[156,2,'Delivery of Parts','22/09/26','16/11/26',''],
+[157,1,'Assembly & Test Phase','17/11/26','25/01/27','s'],
+[158,2,'LAF Assembly','17/11/26','07/12/26','g'],
+[159,2,'FAT LAF','08/12/26','21/12/26','g'],
+[160,2,'Packing','22/12/26','28/12/26','g'],
+[161,2,'Ex-Works','28/12/26','28/12/26','m'],
+[162,2,'Shipping','29/12/26','04/01/27',''],
+[163,2,'Germany','04/01/27','25/01/27','s'],
+[164,3,'Arrival','04/01/27','04/01/27','m'],
+[165,3,'Integration','05/01/27','18/01/27','o'],
+[166,3,'FAT of System','19/01/27','25/01/27','']
+];
+
+/* ---------- date helpers (days since epoch, UTC-safe) ---------- */
+const toDay = iso => { const p=iso.split('-').map(Number); return Math.round(Date.UTC(p[0],p[1]-1,p[2])/DAY); };
+const fromDay = n => new Date(n*DAY).toISOString().slice(0,10);
+const dow = n => new Date(n*DAY).getUTCDay();
+const isWk = n => { const w=dow(n); return w!==0 && w!==6; };
+const nextWk = n => { while(!isWk(n)) n++; return n; };
+const workdays = (s,f) => { let c=0; for(let d=s; d<=f; d++) if(isWk(d)) c++; return c; };
+const finishFromDur = (s,n) => { if(n<=0) return s; let d=s,c=0; for(;;){ if(isWk(d)){ c++; if(c===n) return d; } d++; } };
+const fmtDM  = iso => iso.slice(8,10)+'/'+iso.slice(5,7);
+const fmtDMY = iso => iso.slice(8,10)+'/'+iso.slice(5,7)+'/'+iso.slice(2,4);
+const esc = s => String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const $ = s => document.querySelector(s);
+
+const now = new Date();
+const todayISO = now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0');
+const TODAY = toDay(todayISO);
+
+/* ---------- state ---------- */
+let rows = [];
+let collapsed = new Set();
+let dayW = 5, T0 = null, T1 = null, totalW = 0;
+let filterProj = '', query = '';
+let drag = null, pendingRemote = null;
+let uidN = 0;
+const newUid = () => 'n' + Date.now().toString(36) + (uidN++);
+
+function seedRows(){
+  return SEED.map(r=>{
+    const fl=r[5]||'', dmy=x=>'20'+x.slice(6,8)+'-'+x.slice(3,5)+'-'+x.slice(0,2);
+    return {
+      uid:'r'+r[0], ref:r[0], lvl:r[1], name:r[2], s:dmy(r[3]), f:dmy(r[4]),
+      k: fl.includes('m')?'ms':(fl.includes('s')?'sum':'task'),
+      c: fl.includes('g')?'green':fl.includes('o')?'orange':fl.includes('t')?'teal':fl.includes('x')?'pale':'blue',
+      res: fl.includes('g')?'PUK Shopfloor':'', pc: fl.includes('c')?100:0, note:''
+    };
+  });
+}
+function normRow(x){
+  const s = /^\d{4}-\d{2}-\d{2}$/.test(x.s)?x.s:todayISO;
+  let f = /^\d{4}-\d{2}-\d{2}$/.test(x.f)?x.f:s; if(toDay(f)<toDay(s)) f=s;
+  const k = ['task','sum','ms'].includes(x.k)?x.k:'task';
+  return { uid:String(x.uid||newUid()), ref:x.ref||'', lvl:Math.max(0,Math.min(3,parseInt(x.lvl,10)||0)),
+    name:String(x.name||'Untitled'), s, f:(k==='ms'?s:f), k, c:COLS[x.c]?x.c:'blue', res:String(x.res||''),
+    pc:Math.max(0,Math.min(100,parseInt(x.pc,10)||0)), note:String(x.note||'') };
+}
+function parseDoc(str){
+  try{ const d=JSON.parse(str); const a=Array.isArray(d)?d:d.rows; if(!Array.isArray(a)||!a.length) return null; return a.map(normRow); }
+  catch(e){ return null; }
+}
+const docOf = () => ({v:1, rows});
+
+/* ---------- hierarchy helpers ---------- */
+const idx = uid => rows.findIndex(r=>r.uid===uid);
+const hasKids = i => i+1<rows.length && rows[i+1].lvl>rows[i].lvl;
+const endOf = i => { const l=rows[i].lvl; let j=i+1; while(j<rows.length && rows[j].lvl>l) j++; return j; };
+const durOf = r => r.k==='ms' ? 0 : workdays(toDay(r.s),toDay(r.f));
+
+function visibleIdx(){
+  const q=query.trim().toLowerCase(); let inP=!filterProj; const scope=[];
+  for(let i=0;i<rows.length;i++){ const r=rows[i]; if(filterProj && r.lvl===0) inP=(r.uid===filterProj); if(inP) scope.push(i); }
+  if(q){
+    const keep=new Set();
+    scope.forEach(i=>{ if(rows[i].name.toLowerCase().includes(q)){ keep.add(i); let cl=rows[i].lvl; for(let k=i-1;k>=0&&cl>0;k--){ if(rows[k].lvl<cl){ keep.add(k); cl=rows[k].lvl; } } } });
+    return scope.filter(i=>keep.has(i));
+  }
+  const out=[]; let skip=null;
+  for(const i of scope){ const r=rows[i]; if(skip!==null){ if(r.lvl>skip) continue; skip=null; } out.push(i); if(collapsed.has(r.uid)&&hasKids(i)) skip=r.lvl; }
+  return out;
+}
+
+/* ---------- range + header ---------- */
+function computeRange(){
+  const all=[TODAY]; rows.forEach(r=>{ all.push(toDay(r.s),toDay(r.f)); });
+  const mn=Math.min.apply(null,all), mx=Math.max.apply(null,all);
+  const t=mn-28; T0 = t - ((dow(t)+6)%7); T1 = mx+42; totalW = Math.round((T1-T0+1)*dayW);
+}
+function eachMonth(cb){
+  const d0=new Date(T0*DAY); let y=d0.getUTCFullYear(), m=d0.getUTCMonth();
+  for(;;){ const ms=Math.round(Date.UTC(y,m,1)/DAY); if(ms>T1) break; const me=Math.round(Date.UTC(y,m+1,1)/DAY); cb(y,m,ms,me); m++; if(m>11){m=0;y++;} }
+}
+function headerHTML(){
+  let q='',mo='',wk='';
+  eachMonth((y,m,ms,me)=>{
+    const a=Math.max(ms,T0), b=Math.min(me,T1+1);
+    mo+='<div class="mo" style="left:'+(a-T0)*dayW+'px;width:'+(b-a)*dayW+'px">'+MON[m]+' '+String(y).slice(2)+'</div>';
+    if(m%3===0 || a===T0){
+      const qm=Math.floor(m/3)*3, qs=Math.round(Date.UTC(y,qm,1)/DAY), qe=Math.round(Date.UTC(y,qm+3,1)/DAY);
+      const qa=Math.max(qs,T0), qb=Math.min(qe,T1+1);
+      q+='<div class="q" style="left:'+(qa-T0)*dayW+'px;width:'+(qb-qa)*dayW+'px">Q'+(qm/3+1)+' '+y+'</div>';
+    }
+  });
+  if(dayW>=16){
+    for(let d=T0; d<=T1; d++){
+      const dt=new Date(d*DAY), we=!isWk(d), lab=(dayW>=26?'SMTWTFS'[dt.getUTCDay()]+' ':'')+dt.getUTCDate();
+      wk+='<div class="wk'+(we?' we':'')+'" style="left:'+(d-T0)*dayW+'px;width:'+dayW+'px">'+lab+'</div>';
+    }
+  } else {
+    for(let d=T0; d<=T1; d+=7){
+      const lab = dayW>=3.7 ? new Date(d*DAY).getUTCDate() : '';
+      wk+='<div class="wk" style="left:'+(d-T0)*dayW+'px;width:'+7*dayW+'px">'+lab+'</div>';
+    }
+  }
+  return q+mo+wk;
+}
+function overlayHTML(){
+  let h='';
+  eachMonth((y,m,ms)=>{ if(ms>=T0) h+='<div class="ml" style="left:'+(ms-T0)*dayW+'px"></div>'; });
+  if(dayW>=8) for(let d=T0; d<=T1; d++) if(dow(d)===6) h+='<div class="we" style="left:'+(d-T0)*dayW+'px;width:'+2*dayW+'px"></div>';
+  h+='<div class="today" style="left:'+((TODAY-T0+0.5)*dayW-1)+'px"></div>';
+  return h;
+}
+
+/* ---------- rows ---------- */
+function lblText(r){ return r.k==='ms' ? (fmtDM(r.s)+(r.res?'  '+r.res:'')) : (r.k==='sum'?'':r.res); }
+function barHTML(r){
+  const s=toDay(r.s), f=toDay(r.f), x=(s-T0)*dayW;
+  const tip=esc(r.name)+': '+fmtDMY(r.s)+(r.k==='ms'?'':' – '+fmtDMY(r.f)+' ('+durOf(r)+' working days)');
+  if(r.k==='ms'){
+    return '<div class="ms '+r.c+'" style="left:'+(x+dayW/2-7)+'px" title="'+tip+'"></div><span class="lbl" style="left:'+(x+dayW/2+12)+'px">'+esc(lblText(r))+'</span>';
+  }
+  const w=Math.max((f-s+1)*dayW,3);
+  if(r.k==='sum') return '<div class="sum'+(r.lvl===0?' proj':'')+'" style="left:'+x+'px;width:'+w+'px" title="'+tip+'"></div>';
+  return '<div class="bar '+r.c+'" style="left:'+x+'px;width:'+w+'px" title="'+tip+'">'+(r.pc?'<div class="pc" style="width:'+r.pc+'%"></div>':'')+'<span class="h l"></span><span class="h r"></span></div>'
+    +(r.res?'<span class="lbl" style="left:'+(x+w+6)+'px">'+esc(r.res)+'</span>':'');
+}
+function rowHTML(i){
+  const r=rows[i], kids=hasKids(i), col=collapsed.has(r.uid);
+  const cls='row '+(r.lvl===0?'proj':(r.k==='sum'?'sumr':'taskr'));
+  return '<div class="'+cls+'" data-uid="'+r.uid+'">'
+   +'<div class="lc"><span class="idc">'+(r.ref||'•')+'</span>'
+   +'<span class="nm" style="padding-left:'+(r.lvl*14)+'px">'+(kids?'<button class="tg" data-act="tog">'+(col?'▸':'▾')+'</button>':'<span class="tg sp"></span>')
+   +'<input data-f="name" value="'+esc(r.name)+'" title="'+esc(r.note)+'"></span>'
+   +'<input type="date" class="cs" data-f="s" value="'+r.s+'">'
+   +'<input type="date" class="cs" data-f="f" value="'+r.f+'">'
+   +'<input type="number" min="0" class="cs dur" data-f="dur" value="'+durOf(r)+'">'
+   +'<span class="act"><button data-act="edit" title="Edit">✎</button><button data-act="add" title="Add row">＋</button></span></div>'
+   +'<div class="rc" style="width:'+totalW+'px">'+barHTML(r)+'</div></div>';
+}
+
+/* ---------- render ---------- */
+const chart = $('#chart'), scr = $('#scroller');
+const leftW = () => { const h=$('.hl'); return h?h.offsetWidth:0; };
+function viewState(){
+  const L=leftW();
+  return { left:T0+scr.scrollLeft/dayW, center:T0+(scr.scrollLeft+(scr.clientWidth-L)/2)/dayW };
+}
+function buildProjSelect(){
+  const sel=$('#projSel'); if(filterProj && idx(filterProj)<0) filterProj='';
+  sel.innerHTML='<option value="">All projects</option>'+rows.filter(r=>r.lvl===0).map(r=>'<option value="'+r.uid+'">'+esc(r.name)+'</option>').join('');
+  sel.value=filterProj;
+}
+function render(opt){
+  opt=opt||{};
+  const view = (T0!==null && $('.hl')) ? viewState() : null, st=scr.scrollTop;
+  computeRange(); buildProjSelect();
+  const vis=visibleIdx();
+  let h='<div class="hdr"><div class="hl"><span style="text-align:center">ID</span><span>Task</span><span class="cs">Start</span><span class="cs">Finish</span><span class="cs">Days</span><span></span></div>'
+       +'<div class="hr" style="width:'+totalW+'px">'+headerHTML()+'</div></div>'
+       +'<div class="body"><div class="ov" style="width:'+totalW+'px;background-size:'+7*dayW+'px 100%'+(dayW<3?';background-image:none':'')+'">'+overlayHTML()+'</div>'
+       +(vis.length?vis.map(rowHTML).join(''):'<div class="empty">No rows match.</div>')+'</div>';
+  chart.style.width='calc(var(--left) + '+totalW+'px)';
+  chart.innerHTML=h;
+  scr.scrollTop=st;
+  if(opt.first || !view){ scr.scrollLeft=Math.max(0,(TODAY-14-T0)*dayW); }
+  else if(opt.center){ scr.scrollLeft=Math.max(0,(view.center-T0)*dayW-(scr.clientWidth-leftW())/2); }
+  else { scr.scrollLeft=Math.max(0,(view.left-T0)*dayW); }
+  if(opt.view){ /* explicit view override */ }
+}
+function setZoom(v){
+  const vs=viewState(); dayW=v; $('#zoom').value=v;
+  document.querySelectorAll('[data-zoom]').forEach(b=>b.classList.toggle('on',Math.abs(+b.dataset.zoom-v)<0.01));
+  computeRange(); // recompute with new dayW before restoring centre
+  const old=T0; render({center:false});
+  scr.scrollLeft=Math.max(0,(vs.center-T0)*dayW-(scr.clientWidth-leftW())/2);
+}
+
+/* in-place patch (keeps focus / drag capture alive) */
+function patchRow(uid){
+  const i=idx(uid); if(i<0) return; const r=rows[i];
+  const el=chart.querySelector('.row[data-uid="'+uid+'"]'); if(!el) return;
+  const s=toDay(r.s), f=toDay(r.f), x=(s-T0)*dayW;
+  const bar=el.querySelector('.bar,.sum,.ms'), lbl=el.querySelector('.lbl');
+  if(r.k==='ms'){ bar.style.left=(x+dayW/2-7)+'px'; if(lbl){ lbl.style.left=(x+dayW/2+12)+'px'; lbl.textContent=lblText(r); } }
+  else { const w=Math.max((f-s+1)*dayW,3); bar.style.left=x+'px'; bar.style.width=w+'px'; if(lbl) lbl.style.left=(x+w+6)+'px'; }
+  bar.title=r.name+': '+fmtDMY(r.s)+(r.k==='ms'?'':' – '+fmtDMY(r.f)+' ('+durOf(r)+' working days)');
+  [['s',r.s],['f',r.f],['dur',String(durOf(r))]].forEach(p=>{ const inp=el.querySelector('[data-f="'+p[0]+'"]'); if(inp && inp.value!==p[1]) inp.value=p[1]; });
+}
+
+/* ---------- inline editing ---------- */
+chart.addEventListener('change',e=>{
+  const inp=e.target.closest('[data-f]'); if(!inp) return;
+  const rowEl=inp.closest('.row'), uid=rowEl.dataset.uid, i=idx(uid); if(i<0) return;
+  const r=rows[i], f=inp.dataset.f, v=inp.value;
+  if(f==='name'){ r.name=v.trim()||r.name; inp.value=r.name; }
+  else if(f==='s'){
+    if(!v){ patchRow(uid); return; }
+    const ns=toDay(v), span=toDay(r.f)-toDay(r.s);
+    r.s=v;
+    if(r.k==='ms') r.f=v; else if(r.k==='sum') { if(toDay(r.f)<ns) r.f=v; } else r.f=fromDay(ns+span);
+  }
+  else if(f==='f'){
+    if(!v){ patchRow(uid); return; }
+    if(r.k==='ms'){ r.s=v; r.f=v; } else { r.f=v; if(toDay(v)<toDay(r.s)) r.s=v; }
+  }
+  else if(f==='dur'){
+    if(r.k!=='ms'){ const n=Math.max(1,parseInt(v||'1',10)); r.f=fromDay(finishFromDur(toDay(r.s),n)); }
+  }
+  patchRow(uid); save();
+});
+chart.addEventListener('click',e=>{
+  const b=e.target.closest('[data-act]'); if(!b) return;
+  const uid=b.closest('.row').dataset.uid, act=b.dataset.act;
+  if(act==='tog'){ collapsed.has(uid)?collapsed.delete(uid):collapsed.add(uid); render(); }
+  else if(act==='edit') openEdit(uid);
+  else if(act==='add') addRow(uid);
+});
+chart.addEventListener('dblclick',e=>{
+  const el=e.target.closest('.bar,.sum,.ms'); if(!el) return;
+  openEdit(el.closest('.row').dataset.uid);
+});
+
+/* ---------- drag to move / resize ---------- */
+chart.addEventListener('pointerdown',e=>{
+  const el=e.target.closest('.bar,.sum,.ms'); if(!el || e.button>0) return;
+  const uid=el.closest('.row').dataset.uid, i=idx(uid); if(i<0) return;
+  const r=rows[i]; let mode='mv';
+  if(e.target.classList.contains('h')) mode=e.target.classList.contains('l')?'rl':'rr';
+  const end = mode==='mv' ? endOf(i) : i+1;
+  const snap=[]; for(let j=i;j<end;j++) snap.push({uid:rows[j].uid,s:toDay(rows[j].s),f:toDay(rows[j].f)});
+  drag={uid,mode,x0:e.clientX,snap,moved:false};
+  try{ el.setPointerCapture(e.pointerId); }catch(_){}
+  el.style.cursor=mode==='mv'?'grabbing':'ew-resize';
+  e.preventDefault();
+});
+window.addEventListener('pointermove',e=>{
+  if(!drag) return;
+  const dd=Math.round((e.clientX-drag.x0)/dayW); if(dd===0 && !drag.moved) return; drag.moved=true;
+  const d0=drag.snap[0];
+  if(drag.mode==='mv'){
+    drag.snap.forEach(o=>{ const r=rows[idx(o.uid)]; if(!r) return; r.s=fromDay(o.s+dd); r.f=fromDay(o.f+dd); patchRow(o.uid); });
+  } else {
+    const r=rows[idx(drag.uid)];
+    if(drag.mode==='rl'){ r.s=fromDay(Math.min(d0.s+dd,d0.f)); r.f=fromDay(d0.f); }
+    else { r.f=fromDay(Math.max(d0.f+dd,d0.s)); r.s=fromDay(d0.s); }
+    patchRow(drag.uid);
+  }
+});
+function endDrag(){
+  if(!drag) return; const d=drag; drag=null;
+  if(d.moved){ render(); save(); if(pendingRemote){ pendingRemote=null; } }
+  else { chart.querySelectorAll('.bar,.sum,.ms').forEach(b=>b.style.cursor=''); }
+}
+window.addEventListener('pointerup',endDrag);
+window.addEventListener('pointercancel',endDrag);
+
+/* ---------- add / delete / move ---------- */
+function addRow(uid){
+  const i=idx(uid), r=rows[i]; let lvl, s;
+  if(r.k==='sum'){ lvl=Math.min(3,r.lvl+1); s=toDay(r.s); collapsed.delete(r.uid); }
+  else { lvl=r.lvl; s=nextWk(toDay(r.f)+1); }
+  const nr={uid:newUid(),ref:'',lvl,name:'New task',s:fromDay(s),f:fromDay(finishFromDur(s,5)),k:'task',c:'blue',res:'',pc:0,note:''};
+  rows.splice(endOf(i),0,nr); render(); save(); openEdit(nr.uid);
+}
+function addProject(){
+  const s=nextWk(TODAY), nr={uid:newUid(),ref:'',lvl:0,name:'New project',s:fromDay(s),f:fromDay(s+90),k:'sum',c:'blue',res:'',pc:0,note:''};
+  rows.push(nr); filterProj=''; render(); save(); scr.scrollTop=scr.scrollHeight; openEdit(nr.uid);
+}
+function moveBlock(uid,dir){
+  const i=idx(uid), e=endOf(i), l=rows[i].lvl;
+  if(dir<0){ let k=i-1; while(k>=0&&rows[k].lvl>l) k--; if(k<0||rows[k].lvl<l) return false; const blk=rows.splice(i,e-i); rows.splice.apply(rows,[k,0].concat(blk)); return true; }
+  if(e>=rows.length||rows[e].lvl<l) return false;
+  const e2=endOf(e), nxt=rows.splice(e,e2-e); rows.splice.apply(rows,[i,0].concat(nxt)); return true;
+}
+function rollUp(){
+  for(let i=rows.length-1;i>=0;i--){
+    if(rows[i].k==='sum' && hasKids(i)){
+      const e=endOf(i); let mn=1e9,mx=-1e9;
+      for(let j=i+1;j<e;j++){ mn=Math.min(mn,toDay(rows[j].s)); mx=Math.max(mx,toDay(rows[j].f)); }
+      rows[i].s=fromDay(mn); rows[i].f=fromDay(mx);
+    }
+  }
+  render(); save();
+}
+
+/* ---------- edit modal ---------- */
+const modal=$('#modal');
+function closeModal(){ modal.classList.remove('open'); modal.innerHTML=''; }
+modal.addEventListener('mousedown',e=>{ if(e.target===modal) closeModal(); });
+window.addEventListener('keydown',e=>{ if(e.key==='Escape' && modal.classList.contains('open')) closeModal(); });
+function openEdit(uid){
+  const i=idx(uid); if(i<0) return; const r=rows[i];
+  const opt=(o,sel)=>Object.keys(o).map(k=>'<option value="'+k+'"'+(k===sel?' selected':'')+'>'+o[k]+'</option>').join('');
+  modal.innerHTML='<div class="card"><h3>Edit row'+(r.ref?' <span style="color:#9aa3af;font-weight:400">(ID '+r.ref+')</span>':'')+'</h3>'
+   +'<label>Name<input id="m_name" value="'+esc(r.name)+'"></label>'
+   +'<div class="two"><label>Type<select id="m_k">'+opt({task:'Task (bar)',ms:'Milestone (◆)',sum:'Summary / project'},r.k)+'</select></label>'
+   +'<label>Indent level<select id="m_lvl">'+opt({0:'0 – Project',1:'1 – Phase',2:'2 – Task / sub-phase',3:'3 – Sub-task'},String(r.lvl))+'</select></label></div>'
+   +'<div class="two"><label>Start<input type="date" id="m_s" value="'+r.s+'"></label><label>Finish<input type="date" id="m_f" value="'+r.f+'"></label></div>'
+   +'<div class="two"><label>Colour<select id="m_c">'+opt(COLS,r.c)+'</select></label><label>% complete<input type="number" min="0" max="100" id="m_pc" value="'+(r.pc||0)+'"></label></div>'
+   +'<label>Label shown beside the bar<input id="m_res" value="'+esc(r.res)+'" placeholder="e.g. PUK Shopfloor"></label>'
+   +'<label>Notes<textarea id="m_note" rows="3">'+esc(r.note)+'</textarea></label>'
+   +'<div class="btns"><button id="m_up">↑ Move up</button><button id="m_dn">↓ Move down</button><span class="sp"></span>'
+   +'<button id="m_del" class="danger">Delete</button><button id="m_cancel">Cancel</button><button id="m_save" class="pri">Save</button></div></div>';
+  modal.classList.add('open'); $('#m_name').focus(); $('#m_name').select();
+  const g=id=>$('#'+id);
+  g('m_cancel').onclick=closeModal;
+  g('m_up').onclick=()=>{ if(moveBlock(uid,-1)){ render(); save(); } };
+  g('m_dn').onclick=()=>{ if(moveBlock(uid,1)){ render(); save(); } };
+  g('m_del').onclick=function(){
+    const n=endOf(idx(uid))-idx(uid);
+    if(!this.classList.contains('armed')){ this.classList.add('armed'); this.textContent=n>1?'Delete + '+(n-1)+' below?':'Sure?'; return; }
+    rows.splice(idx(uid),n); closeModal(); render(); save();
+  };
+  g('m_save').onclick=()=>{
+    const k=g('m_k').value; let s=g('m_s').value, f=g('m_f').value;
+    if(!s&&!f){ s=r.s; f=r.f; } if(!s) s=f; if(!f) f=s; if(toDay(f)<toDay(s)) f=s; if(k==='ms') f=s;
+    Object.assign(r,{ name:g('m_name').value.trim()||'Untitled', k, lvl:+g('m_lvl').value, s, f, c:g('m_c').value,
+      pc:Math.max(0,Math.min(100,parseInt(g('m_pc').value,10)||0)), res:g('m_res').value.trim(), note:g('m_note').value });
+    closeModal(); render(); save();
+  };
+}
+
+/* ---------- storage: Firestore → window.storage (preview) → memory ---------- */
+let fsDoc=null, mode='memory', saveT=null;
+function setStatus(t,c){ const el=$('#status'); el.textContent=t; el.className='status '+(c||''); }
+function loadScript(src){ return new Promise((res,rej)=>{ const s=document.createElement('script'); s.src=src; s.onload=res; s.onerror=rej; document.head.appendChild(s); }); }
+async function connectFirebase(){
+  await loadScript('https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js');
+  await loadScript('https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js');
+  const app = firebase.apps.length ? firebase.app() : firebase.initializeApp(FIREBASE_CONFIG);
+  fsDoc = firebase.firestore(app).collection(FS_COLLECTION).doc(FS_DOC);
+}
+function save(){
+  if(mode==='memory'){ setStatus('Unsaved changes – use Export to keep a copy','warn'); return; }
+  setStatus('Saving…'); clearTimeout(saveT);
+  saveT=setTimeout(async()=>{
+    const json=JSON.stringify(docOf());
+    try{
+      if(mode==='firestore'){ await fsDoc.set({data:json,updated:Date.now()}); setStatus('Saved to Firestore ✓','ok'); }
+      else { await window.storage.set('puk-timeline',json); setStatus('Saved ✓ (this session only)','ok'); }
+    }catch(err){ console.error(err); setStatus('Save failed – check connection / Firestore rules','err'); }
+  },500);
+}
+function onRemote(snap){
+  if(snap.metadata.hasPendingWrites || !snap.exists) return;
+  const d=snap.data().data; if(!d || d===JSON.stringify(docOf())) return;
+  const ae=document.activeElement, typing=ae && /INPUT|TEXTAREA|SELECT/.test(ae.tagName) && chart.contains(ae);
+  if(drag || typing || modal.classList.contains('open')){ pendingRemote=d; return; }
+  const p=parseDoc(d); if(p){ rows=p; render(); setStatus('Updated from another device','ok'); }
+}
+async function initStorage(){
+  try{
+    if(FIREBASE_CONFIG){
+      setStatus('Connecting to Firestore…');
+      await connectFirebase();
+      const snap=await fsDoc.get();
+      if(snap.exists && snap.data().data){ const p=parseDoc(snap.data().data); if(p) rows=p; }
+      else await fsDoc.set({data:JSON.stringify(docOf()),updated:Date.now()});
+      mode='firestore'; render({first:true}); setStatus('Synced with Firestore ✓','ok');
+      fsDoc.onSnapshot(onRemote);
+    } else if(window.storage){
+      const res=await window.storage.get('puk-timeline').catch(()=>null);
+      if(res && res.value){ const p=parseDoc(res.value); if(p) rows=p; }
+      mode='session'; render({first:true}); setStatus('Saved for this preview session. Add your Firebase config to keep + share.','warn');
+    } else setStatus('Not saved yet – add your Firebase config at the top of the file, or use Export','warn');
+  }catch(err){ console.error(err); mode='memory'; setStatus('Cloud storage unavailable – changes live in this tab only (use Export)','err'); }
+}
+
+/* ---------- toolbar ---------- */
+function twoClick(btn,label,fn){
+  btn.addEventListener('click',()=>{
+    if(btn.dataset.armed){ clearTimeout(btn._t); delete btn.dataset.armed; btn.textContent=btn.dataset.orig; btn.classList.remove('warn'); fn(); }
+    else { btn.dataset.orig=btn.textContent; btn.dataset.armed='1'; btn.textContent=label; btn.classList.add('warn');
+      btn._t=setTimeout(()=>{ delete btn.dataset.armed; btn.textContent=btn.dataset.orig; btn.classList.remove('warn'); },3000); }
+  });
+}
+function bindUI(){
+  const page=location.pathname.split('/').pop()||'index.html';
+  $('#nav').innerHTML=NAV_LINKS.map(l=>'<a href="'+esc(l.href)+'"'+(l.href===page?' class="on"':'')+'>'+esc(l.label)+'</a>').join('');
+  document.querySelectorAll('[data-zoom]').forEach(b=>b.addEventListener('click',()=>setZoom(+b.dataset.zoom)));
+  $('#zoom').addEventListener('input',e=>setZoom(+e.target.value));
+  $('#btnToday').addEventListener('click',()=>scr.scrollTo({left:Math.max(0,(TODAY-14-T0)*dayW),behavior:'smooth'}));
+  $('#projSel').addEventListener('change',e=>{ filterProj=e.target.value; render(); scr.scrollTop=0; });
+  $('#q').addEventListener('input',e=>{ query=e.target.value; render(); });
+  $('#btnExpand').addEventListener('click',()=>{ collapsed.clear(); render(); });
+  $('#btnCollapse').addEventListener('click',()=>{ rows.forEach((r,i)=>{ if(r.lvl===0 && hasKids(i)) collapsed.add(r.uid); }); render(); });
+  $('#btnCompact').addEventListener('click',e=>{ const c=document.body.classList.toggle('compact'); e.target.textContent='Table: '+(c?'compact':'full'); render(); });
+  $('#btnAddProj').addEventListener('click',addProject);
+  twoClick($('#btnRoll'),'Sure? Click again',rollUp);
+  twoClick($('#btnReset'),'Sure? Click again',()=>{ rows=seedRows(); collapsed.clear(); filterProj=''; render({first:true}); save(); });
+  $('#btnExport').addEventListener('click',()=>{
+    const blob=new Blob([JSON.stringify(docOf(),null,2)],{type:'application/json'});
+    const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='puk-project-timeline-'+todayISO+'.json';
+    document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+  });
+  $('#btnImport').addEventListener('click',()=>$('#file').click());
+  $('#file').addEventListener('change',e=>{
+    const f=e.target.files[0]; if(!f) return; const rd=new FileReader();
+    rd.onload=()=>{ const p=parseDoc(rd.result); if(p){ rows=p; collapsed.clear(); filterProj=''; render({first:true}); save(); setStatus('Imported '+p.length+' rows','ok'); } else setStatus('That file didn’t look like a timeline export','err'); };
+    rd.readAsText(f); e.target.value='';
+  });
+  document.querySelector('[data-zoom="5"]').classList.add('on');
+}
+
+/* ---------- go ---------- */
+rows=seedRows();
+bindUI();
+render({first:true});
+initStorage();
+})();
+</script>
+</body>
+</html>
