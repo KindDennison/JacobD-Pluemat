@@ -34,7 +34,6 @@ main{flex:1;min-height:0;display:flex;flex-direction:column;padding:12px 18px 18
 .legend{display:flex;gap:14px;font-size:14px;color:var(--mute);flex-wrap:wrap}
 .legend i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:5px;vertical-align:-1px}
 .cal{flex:1;min-height:0;overflow:auto;display:grid;grid-template-columns:1fr;gap:16px;align-content:start}
-@media(min-width:1000px){.cal{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .mon{display:flex;flex-direction:column;min-width:0;min-height:0;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--line)}
 .mgrid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr)) minmax(0,.55fr) minmax(0,.55fr);grid-template-rows:auto repeat(var(--n),minmax(var(--rh,96px),auto));gap:1px;background:var(--line);flex:1;min-height:0}
 .dow{background:var(--panel);padding:4px 8px;font-weight:600;color:var(--mute);font-size:clamp(12px,.9vw,18px)}
@@ -43,7 +42,11 @@ main{flex:1;min-height:0;display:flex;flex-direction:column;padding:12px 18px 18
 .mon.mc1 .mh{border-left-color:var(--amber)}
 .tv .mh{padding:4px 14px;font-size:clamp(16px,2.4vh,32px)}
 
+.day.mc1{background:#131c27}
 .day.we{background:#0c1117}
+.day.mc1.we{background:#0f1620}
+.pj{display:inline-block;background:rgba(255,255,255,.2);border-radius:3px;padding:0 .4em;margin-right:.4em;font-weight:700;white-space:nowrap}
+.wd{display:none}
 
 .day.pad{background:#090d12;cursor:default}
 .day.past{opacity:.72}
@@ -64,13 +67,13 @@ main{flex:1;min-height:0;display:flex;flex-direction:column;padding:12px 18px 18
 .strip .chip{width:auto;max-width:260px;white-space:nowrap;text-overflow:ellipsis}
 .strip span{color:var(--red);font-weight:700}
 .tv .day{min-height:0}
-.tv .cal{overflow:hidden;gap:12px;grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:minmax(0,1fr)}
+.tv .cal{overflow:hidden;grid-template-rows:minmax(0,1fr)}
 .tv .mgrid{grid-template-rows:auto repeat(var(--n),minmax(0,1fr))}
 .tv .dn b{font-size:clamp(12px,2vh,24px)}
 .tv .chip{font-size:var(--fs,clamp(13px,calc(.6vw + .85vh),28px));padding:.15em .45em;line-height:1.15}
 .tv .day{gap:2px}
 .day.co .pt{display:none}
-.tv .mgrid{grid-template-columns:repeat(5,minmax(0,1fr)) minmax(0,.4fr) minmax(0,.4fr)}
+.tv .mgrid{grid-template-columns:repeat(5,minmax(0,1fr)) minmax(0,.5fr) minmax(0,.5fr)}
 .tv .more{font-size:clamp(12px,1.8vh,22px);color:var(--amber);font-weight:600}
 .more:empty{display:none}
 .tv .strip{max-height:9vh;overflow:hidden}
@@ -100,7 +103,7 @@ form label{display:flex;flex-direction:column;gap:3px;font-size:14px;color:var(-
 form .full{grid-column:1/-1}
 .acts{grid-column:1/-1;display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
 .hist{grid-column:1/-1;font-size:13px;color:var(--mute)}
-@media(max-width:700px){h1{font-size:18px}header,main{padding-left:12px;padding-right:12px}.pad{display:none}.mgrid{grid-template-columns:1fr;grid-template-rows:none;grid-auto-rows:auto}.dow{display:none}.day.we:not(:has(.chip)){display:none}.day:not(:has(.chip)):not(.today){min-height:34px}}
+@media(max-width:700px){.wd{display:inline;color:var(--mute)}h1{font-size:18px}header,main{padding-left:12px;padding-right:12px}.pad{display:none}.mgrid{grid-template-columns:1fr;grid-template-rows:none;grid-auto-rows:auto}.dow{display:none}.day.we:not(:has(.chip)){display:none}.day:not(:has(.chip)):not(.today){min-height:34px}}
 @media(prefers-reduced-motion:no-preference){.chip.late{animation:pulse 2.4s ease-in-out infinite}}
 @keyframes pulse{50%{filter:brightness(1.25)}}
 </style>
@@ -113,7 +116,7 @@ form .full{grid-column:1/-1}
   <span id="clock"></span>
   <div class="ctl tools">
     <div class="seg" id="viewSeg"><button data-view="cal" class="on">Calendar</button><button data-view="list">List</button></div>
-    <div class="seg" id="navSeg"><button data-n="-1" aria-label="Previous month">‹</button><button data-n="0">This month</button><button data-n="1" aria-label="Next month">›</button></div>
+    <div class="seg" id="navSeg"><button data-n="-1" aria-label="Previous week">‹</button><button data-n="0">This week</button><button data-n="1" aria-label="Next week">›</button></div>
     <button id="tvBtn">TV mode</button>
   </div>
   <button class="pri" id="addBtn">Add delivery</button>
@@ -144,7 +147,7 @@ form .full{grid-column:1/-1}
     <label>Due date<input id="due" type="date" required></label>
     <label>Quantity<input id="qty" type="number" min="1" value="1"></label>
     <label>PO / reference<input id="ref"></label>
-    <label>Job / project<input id="job"></label>
+    <label>Project number<input id="job"></label>
     <label class="full">Notes<textarea id="notes" rows="2"></textarea></label>
     <div class="hist" id="hist"></div>
     <div class="acts">
@@ -194,7 +197,7 @@ function status(it){
   return "wait";
 }
 const label = {cancel:"Cancelled", late:"Overdue", done:"Delivered", today:"Due today", soon:"Due soon", wait:"Due"};
-const chipHTML = it => `<button class="chip ${status(it)}" data-id="${it.id}" title="${esc(it.company)}: ${esc(it.part)}${it.ref ? " (" + esc(it.ref) + ")" : ""}"><b>${esc(it.company)}</b><span class="pt"> ${esc(it.part)}${it.qty > 1 ? " ×" + it.qty : ""}</span></button>`;
+const chipHTML = it => `<button class="chip ${status(it)}" data-id="${it.id}" title="${esc(it.company)}: ${esc(it.part)}${it.job ? " · Project " + esc(it.job) : ""}${it.ref ? " (PO " + esc(it.ref) + ")" : ""}">${it.job ? `<span class="pj">${esc(it.job)}</span>` : ""}<b>${esc(it.company)}</b><span class="pt"> ${esc(it.part)}${it.qty > 1 ? " ×" + it.qty : ""}</span></button>`;
 
 onSnapshot(COL, snap => {
   items = snap.docs.map(d => ({id:d.id, ...d.data()}));
@@ -221,33 +224,25 @@ function render(){
 }
 
 function renderCal(){
-  const cap = 99;
   const now = new Date(), today = iso(now), idx = d => (d.getDay() + 6) % 7;
-  const first = new Date(now.getFullYear(), now.getMonth() + off, 1), startIso = iso(first);
+  const start = addDays(now, -idx(now) - 7 + off * 7), end = addDays(start, 34), startIso = iso(start);
   const by = {};
   items.forEach(i => (by[i.due] = by[i.due] || []).push(i));
   const old = items.filter(i => status(i) === "late" && i.due < startIso).sort((a,b) => a.due.localeCompare(b.due));
-  const strip = $("strip");
   const nodate = items.filter(i => !i.due && !i.delivered && !i.cancelled);
+  const strip = $("strip");
   strip.style.display = old.length || nodate.length ? "flex" : "none";
   strip.innerHTML = (old.length ? `<span>Overdue from earlier:</span>` + old.map(chipHTML).join("") : "") +
     (nodate.length ? `<span style="color:var(--amber);margin-left:10px">No due date:</span>` + nodate.map(chipHTML).join("") : "");
-  const dows = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"].map(d => `<div class="dow">${d}</div>`).join("");
-  let h = "";
-  for (let k = 0; k < 2; k++){
-    const m = new Date(first.getFullYear(), first.getMonth() + k, 1), mEnd = new Date(m.getFullYear(), m.getMonth() + 1, 0);
-    let cells = "", n = 0;
-    for (let d = addDays(m, -idx(m)); d <= addDays(mEnd, 6 - idx(mEnd)); d = addDays(d, 1)){
-      if (idx(d) === 0) n++;
-      if (d < m || d > mEnd){ cells += `<div class="day pad"></div>`; continue; }
-      const key = iso(d);
-      const list = (by[key] || []).sort((a,b) => (a.delivered - b.delivered) || a.company.localeCompare(b.company));
-      cells += `<div class="day${d.getDay()%6===0?" we":""}${key<today?" past":""}${key===today?" today":""}" data-date="${key}"><div class="dn"><b>${d.getDate()}</b></div>` +
-        list.slice(0, cap).map(chipHTML).join("") + (list.length > cap ? `<div class="more">+${list.length-cap} more</div>` : "") + `</div>`;
-    }
-    h += `<section class="mon mc${k}"><div class="mh">${m.toLocaleDateString("en-GB", {month:"long", year:"numeric"})}</div><div class="mgrid" style="--n:${n}">${dows}${cells}</div></section>`;
+  let h = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"].map(d => `<div class="dow">${d}</div>`).join("");
+  for (let i = 0; i < 35; i++){
+    const d = addDays(start, i), key = iso(d);
+    const list = (by[key] || []).sort((a,b) => (a.delivered - b.delivered) || a.company.localeCompare(b.company));
+    const mo = i === 0 || d.getDate() === 1 ? `<em>${d.toLocaleDateString("en-GB", {month:"long"})}</em>` : "";
+    h += `<div class="day mc${d.getMonth() % 2}${d.getDay()%6===0?" we":""}${key<today?" past":""}${key===today?" today":""}" data-date="${key}"><div class="dn"><span class="wd">${d.toLocaleDateString("en-GB",{weekday:"short"})}</span><b>${d.getDate()}</b>${mo}</div>` + list.map(chipHTML).join("") + `</div>`;
   }
-  $("cal").innerHTML = h;
+  const f = (d, y) => d.toLocaleDateString("en-GB", {day:"numeric", month:"short", ...(y ? {year:"numeric"} : {})});
+  $("cal").innerHTML = `<section class="mon mc0"><div class="mh">${f(start)} – ${f(end, true)}</div><div class="mgrid" style="--n:5">${h}</div></section>`;
   fitTV();
 }
 
@@ -287,8 +282,8 @@ function renderList(){
     if (f === "done" && !i.delivered) return false;
     return !q || [i.company, i.part, i.ref, i.job, i.notes].join(" ").toLowerCase().includes(q);
   }).sort((a,b) => a.due.localeCompare(b.due));
-  $("list").innerHTML = rows.length ? `<table><thead><tr><th>Due</th><th>Company</th><th>Part</th><th>Qty</th><th>PO / job</th><th>Status</th><th>Chased</th><th></th></tr></thead><tbody>` +
-    rows.map(i => `<tr><td>${nice(i.due)}</td><td>${esc(i.company)}</td><td>${esc(i.part)}<div class="more">${esc(i.notes)}</div></td><td>${i.qty||1}</td><td>${esc(i.ref)} ${esc(i.job)}</td><td><span class="tag ${status(i)}">${label[status(i)]}</span>${i.delivered && i.deliveredOn ? `<div class="more">${nice(i.deliveredOn)}</div>` : ""}</td><td>${i.chased||0}${i.lastChased ? `<div class="more">${nice(i.lastChased)}</div>` : ""}</td><td><button data-id="${i.id}" class="rowedit">Open</button></td></tr>`).join("") + `</tbody></table>`
+  $("list").innerHTML = rows.length ? `<table><thead><tr><th>Due</th><th>Company</th><th>Part</th><th>Qty</th><th>Project</th><th>PO</th><th>Status</th><th>Chased</th><th></th></tr></thead><tbody>` +
+    rows.map(i => `<tr><td>${nice(i.due)}</td><td>${esc(i.company)}</td><td>${esc(i.part)}<div class="more">${esc(i.notes)}</div></td><td>${i.qty||1}</td><td>${esc(i.job)}</td><td>${esc(i.ref)}</td><td><span class="tag ${status(i)}">${label[status(i)]}</span>${i.delivered && i.deliveredOn ? `<div class="more">${nice(i.deliveredOn)}</div>` : ""}</td><td>${i.chased||0}${i.lastChased ? `<div class="more">${nice(i.lastChased)}</div>` : ""}</td><td><button data-id="${i.id}" class="rowedit">Open</button></td></tr>`).join("") + `</tbody></table>`
     : `<p style="color:var(--mute);padding:20px">No deliveries match. Use “Add delivery” to log one.</p>`;
 }
 
