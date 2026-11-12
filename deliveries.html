@@ -124,6 +124,7 @@ form .full{grid-column:1/-1}
   <div class="ctl tools">
     <div class="seg" id="viewSeg"><button data-view="cal" class="on">Calendar</button><button data-view="list">List</button></div>
     <div class="seg" id="navSeg"><button data-n="-1" aria-label="Previous week">‹</button><button data-n="0">This week</button><button data-n="1" aria-label="Next week">›</button></div>
+    <button type="button" id="tlBtn">Project timeline</button>
     <button id="tvBtn">TV mode</button>
   </div>
   <button class="pri" id="addBtn">Add delivery</button>
@@ -328,6 +329,7 @@ $("chs").onclick = () => { guard(updateDoc(doc(db,"shipments",editing.id), {chas
 $("del").onclick = () => { if (confirm("Delete this delivery?")) { guard(deleteDoc(doc(db,"shipments",editing.id))); $("dlg").close(); } };
 $("cancel").onclick = () => $("dlg").close();
 $("addBtn").onclick = () => openDlg();
+$("tlBtn").onclick = () => { location.href = "projecttimeline.html"; };
 
 document.addEventListener("click", e => {
   const c = e.target.closest("[data-id]");
