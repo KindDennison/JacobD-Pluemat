@@ -48,10 +48,10 @@ main{flex:1;min-height:0;display:flex;flex-direction:column;padding:12px 18px 18
 .day.pad{background:#090d12;cursor:default}
 .day.past{opacity:.72}
 .day.today{box-shadow:inset 0 0 0 2px var(--amber);opacity:1}
-.dn{font-size:13px;color:var(--mute);display:flex;gap:6px}
+.dn{flex:none;font-size:13px;color:var(--mute);display:flex;gap:6px}
 .dn b{color:var(--text);font-size:15px}
 .dn em{font-style:normal;color:var(--amber);font-weight:600}
-.chip{border-left:5px solid var(--blue);background:var(--panel);border-radius:4px;padding:2px 6px;font-size:14px;line-height:1.25;cursor:pointer;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;border-top:0;border-right:0;border-bottom:0;text-align:left;width:100%;display:block}
+.chip{border-left:5px solid var(--blue);background:var(--panel);border-radius:4px;padding:2px 6px;font-size:14px;line-height:1.25;cursor:pointer;overflow:hidden;white-space:normal;overflow-wrap:anywhere;hyphens:auto;flex:none;border-top:0;border-right:0;border-bottom:0;text-align:left;width:100%;display:block}
 .chip b{font-weight:600}
 .chip.wait{border-color:var(--blue)}
 .chip.soon,.chip.today{border-color:var(--amber);background:#2b2415}
@@ -59,21 +59,22 @@ main{flex:1;min-height:0;display:flex;flex-direction:column;padding:12px 18px 18
 .chip.cancel{border-color:#6b7785;background:var(--panel);color:var(--mute);text-decoration:line-through}
 .tag.cancel{background:#6b7785}
 .chip.late{border-color:var(--red);background:var(--red);color:#fff;font-weight:600}
-.more{font-size:12px;color:var(--mute)}
+.more{flex:none;font-size:12px;color:var(--mute)}
 .strip{display:none;gap:6px;align-items:center;flex-wrap:wrap}
-.strip .chip{width:auto;max-width:260px}
+.strip .chip{width:auto;max-width:260px;white-space:nowrap;text-overflow:ellipsis}
 .strip span{color:var(--red);font-weight:700}
 .tv .day{min-height:0}
 .tv .cal{overflow:hidden;gap:12px;grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:minmax(0,1fr)}
 .tv .mgrid{grid-template-rows:auto repeat(var(--n),minmax(0,1fr))}
 .tv .dn b{font-size:clamp(12px,2vh,24px)}
-.tv .chip{font-size:clamp(13px,calc(.6vw + .85vh),28px);white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;padding:3px 7px}
-.tv .day.one .chip{-webkit-line-clamp:1}
+.tv .chip{font-size:var(--fs,clamp(13px,calc(.6vw + .85vh),28px));padding:.15em .45em;line-height:1.15}
+.tv .day{gap:2px}
+.day.co .pt{display:none}
 .tv .mgrid{grid-template-columns:repeat(5,minmax(0,1fr)) minmax(0,.4fr) minmax(0,.4fr)}
 .tv .more{font-size:clamp(12px,1.8vh,22px);color:var(--amber);font-weight:600}
 .more:empty{display:none}
 .tv .strip{max-height:9vh;overflow:hidden}
-.tv .strip .chip{display:block;-webkit-line-clamp:unset;white-space:nowrap;font-size:clamp(12px,2vh,24px);max-width:24vw;width:auto}
+.tv .strip .chip{font-size:clamp(12px,2vh,24px);max-width:48vw;width:auto;padding:3px 8px}
 .tv .strip span{font-size:clamp(13px,2vh,24px)}
 .tv .legend{font-size:clamp(12px,1.8vh,22px)}
 .tv header .ctl,.tv #addBtn,.tv .legend .hide,.tv #viewSeg{display:none}
@@ -193,7 +194,7 @@ function status(it){
   return "wait";
 }
 const label = {cancel:"Cancelled", late:"Overdue", done:"Delivered", today:"Due today", soon:"Due soon", wait:"Due"};
-const chipHTML = it => `<button class="chip ${status(it)}" data-id="${it.id}" title="${esc(it.company)}: ${esc(it.part)}${it.ref ? " (" + esc(it.ref) + ")" : ""}"><b>${esc(it.company)}</b> ${esc(it.part)}${it.qty > 1 ? " ×" + it.qty : ""}</button>`;
+const chipHTML = it => `<button class="chip ${status(it)}" data-id="${it.id}" title="${esc(it.company)}: ${esc(it.part)}${it.ref ? " (" + esc(it.ref) + ")" : ""}"><b>${esc(it.company)}</b><span class="pt"> ${esc(it.part)}${it.qty > 1 ? " ×" + it.qty : ""}</span></button>`;
 
 onSnapshot(COL, snap => {
   items = snap.docs.map(d => ({id:d.id, ...d.data()}));
@@ -255,10 +256,17 @@ function fitTV(){
   if (!document.body.classList.contains("tv")) return;
   const over = el => el.scrollHeight > el.clientHeight + 1;
   document.querySelectorAll(".day:not(.pad)").forEach(d => {
-    if (!over(d)) return;
-    d.classList.add("one");
-    if (!over(d)) return;
-    const chips = [...d.querySelectorAll(".chip")], more = document.createElement("div");
+    const chips = [...d.querySelectorAll(".chip")];
+    if (!chips.length || !over(d)) return;
+    const base = parseFloat(getComputedStyle(chips[0]).fontSize);
+    const shrink = () => {
+      for (let f = base; f >= 11; f -= .5){ d.style.setProperty("--fs", f + "px"); if (!over(d)) return true; }
+      return false;
+    };
+    if (shrink()) return;
+    d.classList.add("co");
+    if (shrink()) return;
+    const more = document.createElement("div");
     more.className = "more"; d.appendChild(more);
     let hidden = 0;
     while (chips.length > 1 && over(d)){ chips.pop().remove(); more.textContent = "+" + (++hidden) + " more"; }
