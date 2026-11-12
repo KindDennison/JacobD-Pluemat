@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Incoming deliveries</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0f151c;--panel:#17202a;--line:#263341;--text:#e6edf3;--mute:#8b9bab;--green:#1f9d55;--red:#e5484d;--amber:#e9a23b;--blue:#4c8dff;--r:6px}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--text);font:16px/1.4 "Barlow Semi Condensed",system-ui,Segoe UI,Arial,sans-serif;display:flex;flex-direction:column}
+header{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center;padding:12px 18px;border-bottom:1px solid var(--line)}
+h1{font-size:22px;margin:0;font-weight:700;letter-spacing:.2px}
+.sp{flex:1}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.seg button{border:0;border-right:1px solid var(--line);border-radius:0}
+.seg button:last-child{border-right:0}
+button,select,input,textarea{font:inherit;color:var(--text)}
+button{background:var(--panel);border:1px solid var(--line);padding:6px 12px;border-radius:var(--r);cursor:pointer}
+button:hover{border-color:var(--mute)}
+button.on{background:var(--blue);border-color:var(--blue);color:#fff}
+button.pri{background:var(--blue);border-color:var(--blue);color:#fff;font-weight:600}
+button.ok{background:var(--green);border-color:var(--green);color:#fff}
+button.bad{color:var(--red)}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--amber);outline-offset:1px}
+.stats{display:flex;gap:18px;font-size:15px;color:var(--mute)}
+.stats b{color:var(--text);font-size:20px;margin-right:4px}
+.stats .late b{color:var(--red)}
+#clock{font-size:26px;font-weight:600;display:none}
+main{flex:1;min-height:0;display:flex;flex-direction:column;padding:12px 18px 18px;gap:10px}
+#msg{display:none;background:#3a1d20;border:1px solid var(--red);padding:8px 12px;border-radius:var(--r)}
+.legend{display:flex;gap:14px;font-size:14px;color:var(--mute);flex-wrap:wrap}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+.cal{flex:1;min-height:0;overflow:auto;display:grid;grid-template-columns:repeat(5,minmax(0,1fr)) minmax(0,.5fr) minmax(0,.5fr);grid-auto-rows:auto;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--r)}
+.dow{background:var(--panel);padding:5px 8px;font-weight:600;color:var(--mute);position:sticky;top:0;z-index:2}
+.day{background:var(--bg);min-height:var(--rh,100px);padding:4px;display:flex;flex-direction:column;gap:3px;overflow:hidden;cursor:pointer}
+.day.we{background:#0c1117}
+.day.past{opacity:.72}
+.day.today{box-shadow:inset 0 0 0 2px var(--amber);opacity:1}
+.dn{font-size:13px;color:var(--mute);display:flex;gap:6px}
+.dn b{color:var(--text);font-size:15px}
+.dn em{font-style:normal;color:var(--amber);font-weight:600}
+.chip{border-left:5px solid var(--blue);background:var(--panel);border-radius:4px;padding:2px 6px;font-size:14px;line-height:1.25;cursor:pointer;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;border-top:0;border-right:0;border-bottom:0;text-align:left;width:100%;display:block}
+.chip b{font-weight:600}
+.chip.wait{border-color:var(--blue)}
+.chip.soon,.chip.today{border-color:var(--amber);background:#2b2415}
+.chip.done{border-color:var(--green);background:#12301f;color:#b7e4c7}
+.chip.late{border-color:var(--red);background:var(--red);color:#fff;font-weight:600}
+.more{font-size:12px;color:var(--mute)}
+.strip{display:none;gap:6px;align-items:center;flex-wrap:wrap}
+.strip .chip{width:auto;max-width:260px}
+.strip span{color:var(--red);font-weight:700}
+.tv .day{min-height:0}
+.tv .cal{grid-auto-rows:1fr;overflow:hidden}
+.tv .chip{font-size:calc(11px + .5vh)}
+.tv header .ctl,.tv #addBtn,.tv .legend .hide,.tv #viewSeg{display:none}
+.tv #clock{display:block}
+.tv header{padding:8px 18px}
+.list{overflow:auto;flex:1}
+table{width:100%;border-collapse:collapse}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{color:var(--mute);font-weight:600;position:sticky;top:0;background:var(--bg)}
+.tag{display:inline-block;padding:1px 8px;border-radius:99px;font-size:13px;font-weight:600}
+.tag.late{background:var(--red)}.tag.done{background:var(--green)}.tag.soon,.tag.today{background:var(--amber);color:#1a1200}.tag.wait{background:var(--blue)}
+.tools{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+input,select,textarea{background:var(--bg);border:1px solid var(--line);border-radius:var(--r);padding:6px 8px;width:100%}
+dialog{background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:10px;padding:18px;width:min(520px,94vw)}
+dialog::backdrop{background:rgba(0,0,0,.6)}
+form{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+form label{display:flex;flex-direction:column;gap:3px;font-size:14px;color:var(--mute)}
+form .full{grid-column:1/-1}
+.acts{grid-column:1/-1;display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
+.hist{grid-column:1/-1;font-size:13px;color:var(--mute)}
+@media(max-width:700px){.cal{grid-template-columns:1fr}.dow{display:none}.day.we:not(:has(.chip)){display:none}.day:not(:has(.chip)):not(.today){min-height:34px}}
+@media(prefers-reduced-motion:no-preference){.chip.late{animation:pulse 2.4s ease-in-out infinite}}
+@keyframes pulse{50%{filter:brightness(1.25)}}
+</style>
+</head>
+<body>
+<header>
+  <h1>Incoming deliveries</h1>
+  <div class="stats" id="stats"></div>
+  <span class="sp"></span>
+  <span id="clock"></span>
+  <div class="ctl tools">
+    <div class="seg" id="viewSeg"><button data-view="cal" class="on">Calendar</button><button data-view="list">List</button></div>
+    <div class="seg" id="rangeSeg"><button data-m="1">1 month</button><button data-m="2" class="on">2 months</button><button data-m="3">3 months</button></div>
+    <button id="tvBtn">TV mode</button>
+    <button id="csvBtn">Export CSV</button>
+  </div>
+  <button class="pri" id="addBtn">Add delivery</button>
+</header>
+<main>
+  <div id="msg"></div>
+  <div class="strip" id="strip"></div>
+  <div class="legend">
+    <span><i style="background:var(--blue)"></i>Due</span>
+    <span><i style="background:var(--amber)"></i>Due within 3 days</span>
+    <span><i style="background:var(--green)"></i>Delivered</span>
+    <span><i style="background:var(--red)"></i>Overdue: chase it</span>
+    <span class="hide">Click a delivery to update it. Press Esc to leave TV mode.</span>
+  </div>
+  <div class="tools" id="listTools" style="display:none">
+    <input id="q" placeholder="Search company, part, reference" style="max-width:300px">
+    <select id="fs" style="max-width:180px"><option value="open">Open</option><option value="late">Overdue</option><option value="done">Delivered</option><option value="all">All</option></select>
+  </div>
+  <div class="cal" id="cal"></div>
+  <div class="list" id="list" style="display:none"></div>
+</main>
+
+<dialog id="dlg">
+  <form id="f" method="dialog">
+    <label class="full">Company / supplier<input id="company" list="cos" required autocomplete="off"></label>
+    <datalist id="cos"></datalist>
+    <label class="full">Part / description<input id="part" required></label>
+    <label>Due date<input id="due" type="date" required></label>
+    <label>Quantity<input id="qty" type="number" min="1" value="1"></label>
+    <label>PO / reference<input id="ref"></label>
+    <label>Job / project<input id="job"></label>
+    <label class="full">Notes<textarea id="notes" rows="2"></textarea></label>
+    <div class="hist" id="hist"></div>
+    <div class="acts">
+      <button type="submit" class="pri" id="save">Save</button>
+      <button type="button" class="ok" id="dlv">Mark delivered</button>
+      <button type="button" id="chs">Log chase</button>
+      <button type="button" class="bad" id="del">Delete</button>
+      <button type="button" id="cancel">Close</button>
+    </div>
+  </form>
+</dialog>
+
+<script type="module">
+import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {getFirestore,collection,addDoc,updateDoc,deleteDoc,doc,onSnapshot,serverTimestamp,increment} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDJXVZE2VZXPH9jJvzgz9ozBvvbiJfmLbw",
+  authDomain: "teamdennisontracker.firebaseapp.com",
+  projectId: "teamdennisontracker",
+  storageBucket: "teamdennisontracker.firebasestorage.app",
+  messagingSenderId: "915336870349",
+  appId: "1:915336870349:web:c070e9b3fc0b688fe62c84"
+};
+const db = getFirestore(initializeApp(firebaseConfig));
+const COL = collection(db, "shipments");
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const iso = d => d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0");
+const parse = s => { const [y,m,d] = s.split("-").map(Number); return new Date(y, m-1, d); };
+const addDays = (d,n) => { const x = new Date(d); x.setDate(x.getDate()+n); return x; };
+const nice = s => parse(s).toLocaleDateString("en-GB", {weekday:"short", day:"numeric", month:"short", year:"numeric"});
+
+let items = [], view = "cal", months = 2, editing = null;
+const params = new URLSearchParams(location.search);
+if (["1","2","3"].includes(params.get("months"))) months = +params.get("months");
+if (params.get("view") === "list") view = "list";
+
+function status(it){
+  const t = iso(new Date());
+  if (it.delivered) return "done";
+  if (it.due < t) return "late";
+  if (it.due === t) return "today";
+  if (it.due <= iso(addDays(new Date(), 3))) return "soon";
+  return "wait";
+}
+const label = {late:"Overdue", done:"Delivered", today:"Due today", soon:"Due soon", wait:"Due"};
+const chipHTML = it => `<button class="chip ${status(it)}" data-id="${it.id}" title="${esc(it.company)}: ${esc(it.part)}${it.ref ? " (" + esc(it.ref) + ")" : ""}"><b>${esc(it.company)}</b> ${esc(it.part)}${it.qty > 1 ? " ×" + it.qty : ""}</button>`;
+
+onSnapshot(COL, snap => {
+  items = snap.docs.map(d => ({id:d.id, ...d.data()}));
+  $("msg").style.display = "none";
+  $("cos").innerHTML = [...new Set(items.map(i => i.company))].sort().map(c => `<option value="${esc(c)}">`).join("");
+  render();
+}, err => {
+  $("msg").style.display = "block";
+  $("msg").textContent = "Can’t read the shipments collection: " + err.message + ". Check the Firestore rules allow reads and writes on “shipments”.";
+});
+
+function render(){
+  const late = items.filter(i => status(i) === "late").length;
+  const wk = iso(addDays(new Date(), 7)), t = iso(new Date());
+  const week = items.filter(i => !i.delivered && i.due >= t && i.due <= wk).length;
+  const done = items.filter(i => i.delivered && i.deliveredOn === t).length;
+  $("stats").innerHTML = `<span class="late"><b>${late}</b>overdue</span><span><b>${week}</b>due in 7 days</span><span><b>${done}</b>delivered today</span>`;
+  $("viewSeg").querySelectorAll("button").forEach(b => b.classList.toggle("on", b.dataset.view === view));
+  $("rangeSeg").querySelectorAll("button").forEach(b => b.classList.toggle("on", +b.dataset.m === months));
+  $("cal").style.display = view === "cal" ? "grid" : "none";
+  $("list").style.display = view === "list" ? "block" : "none";
+  $("listTools").style.display = view === "list" ? "flex" : "none";
+  $("rangeSeg").style.display = view === "cal" ? "" : "none";
+  view === "cal" ? renderCal() : renderList();
+}
+
+function renderCal(){
+  const weeks = {1:5, 2:9, 3:13}[months], cap = {1:6, 2:4, 3:3}[months];
+  const now = new Date(), today = iso(now);
+  const start = addDays(now, -((now.getDay() + 6) % 7));
+  const startIso = iso(start);
+  const by = {};
+  items.forEach(i => (by[i.due] = by[i.due] || []).push(i));
+  const old = items.filter(i => status(i) === "late" && i.due < startIso).sort((a,b) => a.due.localeCompare(b.due));
+  const strip = $("strip");
+  strip.style.display = old.length ? "flex" : "none";
+  strip.innerHTML = old.length ? `<span>Overdue from earlier:</span>` + old.map(chipHTML).join("") : "";
+  let h = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"].map(d => `<div class="dow">${d}</div>`).join("");
+  for (let i = 0; i < weeks * 7; i++){
+    const d = addDays(start, i), k = iso(d);
+    const list = (by[k] || []).sort((a,b) => (a.delivered - b.delivered) || a.company.localeCompare(b.company));
+    const mon = d.getDate() === 1 || i === 0 ? `<em>${d.toLocaleDateString("en-GB",{month:"short"})}</em>` : "";
+    h += `<div class="day${d.getDay()%6===0?" we":""}${k<today?" past":""}${k===today?" today":""}" data-date="${k}"><div class="dn"><b>${d.getDate()}</b>${mon}</div>` +
+      list.slice(0, cap).map(chipHTML).join("") + (list.length > cap ? `<div class="more">+${list.length-cap} more</div>` : "") + `</div>`;
+  }
+  $("cal").style.setProperty("--rh", months === 1 ? "130px" : months === 2 ? "100px" : "84px");
+  $("cal").innerHTML = h;
+}
+
+function renderList(){
+  const q = $("q").value.toLowerCase(), f = $("fs").value;
+  const rows = items.filter(i => {
+    const s = status(i);
+    if (f === "open" && i.delivered) return false;
+    if (f === "late" && s !== "late") return false;
+    if (f === "done" && !i.delivered) return false;
+    return !q || [i.company, i.part, i.ref, i.job, i.notes].join(" ").toLowerCase().includes(q);
+  }).sort((a,b) => a.due.localeCompare(b.due));
+  $("list").innerHTML = rows.length ? `<table><thead><tr><th>Due</th><th>Company</th><th>Part</th><th>Qty</th><th>PO / job</th><th>Status</th><th>Chased</th><th></th></tr></thead><tbody>` +
+    rows.map(i => `<tr><td>${nice(i.due)}</td><td>${esc(i.company)}</td><td>${esc(i.part)}<div class="more">${esc(i.notes)}</div></td><td>${i.qty||1}</td><td>${esc(i.ref)} ${esc(i.job)}</td><td><span class="tag ${status(i)}">${label[status(i)]}</span>${i.delivered && i.deliveredOn ? `<div class="more">${nice(i.deliveredOn)}</div>` : ""}</td><td>${i.chased||0}${i.lastChased ? `<div class="more">${nice(i.lastChased)}</div>` : ""}</td><td><button data-id="${i.id}" class="rowedit">Open</button></td></tr>`).join("") + `</tbody></table>`
+    : `<p style="color:var(--mute);padding:20px">No deliveries match. Use “Add delivery” to log one.</p>`;
+}
+
+function openDlg(it, date){
+  editing = it || null;
+  $("company").value = it?.company || ""; $("part").value = it?.part || "";
+  $("due").value = it?.due || date || iso(new Date()); $("qty").value = it?.qty || 1;
+  $("ref").value = it?.ref || ""; $("job").value = it?.job || ""; $("notes").value = it?.notes || "";
+  $("dlv").style.display = $("chs").style.display = $("del").style.display = it ? "" : "none";
+  $("dlv").textContent = it?.delivered ? "Undo delivered" : "Mark delivered";
+  $("dlv").className = it?.delivered ? "" : "ok";
+  $("hist").textContent = it ? `Chased ${it.chased||0} time(s)${it.lastChased ? ", last on " + nice(it.lastChased) : ""}${it.delivered && it.deliveredOn ? ". Delivered " + nice(it.deliveredOn) : ""}.` : "";
+  $("dlg").showModal();
+}
+const guard = p => p.catch(e => alert("Couldn’t save: " + e.message));
+
+$("f").addEventListener("submit", e => {
+  const data = {company:$("company").value.trim(), part:$("part").value.trim(), due:$("due").value, qty:+$("qty").value || 1,
+    ref:$("ref").value.trim(), job:$("job").value.trim(), notes:$("notes").value.trim()};
+  guard(editing ? updateDoc(doc(db,"shipments",editing.id), data)
+    : addDoc(COL, {...data, delivered:false, chased:0, createdAt:serverTimestamp()}));
+});
+$("dlv").onclick = () => { guard(updateDoc(doc(db,"shipments",editing.id), editing.delivered ? {delivered:false, deliveredOn:null} : {delivered:true, deliveredOn:iso(new Date())})); $("dlg").close(); };
+$("chs").onclick = () => { guard(updateDoc(doc(db,"shipments",editing.id), {chased:increment(1), lastChased:iso(new Date())})); $("dlg").close(); };
+$("del").onclick = () => { if (confirm("Delete this delivery?")) { guard(deleteDoc(doc(db,"shipments",editing.id))); $("dlg").close(); } };
+$("cancel").onclick = () => $("dlg").close();
+$("addBtn").onclick = () => openDlg();
+
+document.addEventListener("click", e => {
+  const c = e.target.closest("[data-id]");
+  if (c) return openDlg(items.find(i => i.id === c.dataset.id));
+  const d = e.target.closest(".day");
+  if (d && !document.body.classList.contains("tv")) openDlg(null, d.dataset.date);
+});
+$("viewSeg").onclick = e => { if (e.target.dataset.view) { view = e.target.dataset.view; render(); } };
+$("rangeSeg").onclick = e => { if (e.target.dataset.m) { months = +e.target.dataset.m; render(); } };
+$("q").oninput = $("fs").onchange = renderList;
+
+function tv(on){
+  document.body.classList.toggle("tv", on);
+  if (on) { view = "cal"; render(); document.documentElement.requestFullscreen?.().catch(() => {}); }
+  else if (document.fullscreenElement) document.exitFullscreen();
+}
+$("tvBtn").onclick = () => tv(true);
+document.addEventListener("keydown", e => { if (e.key === "Escape") tv(false); });
+if (params.get("tv") === "1") { document.body.classList.add("tv"); view = "cal"; }
+
+$("csvBtn").onclick = () => {
+  const cols = ["company","part","qty","ref","job","due","delivered","deliveredOn","chased","lastChased","notes"];
+  const csv = [cols.join(",")].concat(items.sort((a,b) => a.due.localeCompare(b.due)).map(i => cols.map(c => '"' + String(i[c] ?? "").replace(/"/g,'""') + '"').join(","))).join("\n");
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([csv], {type:"text/csv"}));
+  a.download = "deliveries-" + iso(new Date()) + ".csv"; a.click();
+};
+
+setInterval(() => { $("clock").textContent = new Date().toLocaleString("en-GB", {weekday:"short", day:"numeric", month:"short", hour:"2-digit", minute:"2-digit"}); }, 1000);
+setInterval(() => { if (!$("dlg").open) render(); }, 60000);
+render();
+</script>
+</body>
+</html>
