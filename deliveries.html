@@ -64,9 +64,15 @@ main{flex:1;min-height:0;display:flex;flex-direction:column;padding:12px 18px 18
 .tag.cancel{background:#6b7785}
 .chip.late{border-color:var(--red);background:var(--red);color:#fff;font-weight:600}
 .more{flex:none;font-size:12px;color:var(--mute)}
-.strip{display:none;gap:6px;align-items:center;flex-wrap:wrap}
-.strip .chip{width:auto;max-width:260px;white-space:nowrap;text-overflow:ellipsis}
-.strip span{color:var(--red);font-weight:700}
+.strip{display:none;align-items:center;overflow:hidden;white-space:nowrap;flex:none;padding:4px 0}
+.strip .track{display:flex;align-items:center;width:max-content}
+.strip .seg{display:flex;align-items:center;gap:8px;padding-right:56px;flex:none}
+.strip.run{-webkit-mask-image:linear-gradient(90deg,transparent,#000 2%,#000 98%,transparent);mask-image:linear-gradient(90deg,transparent,#000 2%,#000 98%,transparent)}
+.strip.run .track{animation:tick var(--dur,40s) linear infinite}
+.strip.run:hover .track{animation-play-state:paused}
+@keyframes tick{to{transform:translateX(-50%)}}
+.strip .chip{width:auto;max-width:none;white-space:nowrap;flex:none}
+.strip .lbl{color:var(--red);font-weight:700}
 .tv .day{min-height:0}
 .tv .cal{overflow:hidden;grid-template-rows:minmax(0,1fr)}
 .tv .mgrid{grid-template-rows:auto repeat(var(--n),minmax(0,1fr))}
@@ -78,9 +84,8 @@ main{flex:1;min-height:0;display:flex;flex-direction:column;padding:12px 18px 18
 .tv .mgrid{grid-template-columns:repeat(5,minmax(0,1fr)) minmax(0,.5fr) minmax(0,.5fr)}
 .tv .more{font-size:clamp(12px,1.8vh,22px);color:var(--amber);font-weight:600}
 .more:empty{display:none}
-.tv .strip{max-height:9vh;overflow:hidden}
-.tv .strip .chip{font-size:clamp(12px,2vh,24px);max-width:48vw;width:auto;padding:3px 8px}
-.tv .strip span{font-size:clamp(13px,2vh,24px)}
+.tv .strip .chip{font-size:clamp(12px,2.2vh,26px);padding:3px 8px}
+.tv .strip .lbl{font-size:clamp(13px,2.2vh,26px)}
 .tv .legend{font-size:clamp(12px,1.8vh,22px)}
 .tv header .ctl,.tv #addBtn,.tv .legend .hide,.tv #viewSeg{display:none}
 .tv #clock{display:block;font-size:clamp(20px,3.4vh,42px)}
@@ -225,6 +230,23 @@ function render(){
   view === "cal" ? renderCal() : renderList();
 }
 
+function setTicker(html){
+  const strip = $("strip");
+  strip.style.display = html ? "flex" : "none";
+  if (!html){ strip._k = ""; return; }
+  const key = html + "|" + strip.clientWidth;
+  if (strip._k === key) return;
+  strip._k = key;
+  strip.classList.remove("run");
+  strip.innerHTML = `<div class="track"><div class="seg">${html}</div></div>`;
+  const w = strip.firstChild.firstChild.scrollWidth;
+  if (w > strip.clientWidth && !matchMedia("(prefers-reduced-motion: reduce)").matches){
+    strip.firstChild.innerHTML = `<div class="seg">${html}</div><div class="seg">${html}</div>`;
+    strip.style.setProperty("--dur", (w / 80) + "s");
+    strip.classList.add("run");
+  }
+}
+
 function renderCal(){
   const now = new Date(), today = iso(now), idx = d => (d.getDay() + 6) % 7;
   const start = addDays(now, -idx(now) - 7 + off * 7), end = addDays(start, 34), startIso = iso(start);
@@ -232,10 +254,8 @@ function renderCal(){
   items.forEach(i => (by[i.due] = by[i.due] || []).push(i));
   const old = items.filter(i => status(i) === "late" && i.due < startIso).sort((a,b) => a.due.localeCompare(b.due));
   const nodate = items.filter(i => !i.due && !i.delivered && !i.cancelled);
-  const strip = $("strip");
-  strip.style.display = old.length || nodate.length ? "flex" : "none";
-  strip.innerHTML = (old.length ? `<span>Overdue from earlier:</span>` + old.map(chipHTML).join("") : "") +
-    (nodate.length ? `<span style="color:var(--amber);margin-left:10px">No due date:</span>` + nodate.map(chipHTML).join("") : "");
+  setTicker((old.length ? `<span class="lbl">Overdue from earlier:</span>` + old.map(chipHTML).join("") : "") +
+    (nodate.length ? `<span class="lbl" style="color:var(--amber)">No due date:</span>` + nodate.map(chipHTML).join("") : ""));
   let h = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"].map(d => `<div class="dow">${d}</div>`).join("");
   for (let i = 0; i < 35; i++){
     const d = addDays(start, i), key = iso(d);
@@ -268,11 +288,6 @@ function fitTV(){
     let hidden = 0;
     while (chips.length > 1 && over(d)){ chips.pop().remove(); more.textContent = "+" + (++hidden) + " more"; }
   });
-  const st = $("strip"), chips = [...st.querySelectorAll(".chip")];
-  if (!chips.length) return;
-  const more = document.createElement("span"); more.className = "more"; st.appendChild(more);
-  let hidden = 0;
-  while (chips.length > 1 && over(st)){ chips.pop().remove(); more.textContent = "+" + (++hidden) + " more"; }
 }
 
 function renderList(){
