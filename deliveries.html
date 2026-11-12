@@ -37,7 +37,8 @@ main{flex:1;min-height:0;display:flex;flex-direction:column;padding:12px 18px 18
 .mon{display:flex;flex-direction:column;min-width:0;min-height:0;border:3px solid #3b4d63;border-radius:10px;overflow:hidden;background:#3b4d63}
 .mgrid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr)) minmax(0,.55fr) minmax(0,.55fr);grid-template-rows:auto repeat(var(--n),minmax(var(--rh,96px),auto));gap:4px;background:#3b4d63;flex:1;min-height:0}
 .dow{background:var(--panel);padding:4px 8px;font-weight:600;color:var(--mute);font-size:clamp(12px,.9vw,18px)}
-.day{background:#16212d;min-height:0;padding:4px 5px;display:flex;flex-direction:column;gap:3px;overflow:hidden;cursor:pointer}
+.day{background:#16212d;min-height:0;padding:4px 5px;display:grid;grid-template-columns:auto minmax(0,1fr);column-gap:6px;align-items:start;overflow:hidden;cursor:pointer}
+.ch{display:flex;flex-direction:column;gap:3px;min-width:0;min-height:0}
 .mh{background:var(--panel);padding:8px 14px;font-size:clamp(18px,1.6vw,34px);font-weight:700;border-left:8px solid var(--blue)}
 .mon.mc1 .mh{border-left-color:var(--amber)}
 .tv .mh{padding:4px 14px;font-size:clamp(16px,2.4vh,32px)}
@@ -51,7 +52,7 @@ main{flex:1;min-height:0;display:flex;flex-direction:column;padding:12px 18px 18
 .day.pad{background:#090d12;cursor:default}
 .day.past{opacity:.6}
 .day.today{box-shadow:inset 0 0 0 4px var(--amber);background:#2e2812;opacity:1}
-.dn{flex:none;font-size:13px;color:var(--mute);display:flex;gap:6px;border-bottom:2px solid rgba(255,255,255,.14);padding-bottom:2px;margin-bottom:2px}
+.dn{display:flex;flex-direction:column;align-items:center;align-self:stretch;min-width:1.7em;font-size:12px;color:var(--mute);border-right:2px solid rgba(255,255,255,.16);padding-right:6px}
 .dn b{color:var(--text);font-size:17px}
 .dn em{font-style:normal;color:var(--amber);font-weight:600}
 .chip{border-left:5px solid var(--blue);background:#2d4058;border-radius:4px;padding:2px 6px;font-size:14px;line-height:1.25;cursor:pointer;overflow:hidden;white-space:normal;overflow-wrap:anywhere;hyphens:auto;flex:none;border-top:0;border-right:0;border-bottom:0;text-align:left;width:100%;display:block}
@@ -71,7 +72,8 @@ main{flex:1;min-height:0;display:flex;flex-direction:column;padding:12px 18px 18
 .tv .mgrid{grid-template-rows:auto repeat(var(--n),minmax(0,1fr))}
 .tv .dn b{font-size:clamp(12px,2vh,24px)}
 .tv .chip{font-size:var(--fs,clamp(13px,calc(.6vw + .85vh),28px));padding:.15em .45em;line-height:1.15}
-.tv .day{gap:2px}
+.tv .day .ch{gap:2px}
+.tv .dn{font-size:clamp(11px,1.6vh,20px)}
 .day.co .pt{display:none}
 .tv .mgrid{grid-template-columns:repeat(5,minmax(0,1fr)) minmax(0,.5fr) minmax(0,.5fr)}
 .tv .more{font-size:clamp(12px,1.8vh,22px);color:var(--amber);font-weight:600}
@@ -238,8 +240,8 @@ function renderCal(){
   for (let i = 0; i < 35; i++){
     const d = addDays(start, i), key = iso(d);
     const list = (by[key] || []).sort((a,b) => (a.delivered - b.delivered) || a.company.localeCompare(b.company));
-    const mo = i === 0 || d.getDate() === 1 ? `<em>${d.toLocaleDateString("en-GB", {month:"long"})}</em>` : "";
-    h += `<div class="day mc${d.getMonth() % 2}${d.getDay()%6===0?" we":""}${key<today?" past":""}${key===today?" today":""}" data-date="${key}"><div class="dn"><span class="wd">${d.toLocaleDateString("en-GB",{weekday:"short"})}</span><b>${d.getDate()}</b>${mo}</div>` + list.map(chipHTML).join("") + `</div>`;
+    const mo = i === 0 || d.getDate() === 1 ? `<em>${d.toLocaleDateString("en-GB", {month:"short"})}</em>` : "";
+    h += `<div class="day mc${d.getMonth() % 2}${d.getDay()%6===0?" we":""}${key<today?" past":""}${key===today?" today":""}" data-date="${key}"><div class="dn"><span class="wd">${d.toLocaleDateString("en-GB",{weekday:"short"})}</span><b>${d.getDate()}</b>${mo}</div><div class="ch">` + list.map(chipHTML).join("") + `</div></div>`;
   }
   const f = (d, y) => d.toLocaleDateString("en-GB", {day:"numeric", month:"short", ...(y ? {year:"numeric"} : {})});
   $("cal").innerHTML = `<section class="mon mc0"><div class="mh">${f(start)} – ${f(end, true)}</div><div class="mgrid" style="--n:5">${h}</div></section>`;
@@ -262,7 +264,7 @@ function fitTV(){
     d.classList.add("co");
     if (shrink()) return;
     const more = document.createElement("div");
-    more.className = "more"; d.appendChild(more);
+    more.className = "more"; d.querySelector(".ch").appendChild(more);
     let hidden = 0;
     while (chips.length > 1 && over(d)){ chips.pop().remove(); more.textContent = "+" + (++hidden) + " more"; }
   });
