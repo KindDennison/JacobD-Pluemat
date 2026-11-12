@@ -36,7 +36,13 @@ main{flex:1;min-height:0;display:flex;flex-direction:column;padding:12px 18px 18
 .cal{flex:1;min-height:0;overflow:auto;display:grid;grid-template-columns:repeat(5,minmax(0,1fr)) minmax(0,.5fr) minmax(0,.5fr);grid-auto-rows:auto;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--r)}
 .dow{background:var(--panel);padding:5px 8px;font-weight:600;color:var(--mute);position:sticky;top:0;z-index:2}
 .day{background:var(--bg);min-height:var(--rh,100px);padding:4px;display:flex;flex-direction:column;gap:3px;overflow:hidden;cursor:pointer}
+.mh{grid-column:1/-1;background:var(--panel);padding:5px 12px;font-size:20px;font-weight:700;border-left:8px solid var(--blue);border-top:3px solid var(--bg);margin-top:6px;position:sticky;top:28px;z-index:1}
+.mh.mc1{border-left-color:var(--amber)}
+.tv .mh{font-size:calc(12px + .9vh);padding:2px 12px;top:0;position:static}
+.day.mc1{background:#131c27}
 .day.we{background:#0c1117}
+.day.mc1.we{background:#0f1620}
+.day.pad{background:#090d12;cursor:default}
 .day.past{opacity:.72}
 .day.today{box-shadow:inset 0 0 0 2px var(--amber);opacity:1}
 .dn{font-size:13px;color:var(--mute);display:flex;gap:6px}
@@ -53,7 +59,7 @@ main{flex:1;min-height:0;display:flex;flex-direction:column;padding:12px 18px 18
 .strip .chip{width:auto;max-width:260px}
 .strip span{color:var(--red);font-weight:700}
 .tv .day{min-height:0}
-.tv .cal{grid-auto-rows:1fr;overflow:hidden}
+.tv .cal{overflow:hidden}
 .tv .chip{font-size:calc(11px + .5vh)}
 .tv header .ctl,.tv #addBtn,.tv .legend .hide,.tv #viewSeg{display:none}
 .tv #clock{display:block}
@@ -73,7 +79,7 @@ form label{display:flex;flex-direction:column;gap:3px;font-size:14px;color:var(-
 form .full{grid-column:1/-1}
 .acts{grid-column:1/-1;display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
 .hist{grid-column:1/-1;font-size:13px;color:var(--mute)}
-@media(max-width:700px){.cal{grid-template-columns:1fr}.dow{display:none}.day.we:not(:has(.chip)){display:none}.day:not(:has(.chip)):not(.today){min-height:34px}}
+@media(max-width:700px){.pad{display:none}.cal{grid-template-columns:1fr}.dow{display:none}.day.we:not(:has(.chip)){display:none}.day:not(:has(.chip)):not(.today){min-height:34px}}
 @media(prefers-reduced-motion:no-preference){.chip.late{animation:pulse 2.4s ease-in-out infinite}}
 @keyframes pulse{50%{filter:brightness(1.25)}}
 </style>
@@ -205,14 +211,25 @@ function renderCal(){
   const strip = $("strip");
   strip.style.display = old.length ? "flex" : "none";
   strip.innerHTML = old.length ? `<span>Overdue from earlier:</span>` + old.map(chipHTML).join("") : "";
+  const end = addDays(start, weeks * 7 - 1), idx = d => (d.getDay() + 6) % 7;
   let h = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"].map(d => `<div class="dow">${d}</div>`).join("");
-  for (let i = 0; i < weeks * 7; i++){
-    const d = addDays(start, i), k = iso(d);
-    const list = (by[k] || []).sort((a,b) => (a.delivered - b.delivered) || a.company.localeCompare(b.company));
-    const mon = d.getDate() === 1 || i === 0 ? `<em>${d.toLocaleDateString("en-GB",{month:"short"})}</em>` : "";
-    h += `<div class="day${d.getDay()%6===0?" we":""}${k<today?" past":""}${k===today?" today":""}" data-date="${k}"><div class="dn"><b>${d.getDate()}</b>${mon}</div>` +
-      list.slice(0, cap).map(chipHTML).join("") + (list.length > cap ? `<div class="more">+${list.length-cap} more</div>` : "") + `</div>`;
+  let rows = "auto";
+  for (let m = new Date(start.getFullYear(), start.getMonth(), 1); m <= end; m = new Date(m.getFullYear(), m.getMonth() + 1, 1)){
+    const mEnd = new Date(m.getFullYear(), m.getMonth() + 1, 0);
+    const from = m < start ? start : m, to = mEnd > end ? end : mEnd, mc = "mc" + (m.getMonth() % 2);
+    h += `<div class="mh ${mc}">${m.toLocaleDateString("en-GB", {month:"long", year:"numeric"})}</div>`;
+    let n = 0;
+    for (let d = addDays(from, -idx(from)); d <= addDays(to, 6 - idx(to)); d = addDays(d, 1)){
+      if (idx(d) === 0) n++;
+      if (d < from || d > to){ h += `<div class="day pad"></div>`; continue; }
+      const k = iso(d);
+      const list = (by[k] || []).sort((a,b) => (a.delivered - b.delivered) || a.company.localeCompare(b.company));
+      h += `<div class="day ${mc}${d.getDay()%6===0?" we":""}${k<today?" past":""}${k===today?" today":""}" data-date="${k}"><div class="dn"><b>${d.getDate()}</b></div>` +
+        list.slice(0, cap).map(chipHTML).join("") + (list.length > cap ? `<div class="more">+${list.length-cap} more</div>` : "") + `</div>`;
+    }
+    rows += ` auto repeat(${n}, minmax(0,1fr))`;
   }
+  $("cal").style.gridTemplateRows = document.body.classList.contains("tv") ? rows : "";
   $("cal").style.setProperty("--rh", months === 1 ? "130px" : months === 2 ? "100px" : "84px");
   $("cal").innerHTML = h;
 }
@@ -269,7 +286,7 @@ $("q").oninput = $("fs").onchange = renderList;
 function tv(on){
   document.body.classList.toggle("tv", on);
   if (on) { view = "cal"; render(); document.documentElement.requestFullscreen?.().catch(() => {}); }
-  else if (document.fullscreenElement) document.exitFullscreen();
+  else { if (document.fullscreenElement) document.exitFullscreen(); render(); }
 }
 $("tvBtn").onclick = () => tv(true);
 document.addEventListener("keydown", e => { if (e.key === "Escape") tv(false); });
